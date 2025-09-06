@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICM PlanLytics - AI-Powered Oracle ICM Analysis</title>
+    <meta name="description" content="Transform your Oracle ICM compensation plans with AI. Get intelligent analysis, risk assessment, and automated Oracle ICM object mapping in minutes.">
+    <meta name="keywords" content="Oracle ICM, compensation analysis, AI, incentive plans, ICM automation, Oracle ICM implementation">
+    
+    <!-- Fonts & Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
+        .feature-card { transition: all 0.3s ease; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .demo-output { font-family: 'Courier New', monospace; background: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">ICM</span>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-gray-900">ICM PlanLytics</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                    <a href="#pricing" class="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+                    <a href="#demo" class="text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
+                    <button onclick="scrollToDemo()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Start Free Trial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="mb-8">
+                <span class="inline-block bg-white/20 text-white px-6 py-3 rounded-full text-sm font-medium mb-6">
+                    🚀 Now Live - Try Free Demo Below
+                </span>
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                    AI-Powered<br>
+                    <span class="text-yellow-300">Oracle ICM</span><br>
+                    Analysis
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
+                    Transform your Oracle ICM compensation plans with intelligent AI analysis. 
+                    Get automated risk assessment and ready-to-deploy ICM objects in minutes, not weeks.
+                </p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-16">
+                <button onclick="scrollToDemo()" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
+                    Try Free Demo Now
+                </button>
+                <button class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors">
+                    ▶ Watch Demo
+                </button>
+            </div>
+            
+            <!-- Hero Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto text-white">
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">95%</div>
+                    <div class="text-sm text-white/80">Analysis Accuracy</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">5min</div>
+                    <div class="text-sm text-white/80">From Upload to Results</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">50+</div>
+                    <div class="text-sm text-white/80">Risk Checks</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">100%</div>
+                    <div class="text-sm text-white/80">Oracle ICM Compatible</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Intelligent ICM Analysis Platform</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Powered by advanced AI agents specifically trained on Oracle ICM compensation plans
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Feature Cards -->
+                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Smart Document Analysis</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-lg">
+                        Upload any compensation document and our AI instantly extracts plan structure, 
+                        eligibility rules, and calculation methods with 95% accuracy.
+                    </p>
+                </div>
+
+                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Advanced Risk Assessment</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-lg">
+                        Identify compliance, operational, and financial risks with our AI trained on 
+                        compensation regulations and Oracle ICM best practices.
+                    </p>
+                </div>
+
+                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Oracle ICM Object Mapping</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-lg">
+                        Generate production-ready Oracle ICM configurations with detailed object mappings 
+                        and implementation roadmaps. Reduce implementation time by 80%.
+                    </p>
+                </div>
+
+                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Enterprise Reporting</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-lg">
+                        Generate comprehensive reports in Excel, PDF, and JSON formats. 
+                        Perfect for stakeholder presentations and implementation planning.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Try ICM PlanLytics Now</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                    Upload a compensation document and see our AI analysis in action. 
+                    Free users get a preview of the first 10 lines of analysis.
+                </p>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-yellow-800 font-medium">Free Preview: See first 10 lines • Upgrade for full results</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Upload Section -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Upload Your Document</h3>
+                    
+                    <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <div class="text-lg font-medium text-gray-900 mb-2">Drop your compensation document here</div>
+                        <div class="text-sm text-gray-500 mb-4">or click to browse files</div>
+                        <div class="text-xs text-gray-400">Supports PDF, DOCX, XLSX up to 10MB</div>
+                        <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
+                    </div>
+
+                    <div id="file-info" class="hidden mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="file-name" class="text-green-700 font-medium"></span>
+                        </div>
+                    </div>
+
+                    <button id="analyze-btn" onclick="startAnalysis()" disabled class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                        Analyze Document (Free Preview)
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Analysis Results</h3>
+                    
+                    <div id="demo-results" class="hidden">
+                        <div class="bg-green-50 p-4 rounded-lg mb-6">
+                            <div class="flex items-center text-green-600">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-medium">Analysis Complete - 94% Confidence</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-800 text-green-400 p-4 rounded-lg demo-output text-sm mb-6">
+                            <div id="analysis-output">
+                                <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
+                                <div class="mb-2">═══════════════════════════════════════</div>
+                                <div>Document Type: Sales Commission Plan</div>
+                                <div>Plan Complexity: High (Score: 8.2/10)</div>
+                                <div>Key Components: 7 identified</div>
+                                <div>Risk Level: Medium (3 issues found)</div>
+                                <div>Oracle ICM Objects: 12 required</div>
+                                <div class="my-2">─────────────────────────────────────</div>
+                                <div>PLAN STRUCTURE:</div>
+                                <div>• Base Commission: 2% on all sales</div>
+                                <div>• Tier 1 Accelerator: 0.5% above $50K</div>
+                                <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
+                                    ⚠️ PREVIEW MODE - Upgrade for full analysis
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                Get Full Analysis - Start Pro Trial
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="demo-placeholder" class="text-center py-12">
+                        <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Upload a document to see AI analysis</h3>
+                        <p class="text-gray-500">Your analysis results will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">ICM</span>
+                </div>
+                <span class="text-2xl font-bold">ICM PlanLytics</span>
+            </div>
+            <p class="text-gray-300 mb-6 max-w-md mx-auto">
+                AI-powered Oracle ICM analysis platform. Transform your compensation plans with intelligent automation.
+            </p>
+            <div class="text-gray-400 text-sm">
+                © 2025 ICM PlanLytics. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let selectedFile = null;
+        const API_BASE_URL = 'https://icm-planlytics.onrender.com'; // Update this with your Render URL
+
+        // File upload handling
+        document.getElementById('upload-area').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('file-input').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-info').classList.remove('hidden');
+                document.getElementById('analyze-btn').disabled = false;
+            }
+        });
+
+        // Smooth scrolling
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Start analysis function
+        async function startAnalysis() {
+            if (!selectedFile) {
+                alert('Please select a file first');
+                return;
+            }
+
+            // Show processing state
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            
+            try {
+                // For demo purposes, simulate API call
+                await simulateAnalysis();
+                
+                // Show results
+                document.getElementById('demo-placeholder').classList.add('hidden');
+                document.getElementById('demo-results').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                alert('Analysis failed. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Analyze Another Document';
+            }
+        }
+
+        // Simulate analysis for demo
+        async function simulateAnalysis() {
+            return new Promise(resolve => {
+                setTimeout(resolve, 3000); // 3 second delay
+            });
+        }
+
+        // Real API call function (for when backend is ready)
+        async function callRenderAPI(file, analysisType) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('template', analysisType || 'quick');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/analyze/enhanced`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
+        // Test API connection
+        async function testAPIConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                console.log('API Status:', data.status);
+                return data.status === 'healthy';
+            } catch (error) {
+                console.log('API not available yet:', error.message);
+                return false;
+            }
+        }
+
+        // Show upgrade modal
+        function showUpgradeModal() {
+            alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
+        }
+
+        // Test API connection on page load
+        window.addEventListener('load', async () => {
+            const isConnected = await testAPIConnection();
+            if (isConnected) {
+                console.log('✅ Backend API is connected and healthy');
+            } else {
+                console.log('⚠️ Backend API not available - using demo mode');
+            }
+        });
+    </script>
+</body>
+</html>
