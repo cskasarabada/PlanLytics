@@ -29,6 +29,19 @@ const SaaSFileAnalysisPlatform = () => {
     custom_instructions: ''
   });
 
+    # In app_enhanced.py - update CORS middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "https://icm-planlytics.com",
+            "https://www.icm-planlytics.com", 
+            "http://localhost:3000",  # for local testing
+            "*"  # Remove this in production for security
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
   const templates = [
     { value: 'master', label: 'Master Analysis', description: 'Comprehensive analysis of all plan components' },
     { value: 'risk_assessment', label: 'Risk Assessment', description: 'Focus on compliance and operational risks' },
