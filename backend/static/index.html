@@ -1,184 +1,119 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <img class="brand-logo" src="/static/LogoPlanytics.png" alt="PlanLytics logo" />
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PlanLytics</title>
-  <link rel="icon" href="data:," />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlanLytics – AI-Powered Incentive Plan Analysis</title>
   <style>
-    :root {
-      --bg: #0b0c10;
-      --card: #111318;
-      --muted: #8b94a7;
-      --text: #e8ecf1;
-      --accent: #3b82f6;
-      --accent-2: #22c55e;
-      --danger: #ef4444;
-      --border: #1e2533;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0b0f17;
+      color: #e6e9ef;
+      text-align: center;
     }
-    html, body {
-      margin: 0; padding: 0; background: var(--bg); color: var(--text);
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    header {
+      background-color: #0e1420;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
-    a { color: var(--accent); text-decoration: none; }
-    .container { max-width: 980px; margin: 48px auto; padding: 0 16px; }
-    .brand { text-align:center; margin-bottom: 28px; }
-    .brand h1 { font-size: 42px; margin: 6px 0 0; letter-spacing: .3px; }
-    .subtle { color: var(--muted); font-size: 14px; }
-    .row { display: grid; gap: 16px; }
-    .card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 18px 18px; box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
+    .brand-logo { height: 50px; }
+    header h1 { font-size: 1.9rem; margin: 0; }
+    nav { margin: 10px 0 0; }
+    nav a {
+      margin: 0 12px;
+      text-decoration: none;
+      color: #7aa2ff;
+      font-weight: 500;
     }
-    h2 { font-size: 20px; margin: 0 0 10px; font-weight: 700; }
-    button, .btn {
-      background: var(--accent); color: white; border: none; border-radius: 10px;
-      padding: 9px 14px; font-weight: 600; cursor: pointer;
+    nav a:hover { text-decoration: underline; }
+    main { padding: 40px 20px; }
+    section {
+      margin: 30px auto;
+      max-width: 760px;
+      background: #0e1420;
+      padding: 22px;
+      border-radius: 10px;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.4);
+      text-align: left;
     }
-    button[disabled] { opacity: .55; cursor: not-allowed; }
-    .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn.success { background: var(--accent-2); }
-    .btn.danger { background: var(--danger); }
-    .group { display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-    .preview {
-      background: #0d1017; border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px; max-height: 340px; overflow: auto; white-space: pre-wrap;
+    h2 { margin: 0 0 14px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    button {
+      background-color: #3b6cff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
     }
-    .muted { color: var(--muted); }
-    .badge { display:inline-block; padding:2px 8px; border-radius:100px; background:#1b2233; color:#9fb1ff; font-size:12px; border:1px solid var(--border); }
-    .toast {
-      position: fixed; right: 18px; bottom: 18px; background: #111827; color: #e5e7eb;
-      border: 1px solid #1f2937; padding: 10px 12px; border-radius: 10px; opacity: 0; transform: translateY(8px);
-      transition: all .2s ease;
+    button:disabled { background-color: #3b6cff66; cursor: not-allowed; }
+    pre {
+      background: #0b1220;
+      color: #cbd5e1;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .divider { height: 1px; background: var(--border); margin: 12px 0; }
-    .links { text-align:center; margin: 8px 0 28px; }
+    .btn-link {
+      display: inline-block;
+      padding: 10px 14px;
+      margin-right: 10px;
+      background: #1f2937;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #e6e9ef;
+      border: 1px solid #2b3647;
+    }
+    .btn-link:hover { background: #263244; }
+    footer { margin: 40px 0; color: #9aa3b2; font-size: 0.9rem; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="brand">
-      <div class="badge">AI BETA</div>
-      <h1>🚀 PlanLytics</h1>
-      <div class="subtle">Your backend is live! <span class="links"> <a href="/health">Health check</a> | <a href="/docs">API Docs</a></span></div>
-    </div>
+  <header>
+    <img class="brand-logo" src="/static/LogoPlanytics.png" alt="PlanLytics logo" />
+    <h1>PlanLytics – AI-Powered Incentive Plan Analysis</h1>
+  </header>
 
-    <div class="row">
-      <!-- Upload -->
-      <div class="card">
-        <h2>1) Upload a file</h2>
-        <div class="group" style="margin-bottom:10px;">
-          <input id="file" type="file" />
-          <button id="btnUpload">Upload</button>
-          <span id="uploadStatus" class="subtle"></span>
-        </div>
-        <div id="uploadInfo" class="mono muted"></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/planning.html">AI-Powered Compensation Planning</a>
+    <a href="/docs">API Docs</a>
+  </nav>
+
+  <main>
+    <section>
+      <h2>1) Upload a file</h2>
+      <form id="uploadForm" class="row">
+        <input type="file" id="fileInput" />
+        <button id="uploadBtn" type="submit">Upload</button>
+      </form>
+      <p id="uploadStatus">No file uploaded yet</p>
+    </section>
+
+    <section>
+      <h2>2) Analyze the uploaded file</h2>
+      <div class="row">
+        <button id="analyzeBtn" disabled>Analyze</button>
       </div>
 
-      <!-- Analyze -->
-      <div class="card">
-        <h2>2) Analyze the uploaded file</h2>
-        <div class="group" style="margin-bottom:10px;">
-          <button id="btnAnalyze" disabled>Analyze</button>
-          <a id="btnDownload" class="btn secondary" href="#" download style="display:none;">Download Extracted Text</a>
-        </div>
-        <div class="divider"></div>
-        <div class="muted" style="margin-bottom:6px;">Preview</div>
-        <div id="preview" class="preview muted">No result yet. Upload a PDF, image, or text file, then click Analyze.</div>
-        <div id="note" class="subtle" style="margin-top:8px;"></div>
+      <div id="analysisResult" style="margin-top:14px;">
+        <pre>No result yet. Upload a file, then click Analyze.</pre>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <div id="toast" class="toast"></div>
+  <footer>
+    &copy; 2025 PlanLytics. All rights reserved.
+  </footer>
 
-  <script>
-    const fileInput = document.getElementById('file');
-    const btnUpload = document.getElementById('btnUpload');
-    const btnAnalyze = document.getElementById('btnAnalyze');
-    const btnDownload = document.getElementById('btnDownload');
-    const uploadInfo = document.getElementById('uploadInfo');
-    const uploadStatus = document.getElementById('uploadStatus');
-    const preview = document.getElementById('preview');
-    const note = document.getElementById('note');
-    const toast = document.getElementById('toast');
-
-    let lastUploaded = null; // { filename, size }
-
-    function showToast(msg, type='info') {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      if (type === 'error') toast.style.borderColor = '#b91c1c';
-      setTimeout(() => toast.classList.remove('show'), 2600);
-    }
-
-    btnUpload.addEventListener('click', async () => {
-      if (!fileInput.files || !fileInput.files[0]) {
-        showToast('Please choose a file first', 'error');
-        return;
-      }
-      uploadStatus.textContent = 'Uploading…';
-      btnUpload.disabled = true;
-
-      try {
-        const form = new FormData();
-        form.append('file', fileInput.files[0]);
-        const res = await fetch('/upload', { method: 'POST', body: form });
-        if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-        const data = await res.json();
-        lastUploaded = data;
-        uploadInfo.textContent = JSON.stringify(data, null, 2);
-        uploadStatus.textContent = `Uploaded: ${data.filename}`;
-        btnAnalyze.disabled = false;
-        showToast('Upload complete ✅');
-      } catch (e) {
-        uploadStatus.textContent = '';
-        showToast(e.message || 'Upload error', 'error');
-      } finally {
-        btnUpload.disabled = false;
-      }
-    });
-
-    btnAnalyze.addEventListener('click', async () => {
-      if (!lastUploaded) return;
-      btnAnalyze.disabled = true;
-      preview.textContent = 'Analyzing…';
-      note.textContent = '';
-      btnDownload.style.display = 'none';
-      try {
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: lastUploaded.filename })
-        });
-        if (!res.ok) throw new Error(`Analyze failed (${res.status})`);
-        const data = await res.json();
-
-        // Render preview (first ~2k chars for speed)
-        const text = (data.preview || '').toString();
-        const snippet = text.slice(0, 2000);
-        preview.textContent = snippet || '(No text extracted)';
-        preview.classList.remove('muted');
-
-        // Note (e.g., OCR applied…)
-        note.textContent = data.note ? `Note: ${data.note}` : '';
-
-        // Download button
-        if (data.output_url) {
-          btnDownload.href = data.output_url;
-          btnDownload.style.display = 'inline-block';
-        }
-        showToast('Analysis complete 🎉');
-      } catch (e) {
-        preview.textContent = 'Something went wrong.';
-        showToast(e.message || 'Analyze error', 'error');
-      } finally {
-        btnAnalyze.disabled = false;
-      }
-    });
-  </script>
+  <!-- External JS (moved out of this file) -->
+  <script src="/static/app.js"></script>
 </body>
 </html>
