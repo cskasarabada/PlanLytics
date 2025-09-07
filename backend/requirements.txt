@@ -1,5 +1,10 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.0
 pydantic==2.7.4
+python-docx==1.1.2
+pymupdf==1.24.10
 pytesseract==0.3.10
+pillow==10.4.0
 unstructured==0.17.2
 sentence-transformers==3.0.1
 chromadb==0.5.5
@@ -7,12 +12,5 @@ pandas==2.2.2
 openpyxl==3.1.2
 weasyprint==62.3
 requests==2.32.3
-fastapi==0.111.0
-uvicorn==0.30.0
 python-multipart==0.0.20
 python-dotenv==1.1.1
-# --- Analysis deps (new) ---
-pymupdf==1.24.10
-pillow==10.4.0
-pytesseract==0.3.10
-python-docx==1.1.2
