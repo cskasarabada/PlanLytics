@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+from pydantic import BaseModel
 import os
 
 app = FastAPI(title="PlanLytics Backend", version="1.0.0")
