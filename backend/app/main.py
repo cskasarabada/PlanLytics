@@ -41,15 +41,22 @@ async def index():
 UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-@app.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
-    target = UPLOAD_DIR / file.filename
-    with target.open("wb") as f:
-        f.write(await file.read())
-    return {"filename": file.filename, "size": target.stat().st_size}
+# NEW: request model for analyze
+class AnalyzeRequest(BaseModel):
+    filename: str
 
-# Example analyze placeholder
 @app.post("/api/analyze")
-async def analyze():
-    # TODO: call your existing Python analysis here
-    return JSONResponse({"message": "analysis placeholder"})
+async def analyze(req: AnalyzeRequest):
+    """Run analysis on a previously uploaded file."""
+    path = UPLOAD_DIR / req.filename
+    if not path.exists():
+        raise HTTPException(status_code=400, detail=f"File not found: {req.filename}")
+
+    # TODO: replace this with your real analysis
+    size = path.stat().st_size
+    return {
+        "filename": req.filename,
+        "size": size,
+        "message": "analysis placeholder",
+        "notes": "Wire your processing here"
+    }

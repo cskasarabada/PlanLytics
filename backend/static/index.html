@@ -4,22 +4,92 @@
   <meta charset="UTF-8">
   <title>PlanLytics</title>
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      max-width: 600px;
-      margin: 4rem auto;
-      text-align: center;
-      color: #333;
-    }
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 4rem auto; text-align: center; color: #333; }
     h1 { color: #2c3e50; }
     a { color: #0069d9; text-decoration: none; }
     a:hover { text-decoration: underline; }
+    input, button { margin-top: 1rem; }
+    pre { text-align: left; background: #f7f7f7; padding: 1rem; border-radius: 6px; }
+    .muted { color: #777; font-size: 0.95rem; }
   </style>
 </head>
 <body>
   <h1>🚀 PlanLytics</h1>
-  <p>Your backend is live!</p>
-  <p><a href="/health" target="_blank">Health check</a></p>
-  <p><a href="/api/docs" target="_blank">API Docs (Swagger UI)</a></p>
+  <p class="muted">Your backend is live!</p>
+  <p>
+    <a href="/health" target="_blank">Health check</a> |
+    <a href="/api/docs" target="_blank">API Docs</a>
+  </p>
+
+  <h2>1) Upload a file</h2>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" />
+    <button type="submit">Upload</button>
+  </form>
+  <p class="muted" id="uploadedName">No file uploaded yet</p>
+  <pre id="uploadResult"></pre>
+
+  <h2>2) Analyze the uploaded file</h2>
+  <button id="analyzeBtn" disabled>Analyze</button>
+  <pre id="analyzeResult"></pre>
+
+  <script>
+    let lastUploadedFilename = null;
+    const uploadBtn = document.querySelector('#uploadForm button');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const uploadedNameEl = document.getElementById('uploadedName');
+
+    // Upload handler
+    document.getElementById("uploadForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) return alert("Choose a file first");
+      uploadBtn.disabled = true;
+      analyzeBtn.disabled = true;
+      uploadedNameEl.textContent = "Uploading…";
+
+      try {
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        document.getElementById("uploadResult").textContent = JSON.stringify(data, null, 2);
+
+        if (res.ok && data.filename) {
+          lastUploadedFilename = data.filename;
+          uploadedNameEl.textContent = `Uploaded: ${data.filename}`;
+          analyzeBtn.disabled = false; // enable analyze
+        } else {
+          uploadedNameEl.textContent = "Upload failed";
+        }
+      } catch (err) {
+        uploadedNameEl.textContent = "Upload error";
+        document.getElementById("uploadResult").textContent = String(err);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    // Analyze handler (requires lastUploadedFilename)
+    analyzeBtn.addEventListener("click", async () => {
+      if (!lastUploadedFilename) return alert("Upload a file first");
+      analyzeBtn.disabled = true;
+      document.getElementById("analyzeResult").textContent = "Analyzing…";
+
+      try {
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: lastUploadedFilename })
+        });
+        const data = await res.json();
+        document.getElementById("analyzeResult").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("analyzeResult").textContent = String(err);
+      } finally {
+        analyzeBtn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
