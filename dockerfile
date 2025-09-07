@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Faster, reliable Python installs
 COPY requirements.txt .
+# let pip build pure-Python sdists like langdetect
 RUN pip install --upgrade pip setuptools wheel \
- && PIP_ONLY_BINARY=:all: pip install --no-cache-dir -r requirements.txt
+ && pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # App code
 COPY . .
