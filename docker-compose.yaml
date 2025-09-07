@@ -189,20 +189,23 @@ networks:
 
 ---
 # Dockerfile
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies + Tesseract OCR for pytesseract
 RUN apt-get update && apt-get install -y \
     curl \
     gcc \
     g++ \
+    tesseract-ocr \
+    libtesseract-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel && \
+    PIP_ONLY_BINARY=:all: pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -260,8 +263,7 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            
-            # Timeouts for long-running analyses
+
             proxy_connect_timeout 60s;
             proxy_send_timeout 300s;
             proxy_read_timeout 300s;
@@ -276,8 +278,7 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            
-            # Extended timeouts for file processing
+
             proxy_connect_timeout 60s;
             proxy_send_timeout 600s;
             proxy_read_timeout 600s;
@@ -298,7 +299,7 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            
+
             # Basic auth for flower
             auth_basic "Restricted";
             auth_basic_user_file /etc/nginx/.htpasswd;
