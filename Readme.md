@@ -1,31 +1,43 @@
-cat > README.md << 'EOF'
-# PlanLytics - AI Compensation Analysis Platform
 
-Enterprise-grade AI-powered compensation plan analysis platform.
+# PlanLytics Refactor — Clean Backend + Frontend
 
-## Features
+This splits your Python backend from the React frontend so Python files no longer contain JSX or notes that break deploys.
 
-- 🤖 Multi-AI Agent Analysis (OpenAI, Anthropic, Azure)
-- 📊 Risk Assessment & Compliance Checking
-- 🏢 Oracle ICM Object Mapping
-- 📈 Real-time Processing & Background Tasks
-- 👥 Multi-tenant SaaS Architecture
-- 📋 Excel/PDF/JSON Export Capabilities
+## Structure
+```
+planlytics-refactor/
+  backend/
+    app/
+      main.py           # FastAPI app (serves /health, /api/*, and static FE)
+      __init__.py
+    requirements.txt
+  frontend/
+    index.html
+    vite.config.ts      # outputs to ../backend/static
+    tsconfig.json
+    src/
+      main.tsx
+      App.tsx
+  Dockerfile            # Multi-stage: builds FE, then Python 3.12 runtime
+  render.yaml           # Render blueprint (Docker)
+```
 
-## Quick Start
+## Local dev (optional)
+- Backend: `uvicorn app.main:app --reload --port 8080` from `backend/`
+- Frontend: `npm i && npm run dev` from `frontend/` (proxy -> backend on 8080)
 
-### Development
-```bash
-# Clone repository
-git clone https://github.com/yourusername/planlytics.git
-cd planlytics
+## Build and run with Docker (locally)
+```
+docker build -t planlytics .
+docker run -p 8080:8080 planlytics
+open http://localhost:8080/health
+open http://localhost:8080/
+```
 
-# Setup environment
-cp .env.example .env
-# Edit .env with your API keys
+## Deploy on Render
+1. Commit these files to your repo.
+2. On Render: **New → Blueprint → select `render.yaml`**.
+3. Deploy. The Docker build will compile the frontend and serve it from the backend.
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Run application
-python app_enhanced.py
+## Bring your analysis code
+Add your existing processing logic under `/api/analyze` in `backend/app/main.py`, and merge any required libraries into `backend/requirements.txt`.
