@@ -1,13 +1,15 @@
 
 # ---------- Frontend build ----------
-FROM node:20-alpine AS frontend
-WORKDIR /app
-COPY frontend/ ./
-RUN npm ci || npm i
-RUN npm run build
+# FROM node:20-alpine AS frontend
+# WORKDIR /app
+# COPY frontend/ ./
+# RUN npm ci || npm i
+# RUN npm run build
 
-# ---------- Backend image ----------
 FROM python:3.12-slim AS runtime
+# ... (rest unchanged)
+# COPY --from=frontend /app/../backend/static /app/static   # <- also comment or remove this
+
 ENV PYTHONUNBUFFERED=1     PYTHONDONTWRITEBYTECODE=1     PORT=8080
 
 # System deps (OCR optional - comment out if not needed)
