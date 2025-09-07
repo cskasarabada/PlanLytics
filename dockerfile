@@ -1,20 +1,29 @@
-# Python 3.12 avoids the Pillow build break you hit on 3.13
+# Dockerfile
 FROM python:3.12-slim
-
-# System deps for Tesseract OCR wrapper (pytesseract needs the binary)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tesseract-ocr libtesseract-dev && \
-    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Faster, safer installs
-COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel && \
-    PIP_ONLY_BINARY=:all: pip install -r requirements.txt
+# System deps incl. Tesseract for pytesseract
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr libtesseract-dev curl gcc g++ \
+ && rm -rf /var/lib/apt/lists/*
 
-# Bring in your app
+# Faster, reliable Python installs
+COPY requirements.txt .
+RUN pip install --upgrade pip setuptools wheel \
+ && PIP_ONLY_BINARY=:all: pip install --no-cache-dir -r requirements.txt
+
+# App code
 COPY . .
 
-# Start command (adjust to your entrypoint)
-CMD ["python", "app.py"]
+# Create dirs
+RUN mkdir -p data/uploads data/outputs logs && chmod +x starter.sh || true
+
+# Healthcheck path your app already exposes
+ENV PORT=8080
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Start FastAPI
+CMD ["uvicorn", "app_enhanced:app", "--host", "0.0.0.0", "--port", "8080"]
