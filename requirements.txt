@@ -8,7 +8,7 @@ pillow==10.4.0
 unstructured==0.17.2
 sentence-transformers==3.0.1
 chromadb==0.5.5
-pandas==2.2.2
+pandas==2.2.3
 openpyxl==3.1.2
 weasyprint==62.3
 requests==2.32.3
