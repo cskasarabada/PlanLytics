@@ -1,95 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PlanLytics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ICM PlanLytics</title>
+  <link rel="icon" href="/static/favicon.ico">
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 4rem auto; text-align: center; color: #333; }
-    h1 { color: #2c3e50; }
-    a { color: #0069d9; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    input, button { margin-top: 1rem; }
-    pre { text-align: left; background: #f7f7f7; padding: 1rem; border-radius: 6px; }
-    .muted { color: #777; font-size: 0.95rem; }
+    :root { --brand:#2563eb; --ink:#0f172a; --muted:#475569; --bg:#f8fafc; }
+    *{box-sizing:border-box} body{margin:0;font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;color:var(--ink);background:var(--bg)}
+    a{color:var(--ink);text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:0 16px}
+    .nav{position:sticky;top:0;background:#fff;border-bottom:1px solid #e2e8f0;z-index:50}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#2563eb);display:grid;place-items:center;color:#fff;font-weight:800}
+    .badge{font-size:12px;background:#e0ecff;color:#1e40af;padding:4px 8px;border-radius:999px;margin-left:8px}
+    .nav a{margin:0 12px;color:var(--muted)}
+    .btn{display:inline-block;padding:10px 16px;border-radius:10px;font-weight:600}
+    .btn.primary{background:var(--brand);color:#fff}
+    .hero{padding:56px 0;text-align:center}
+    .notice{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:14px 16px;border-radius:12px;display:inline-flex;gap:8px;align-items:center}
+    section{padding:56px 0}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px}
+    .grid{display:grid;gap:16px}
+    @media(min-width:800px){ .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
+    .price{font-size:36px;font-weight:800}
+    .muted{color:var(--muted)}
+    .footer{padding:32px 0;border-top:1px solid #e2e8f0;color:var(--muted);font-size:14px;text-align:center}
+    input,button,textarea{font:inherit}
+    input,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px}
+    .stack{display:grid;gap:12px}
   </style>
 </head>
 <body>
-  <h1>🚀 PlanLytics</h1>
-  <p class="muted">Your backend is live!</p>
-  <p>
-    <a href="/health" target="_blank">Health check</a> |
-    <a href="/api/docs" target="_blank">API Docs</a>
-  </p>
 
-  <h2>1) Upload a file</h2>
-  <form id="uploadForm">
-    <input type="file" id="fileInput" />
-    <button type="submit">Upload</button>
-  </form>
-  <p class="muted" id="uploadedName">No file uploaded yet</p>
-  <pre id="uploadResult"></pre>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo">ICM</div>
+        <div>ICM PlanLytics <span class="badge">AI BETA</span></div>
+      </div>
+      <div>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#demo">Try Demo</a>
+        <a class="btn primary" href="#signup" id="startTrialBtn">Start Free Trial</a>
+      </div>
+    </div>
+  </nav>
 
-  <h2>2) Analyze the uploaded file</h2>
-  <button id="analyzeBtn" disabled>Analyze</button>
-  <pre id="analyzeResult"></pre>
+  <!-- HERO -->
+  <header class="hero container">
+    <div class="notice" role="note">⚠️ Free Preview: See first 10 lines • Upgrade for full results</div>
+  </header>
+
+  <!-- FEATURES -->
+  <section id="features" class="container">
+    <h2>Features</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>Smart OCR</h3>
+        <p class="muted">Extract text from PDFs & images. Auto-OCR for scanned pages.</p>
+      </div>
+      <div class="card">
+        <h3>Mixed Languages</h3>
+        <p class="muted">English out of the box; add Spanish/others easily.</p>
+      </div>
+      <div class="card">
+        <h3>Downloadable Output</h3>
+        <p class="muted">Saves to <code>/static/outputs</code> with a shareable link.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section id="demo" class="container">
+    <h2>Try the Demo</h2>
+    <div class="card">
+      <p class="muted">Upload a file and analyze it using the free preview (first 10 lines).</p>
+      <iframe src="/"
+              style="width:100%;height:420px;border:0;border-radius:12px;background:#f8fafc"
+              title="Demo"></iframe>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="container">
+    <h2>Pricing</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>Free</h3>
+        <div class="price">$0</div>
+        <p class="muted">First 10 lines per file</p>
+        <a class="btn" href="#signup">Get Started</a>
+      </div>
+      <div class="card">
+        <h3>Pro</h3>
+        <div class="price">$19/mo</div>
+        <p class="muted">Full results, higher limits</p>
+        <a class="btn primary" href="#signup">Start Free Trial</a>
+      </div>
+      <div class="card">
+        <h3>Teams</h3>
+        <div class="price">Custom</div>
+        <p class="muted">SAML/SSO, priority OCR</p>
+        <a class="btn" href="#signup">Talk to Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNUP / LEAD CAPTURE -->
+  <section id="signup" class="container">
+    <h2>Start Free Trial</h2>
+    <div class="card">
+      <form class="stack" id="signupForm">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px">
+          <input required name="name" placeholder="Full name">
+          <input required type="email" name="email" placeholder="Work email">
+        </div>
+        <textarea name="usecase" rows="3" placeholder="What will you analyze? (optional)"></textarea>
+        <button class="btn primary" type="submit">Request Trial</button>
+        <div class="muted" id="signupMsg" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    © <span id="y"></span> ICM PlanLytics
+  </footer>
 
   <script>
-    let lastUploadedFilename = null;
-    const uploadBtn = document.querySelector('#uploadForm button');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const uploadedNameEl = document.getElementById('uploadedName');
+    // smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click',e=>{
+        const id=a.getAttribute('href').slice(1);
+        const el=document.getElementById(id);
+        if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#'+id); }
+      });
+    });
 
-    // Upload handler
-    document.getElementById("uploadForm").addEventListener("submit", async e => {
+    // simple email-based lead capture (no backend needed)
+    const form = document.getElementById('signupForm');
+    const msg  = document.getElementById('signupMsg');
+    form?.addEventListener('submit', (e)=>{
       e.preventDefault();
-      const fileInput = document.getElementById("fileInput");
-      if (!fileInput.files.length) return alert("Choose a file first");
-      uploadBtn.disabled = true;
-      analyzeBtn.disabled = true;
-      uploadedNameEl.textContent = "Uploading…";
-
-      try {
-        const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
-        document.getElementById("uploadResult").textContent = JSON.stringify(data, null, 2);
-
-        if (res.ok && data.filename) {
-          lastUploadedFilename = data.filename;
-          uploadedNameEl.textContent = `Uploaded: ${data.filename}`;
-          analyzeBtn.disabled = false; // enable analyze
-        } else {
-          uploadedNameEl.textContent = "Upload failed";
-        }
-      } catch (err) {
-        uploadedNameEl.textContent = "Upload error";
-        document.getElementById("uploadResult").textContent = String(err);
-      } finally {
-        uploadBtn.disabled = false;
-      }
+      const data = new FormData(form);
+      const name = encodeURIComponent(data.get('name')||'');
+      const email= encodeURIComponent(data.get('email')||'');
+      const use  = encodeURIComponent(data.get('usecase')||'');
+      const subject = encodeURIComponent('ICM PlanLytics – Free Trial Request');
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nUse case: ${use}`);
+      // Change this to your preferred inbox:
+      const to = 'hello@icm-planlytics.com';
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+      msg.textContent = 'Opening your email client… if nothing happens, email hello@icm-planlytics.com.';
     });
 
-    // Analyze handler (requires lastUploadedFilename)
-    analyzeBtn.addEventListener("click", async () => {
-      if (!lastUploadedFilename) return alert("Upload a file first");
-      analyzeBtn.disabled = true;
-      document.getElementById("analyzeResult").textContent = "Analyzing…";
-
-      try {
-        const res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filename: lastUploadedFilename })
-        });
-        const data = await res.json();
-        document.getElementById("analyzeResult").textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("analyzeResult").textContent = String(err);
-      } finally {
-        analyzeBtn.disabled = false;
-      }
-    });
+    document.getElementById('y').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
