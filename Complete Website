@@ -2,7 +2,7 @@
             <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-12 rounded-3xl">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
-                    <p class="text-xl text-gray-600">From upload to Oracle ICM implementation in 4 simple steps</p>
+                    <p class="text-xl text-gray-600">From upload to ICM implementation in 4 simple steps</p>
                 </div>
                 
                 <div class="grid md:grid-cols-4 gap-8">
@@ -25,14 +25,14 @@
                             <span class="text-white font-bold text-xl">3</span>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Get Insights</h3>
-                        <p class="text-gray-600">Receive detailed analysis with Oracle ICM object mappings</p>
+                        <p class="text-gray-600">Receive detailed analysis with ICM object mappings</p>
                     </div>
                     <div class="text-center">
                         <div class="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span class="text-white font-bold text-xl">4</span>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Implement</h3>
-                        <p class="text-gray-600">Export ready-to-deploy Oracle ICM configurations</p>
+                        <p class="text-gray-600">Export ready-to-deploy ICM configurations</p>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                             <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
-                            <span>Full Oracle ICM mapping</span>
+                            <span>Full ICM mapping</span>
                         </li>
                         <li class="flex items-center text-gray-400">
                             <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -137,7 +137,7 @@
                             <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <span>Complete Oracle ICM mapping</span>
+                            <span>Complete ICM mapping</span>
                         </li>
                         <li class="flex items-center">
                             <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -284,8 +284,8 @@
                         <p class="text-gray-600">We support PDF, DOCX, Excel (.xlsx), and plain text files. Our AI can extract information from complex documents including tables, charts, and multi-column layouts.</p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <h4 class="font-semibold text-gray-900 mb-2">How accurate is the Oracle ICM mapping?</h4>
-                        <p class="text-gray-600">Our AI is trained specifically on Oracle ICM implementations and achieves 95% accuracy in object mapping. All mappings are reviewed and can be customized for your specific Oracle environment.</p>
+                        <h4 class="font-semibold text-gray-900 mb-2">How accurate is the ICM mapping?</h4>
+                        <p class="text-gray-600">Our AI is trained specifically on ICM implementations and achieves 95% accuracy in object mapping. All mappings are reviewed and can be customized for your specific ICM environment.</p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-sm">
                         <h4 class="font-semibold text-gray-900 mb-2">Is my data secure?</h4>
@@ -357,7 +357,7 @@
                             <select id="analysis-type" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="quick">Quick Analysis (Free Preview)</option>
                                 <option value="comprehensive" disabled>Comprehensive Analysis (Pro)</option>
-                                <option value="oracle-focused" disabled>Oracle ICM Focused (Pro)</option>
+                                <option value="icm-focused" disabled>ICM Focused (Pro)</option>
                                 <option value="risk-assessment" disabled>Risk Assessment (Pro)</option>
                             </select>
                         </div>
@@ -413,7 +413,7 @@
                                     <div class="mb-1"><span class="text-blue-600">Plan Complexity:</span> High (Score: 8.2/10)</div>
                                     <div class="mb-1"><span class="text-blue-600">Key Components Found:</span> 7</div>
                                     <div class="mb-1"><span class="text-blue-600">Risk Level:</span> Medium (3 issues identified)</div>
-                                    <div class="mb-2"><span class="text-blue-600">Oracle ICM Objects:</span> 12 required</div>
+                                    <div class="mb-2"><span class="text-blue-600">ICM Objects:</span> 12 required</div>
                                     <div class="mb-2">─────────────────────────────────────</div>
                                     <div class="mb-1"><span class="text-purple-600">PLAN STRUCTURE:</span></div>
                                     <div class="mb-1">• Base Commission: 2% on all sales</div>
@@ -428,7 +428,7 @@
                                             </svg>
                                             <div>
                                                 <div class="font-semibold text-yellow-800">Upgrade to see full analysis</div>
-                                                <div class="text-sm text-yellow-700">Complete risk assessment, Oracle ICM mapping, and implementation guide</div>
+                                                <div class="text-sm text-yellow-700">Complete risk assessment, ICM mapping, and implementation guide</div>
                                             </div>
                                         </div>
                                         <button onclick="showUpgradeModal()" class="mt-2 bg-yellow-500 text-white px-4 py-2 rounded font-medium hover:bg-yellow-600 transition-colors">
@@ -475,7 +475,7 @@
                         <span class="text-2xl font-bold">ICM PlanLytics</span>
                     </div>
                     <p class="text-gray-300 mb-6 max-w-md">
-                        AI-powered Oracle ICM analysis platform. Transform your compensation plans with intelligent automation and expert guidance.
+                        AI-powered ICM analysis platform. Transform your compensation plans with intelligent automation and expert guidance.
                     </p>
                     <div class="flex space-x-4">
                         <a href="#" class="text-gray-400 hover:text-white transition-colors">
@@ -529,7 +529,7 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Unlock Full Analysis</h3>
                 <p class="text-gray-600 mb-6">
-                    Get complete Oracle ICM mapping, detailed risk assessment, and implementation roadmap with our Professional plan.
+                    Get complete ICM mapping, detailed risk assessment, and implementation roadmap with our Professional plan.
                 </p>
                 <div class="space-y-3">
                     <button onclick="startProTrial()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
@@ -709,9 +709,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICM PlanLytics - AI-Powered Oracle ICM Analysis</title>
-    <meta name="description" content="Transform your Oracle ICM compensation plans with AI. Get intelligent analysis, risk assessment, and automated Oracle ICM object mapping in minutes.">
-    <meta name="keywords" content="Oracle ICM, compensation analysis, AI, incentive plans, ICM automation, Oracle ICM implementation">
+    <title>ICM PlanLytics - AI-Powered ICM Analysis</title>
+    <meta name="description" content="Transform your ICM compensation plans with AI. Get intelligent analysis, risk assessment, and automated ICM object mapping in minutes.">
+    <meta name="keywords" content="ICM, compensation analysis, AI, incentive plans, ICM automation, ICM implementation">
     
     <!-- Open Graph -->
     <meta property="og:title" content="ICM PlanLytics - AI-Powered Oracle ICM Analysis">
@@ -789,11 +789,11 @@
                     </span>
                     <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
                         AI-Powered<br>
-                        <span class="text-yellow-300">Oracle ICM</span><br>
+                        <span class="text-yellow-300">ICM</span><br>
                         Analysis
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-                        Transform your Oracle ICM compensation plans with intelligent AI analysis. 
+                        Transform your ICM compensation plans with intelligent AI analysis. 
                         Get automated risk assessment and ready-to-deploy ICM objects in minutes, not weeks.
                     </p>
                 </div>
@@ -823,7 +823,7 @@
                     </div>
                     <div class="text-center">
                         <div class="text-4xl font-bold mb-2">100%</div>
-                        <div class="text-sm text-white/80">Oracle ICM Compatible</div>
+                        <div class="text-sm text-white/80">ICM Compatible</div>
                     </div>
                 </div>
             </div>
@@ -845,8 +845,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-4">Oracle ICM Ready</h3>
-                    <p class="text-white/80">Get production-ready Oracle ICM object configurations and implementation roadmaps.</p>
+                    <h3 class="text-xl font-semibold mb-4">ICM Ready</h3>
+                    <p class="text-white/80">Get production-ready ICM object configurations and implementation roadmaps.</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl text-white text-center">
                     <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -867,7 +867,7 @@
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Intelligent ICM Analysis Platform</h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Powered by advanced AI agents specifically trained on Oracle ICM compensation plans and industry best practices
+                    Powered by advanced AI agents specifically trained on ICM compensation plans and industry best practices
                 </p>
             </div>
             
@@ -927,7 +927,7 @@
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
                         Identify compliance, operational, and financial risks with our AI trained on compensation regulations, 
-                        SOX requirements, and Oracle ICM best practices.
+                        SOX requirements, and ICM best practices.
                     </p>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="flex items-center text-green-600">
@@ -965,10 +965,10 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Oracle ICM Object Mapping</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">ICM Object Mapping</h3>
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
-                        Generate production-ready Oracle ICM configurations with detailed object mappings, 
+                        Generate production-ready ICM configurations with detailed object mappings, 
                         implementation roadmaps, and best practices. Reduce implementation time by 80%.
                     </p>
                     <div class="grid grid-cols-2 gap-4 text-sm">
