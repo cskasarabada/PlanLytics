@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: planlytics-web
+    env: docker
+    plan: starter
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AZURE_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false   # paste your Render Postgres connection string here later
+      - key: REDIS_URL
+        sync: false   # paste your Render Redis URL here later
+      - key: ENVIRONMENT
+        value: production
+      - key: MAX_UPLOAD_MB
+        value: "100"
