@@ -1,26 +1,38 @@
-# ---------- Backend image ----------
-FROM python:3.12-slim AS runtime
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8080
+# Dockerfile (root)
 
-# System deps (Tesseract for OCR)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tesseract-ocr libtesseract-dev curl gcc g++ \
- && rm -rf /var/lib/apt/lists/*
+FROM python:3.12-slim
+
+# Fast, predictable Python
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-# Install Python deps
-COPY backend/requirements.txt /app/requirements.txt
+# --- Optional system deps (remove any you don't need) ---
+# WeasyPrint needs cairo/pango; OCR needs tesseract.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcairo2 libpango-1.0-0 libpangoft2-1.0-0 libgdk-pixbuf-2.0-0 \
+    fonts-liberation shared-mime-info \
+    tesseract-ocr libtesseract-dev tesseract-ocr-eng \
+ && rm -rf /var/lib/apt/lists/*
+
+# --- Python dependencies ---
+# Use the ROOT requirements.txt (you removed backend/requirements.txt)
+COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip setuptools wheel --root-user-action=ignore \
  && pip install --no-cache-dir --prefer-binary -r /app/requirements.txt --root-user-action=ignore
 
-# Copy backend code
-COPY backend/ /app/
+# --- App source ---
+COPY . /app
 
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${PORT}/health || exit 1
+# Optional: make sure Python can import from /app
+ENV PYTHONPATH=/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Local dev convenience (Render sets $PORT in prod)
+EXPOSE 8000
+
+# --- Start the app ---
+# Use shell form so ${PORT} expands at runtime. Default to 8000 locally.
+CMD ["sh","-c","uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
