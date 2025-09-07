@@ -30,7 +30,16 @@ OUTPUT_DIR = Path("/tmp/outputs")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="PlanLytics", version="1.1.0")
+# BEFORE:
+# app = FastAPI(title="PlanLytics", version="1.1.0")
+
+# AFTER:
+    app = FastAPI(
+        title="PlanLytics — Incentive Planning & Pay",
+        version="1.1.0",
+        description="AI-assisted insights, risks & strategy ,SI based requirements and detailed setups.",
+    )
+
 
 # Serve static UI
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

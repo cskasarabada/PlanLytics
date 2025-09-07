@@ -2,253 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PlanLytics – AI-Powered Compensation Planning</title>
-  <style>
-    :root{--brand:#0b6bff;--ink:#222;--muted:#667085;--bg:#f7f8fa;--card:#fff;--ring:rgba(11,107,255,.25)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;color:var(--ink);background:var(--bg);text-align:center}
-    header{background:#fff;box-shadow:0 2px 8px rgba(16,24,40,.06);padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px;position:sticky;top:0;z-index:10}
-    .brand-logo{height:44px}
-    header h1{margin:0;font-size:1.6rem}
-    nav{margin:8px 0 0}
-    nav a{color:var(--brand);text-decoration:none;margin:0 12px;font-weight:600}
-    nav a:hover{text-decoration:underline}
-    main{padding:36px 16px}
-    .hero{max-width:900px;margin:0 auto 22px;text-align:center}
-    .hero h2{margin:0 0 8px;font-size:1.9rem}
-    .hero p{margin:0;color:var(--muted)}
-    .grid{max-width:980px;margin:26px auto;display:grid;gap:16px;grid-template-columns:1fr}
-    @media(min-width:980px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 1px 4px rgba(16,24,40,.06);text-align:left}
-    .card h3{margin:0 0 10px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    label{font-size:.9rem;color:var(--muted)}
-    input,select,textarea{width:100%;margin-top:6px;margin-bottom:12px;padding:10px 12px;border-radius:8px;border:1px solid #d0d5dd;outline:none;background:#fff;font-size:1rem}
-    input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--ring)}
-    textarea{min-height:116px;resize:vertical}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    button{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
-    button.secondary{background:#eef4ff;color:#1f3b8a}
-    button.ghost{background:transparent;color:var(--brand)}
-    .result pre{background:#0b1220;color:#e6ecff;padding:14px;border-radius:10px;overflow:auto;max-height:420px}
-    .pill{display:inline-block;background:#fff;border:1px solid #e4e7ec;color:#344054;padding:6px 10px;border-radius:999px;font-size:.85rem;margin:4px 6px 0 0}
-    footer{margin:36px 0 24px;color:#98a2b3;font-size:.9rem}
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Powered Compensation Planning — PlanLytics</title>
+  <meta name="description" content="Plan planning assistance: strategy, risks, and SI-ready requirements & setups." />
+  <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-<header>
-  <img class="brand-logo" src="/static/LogoPlanytics.png" alt="PlanLytics logo"/>
-  <h1>PlanLytics – AI-Powered Compensation Planning</h1>
-</header>
-
-<nav>
-  <a href="/">Home</a>
-  <a href="/planning.html">Compensation Planning</a>
-  <a href="/docs">API Docs</a>
-</nav>
-
-<main>
-  <section class="hero">
-    <h2>Design an efficient, motivating sales compensation plan</h2>
-    <p>Add business context and generate a draft plan with tiered rates and accelerators—then save via API.</p>
-    <div style="margin-top:10px">
-      <span class="pill">Industry</span>
-      <span class="pill">Company Size</span>
-      <span class="pill">Growth</span>
-      <span class="pill">Prior Plan Continuity</span>
+  <header>
+    <img class="brand-logo" src="/static/LogoPlanytics.png" alt="PlanLytics logo" />
+    <div>
+      <h1>AI-Powered Compensation Planning</h1>
+      <p class="tagline">Design smarter plans with AI—surface risks, dependencies, and SI-ready deliverables.</p>
+      <nav class="head-nav">
+        <a href="/">Home</a>
+        <a href="/docs">API Docs</a>
+      </nav>
     </div>
-  </section>
+  </header>
 
-  <section class="grid">
-    <!-- Inputs -->
-    <div class="card" id="formCard">
-      <h3>Plan Inputs</h3>
+  <main style="padding:24px;">
+    <section class="panel">
+      <h2>What you get</h2>
+      <ul>
+        <li>Insights & risks summary</li>
+        <li>Strategy recommendations</li>
+        <li>SI requirements package</li>
+      </ul>
+    </section>
+  </main>
 
-      <label>Role / Plan Name
-        <input id="role" placeholder="e.g., AE – New Business"/>
-      </label>
-
-      <div class="row">
-        <label>Annual Quota ($)
-          <input id="quota" type="number" min="0" step="1000" placeholder="1,200,000"/>
-        </label>
-        <label>OTE ($)
-          <input id="ote" type="number" min="0" step="1000" placeholder="220,000"/>
-        </label>
-      </div>
-
-      <div class="row">
-        <label>Base % (of OTE)
-          <input id="basePct" type="number" min="0" max="100" step="1" value="60"/>
-        </label>
-        <label>Variable % (of OTE)
-          <input id="varPct" type="number" min="0" max="100" step="1" value="40"/>
-        </label>
-      </div>
-
-      <div class="row-3">
-        <label>Tiers
-          <select id="tiers">
-            <option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
-          </select>
-        </label>
-        <label>Accelerator at >100% (x)
-          <input id="accel" type="number" min="1" step="0.05" value="1.25"/>
-        </label>
-        <label>Cap (x Variable) – 0 = No Cap
-          <input id="capX" type="number" min="0" step="0.25" value="0"/>
-        </label>
-      </div>
-
-      <div class="row">
-        <label>Clawback on Cancellations?
-          <select id="clawback"><option value="Yes">Yes</option><option value="No" selected>No</option></select>
-        </label>
-        <label>Credit Type
-          <select id="credit"><option>Bookings</option><option selected>Revenue</option><option>Gross Margin</option></select>
-        </label>
-      </div>
-
-      <!-- New business context -->
-      <div class="row">
-        <label>Industry
-          <select id="industry">
-            <option selected>SaaS</option><option>FinServ</option><option>Healthcare</option>
-            <option>Manufacturing</option><option>Hardware</option><option>Other</option>
-          </select>
-        </label>
-        <label>Company Size
-          <select id="companySize"><option>SMB</option><option selected>Mid-Market</option><option>Enterprise</option></select>
-        </label>
-      </div>
-
-      <div class="row">
-        <label>Company Growth % (YoY)
-          <input id="growth" type="number" step="1" value="20"/>
-        </label>
-        <label>Prior Year Plan (optional JSON)
-          <textarea id="priorJson" placeholder='Paste prior plan JSON to blend (keeps continuity for accel/cap)'></textarea>
-        </label>
-      </div>
-
-      <div class="actions">
-        <button id="buildBtn">Generate (Client)</button>
-        <button id="saveBtn" class="secondary" type="button">Save via API</button>
-        <span id="apiMsg" style="color:#16a34a;font-weight:600"></span>
-      </div>
-    </div>
-
-    <!-- Output -->
-    <div class="card result" id="resultCard">
-      <h3>Suggested Plan</h3>
-      <div id="summary" style="color:var(--muted); margin-bottom:10px;">Fill inputs and click a button.</div>
-      <pre id="jsonOut">{}</pre>
-      <div class="actions" style="margin-top:8px">
-        <button id="copyBtn" class="ghost" disabled>Copy JSON</button>
-        <button id="downloadBtn" disabled>Download Plan (.json)</button>
-        <a id="downloadApi" class="ghost" href="#" target="_blank" style="display:none">Download saved file</a>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>&copy; 2025 PlanLytics. All rights reserved.</footer>
-
-<script>
-  const $ = (id)=>document.getElementById(id);
-  const money = (n)=>!isFinite(n)?'-':n.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0});
-
-  function payloadFromForm(){
-    let prior = null;
-    const txt = $('priorJson').value.trim();
-    if (txt){
-      try { prior = JSON.parse(txt); } catch{ prior = null; }
-    }
-    return {
-      role: $('role').value.trim() || 'Sales Role',
-      quota: Number($('quota').value || 0),
-      ote: Number($('ote').value || 0),
-      base_pct: Number($('basePct').value || 0),
-      variable_pct: Number($('varPct').value || 0),
-      tiers: Number($('tiers').value || 3),
-      accelerator_over_100x: Number($('accel').value || 1.25),
-      cap_variable_multiple: Number($('capX').value || 0),
-      clawback_on_cancellations: $('clawback').value === 'Yes',
-      credit_type: $('credit').value,
-      industry: $('industry').value,
-      company_size: $('companySize').value,
-      company_growth_pct: Number($('growth').value || 0),
-      prior_year_plan: prior
-    };
-  }
-
-  function showPlan(plan){
-    $('summary').innerHTML =
-      `<strong>${plan.plan_name}</strong> • Quota ${money(plan.assumptions.quota)} • OTE ${money(plan.assumptions.ote)} ` +
-      `(${plan.assumptions.base_pct}% base / ${plan.assumptions.variable_pct}% variable) • Base rate ${(plan.mechanics.commission_rate_at_100*100).toFixed(2)}% per $ ` +
-      `• Accelerator x${plan.mechanics.accelerator_over_100x}${plan.mechanics.cap_variable_multiple?` • Cap ${plan.mechanics.cap_variable_multiple}x variable`:''}`;
-    $('jsonOut').textContent = JSON.stringify(plan, null, 2);
-    $('copyBtn').disabled = false;
-    $('downloadBtn').disabled = false;
-  }
-
-  // Lightweight client generator (same parameters, no server call)
-  function generateClient(){
-    const p = payloadFromForm();
-    // simple mirror of server logic (kept brief)
-    const variable = p.ote * (p.variable_pct/100);
-    const baseRate = p.quota>0 ? variable/p.quota : 0;
-    const bands = (p.tiers<=3)?[0,0.6,1,1.4]:(p.tiers==4?[0,0.5,0.9,1.1,1.5]:[0,0.4,0.8,1,1.2,1.6]);
-    const tiers = bands.slice(0,-1).map((b,i)=>{
-      const end=bands[i+1];
-      let r=baseRate;
-      if(end<=0.6) r*=0.6;
-      else if(end<=1.0) r*=1.0;
-      else r*=p.accelerator_over_100x;
-      return {attainment_from:Math.round(b*100)+'%',attainment_to:Math.round(end*100)+'%',rate_per_$:+r.toFixed(6)};
-    });
-    const plan={
-      plan_name:p.role,credit_type:p.credit_type,
-      assumptions:{quota:p.quota,ote:p.ote,base:p.ote*(p.base_pct/100),variable,base_pct:p.base_pct,variable_pct:p.variable_pct,industry:p.industry,company_size:p.company_size,company_growth_pct:p.company_growth_pct},
-      mechanics:{commission_rate_at_100:+baseRate.toFixed(6),tiers,accelerator_over_100x:p.accelerator_over_100x,cap_variable_multiple:p.cap_variable_multiple||null,clawback_on_cancellations:p.clawback_on_cancellations},
-      governance:{payments:"Monthly true-up; quarterly reconciliation.",spiffs_allowed:true,draws:"Manager approval; recoverable within quarter."},
-      notes:["Client-side draft. Use 'Save via API' for industry/size/growth blending and persistence."]
-    };
-    showPlan(plan);
-  }
-
-  $('buildBtn').addEventListener('click',(e)=>{ e.preventDefault(); $('apiMsg').textContent=''; $('downloadApi').style.display='none'; generateClient(); });
-
-  $('saveBtn').addEventListener('click', async ()=>{
-    $('apiMsg').textContent='Saving...';
-    $('downloadApi').style.display='none';
-    try{
-      const res = await fetch('/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payloadFromForm())});
-      if(!res.ok) throw new Error('Request failed');
-      const data = await res.json();
-      showPlan(data.plan);
-      $('apiMsg').textContent = 'Saved!';
-      if (data.download_url){
-        const a = $('downloadApi'); a.href = data.download_url; a.style.display='inline-block'; a.textContent='Download saved file';
-      }
-    }catch(err){
-      $('apiMsg').style.color='#b42318';
-      $('apiMsg').textContent='Save failed';
-    }
-  });
-
-  $('copyBtn').addEventListener('click', async ()=>{
-    try{ await navigator.clipboard.writeText($('jsonOut').textContent); $('copyBtn').textContent='Copied!'; }catch{ $('copyBtn').textContent='Copy failed'; }
-    setTimeout(()=>{$('copyBtn').textContent='Copy JSON';},1200);
-  });
-
-  $('downloadBtn').addEventListener('click', ()=>{
-    const blob = new Blob([$('jsonOut').textContent],{type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='planlytics_comp_plan.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  });
-</script>
+  <script src="/static/app.js"></script>
 </body>
 </html>

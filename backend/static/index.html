@@ -3,89 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PlanLytics – AI-Powered Incentive Plan Analysis</title>
+
+  <!-- SEO / Social -->
+  <title>PlanLytics — AI for Your Incentive Planning & Pay | Insights, Risks & Strategy for SI</title>
+  <meta name="description" content="PlanLytics applies AI to your Incentive Planning & Pay. Get insights, risks, and strategy—plus SI requirements and detailed SI setups." />
+  <meta property="og:title" content="PlanLytics — AI for Your Incentive Planning & Pay" />
+  <meta property="og:description" content="Insights, risks & strategy for SI, with requirements and detailed setups." />
+  <meta name="twitter:card" content="summary" />
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #0b0f17;
-      color: #e6e9ef;
-      text-align: center;
-    }
-    header {
-      background-color: #0e1420;
-      padding: 16px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-    .brand-logo { height: 50px; }
-    header h1 { font-size: 1.9rem; margin: 0; }
-    nav { margin: 10px 0 0; }
-    nav a {
-      margin: 0 12px;
-      text-decoration: none;
-      color: #7aa2ff;
-      font-weight: 500;
-    }
-    nav a:hover { text-decoration: underline; }
-    main { padding: 40px 20px; }
-    section {
-      margin: 30px auto;
-      max-width: 760px;
-      background: #0e1420;
-      padding: 22px;
-      border-radius: 10px;
-      box-shadow: 0 1px 10px rgba(0,0,0,0.4);
-      text-align: left;
-    }
-    h2 { margin: 0 0 14px; }
-    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    button {
-      background-color: #3b6cff;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    button:disabled { background-color: #3b6cff66; cursor: not-allowed; }
-    pre {
-      background: #0b1220;
-      color: #cbd5e1;
-      padding: 12px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-    .btn-link {
-      display: inline-block;
-      padding: 10px 14px;
-      margin-right: 10px;
-      background: #1f2937;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #e6e9ef;
-      border: 1px solid #2b3647;
-    }
-    .btn-link:hover { background: #263244; }
-    footer { margin: 40px 0; color: #9aa3b2; font-size: 0.9rem; }
+    :root { --bg:#0b0f17; --panel:#0e1420; --text:#e6e9ef; --muted:#9aa3b2; --accent:#7aa2ff; --btn:#3b6cff; --btnDisabled:#3b6cff66; --codeBg:#0b1220; --border:#2b3647; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:0; background:var(--bg); color:var(--text); text-align:center; }
+    header { background:var(--panel); padding:16px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; gap:14px; text-align:left; }
+    .brand-logo { height:50px; }
+    header h1 { margin:0; font-size:2rem; }
+    .tagline { margin:6px 0 8px; font-size:1.05rem; color:#9fb3ff; }
+    .tagline-points { margin:6px 0 0; padding-left:18px; color:#cdd6e3; }
+    .tagline-points li { margin:2px 0; }
+    .head-nav { margin-top:10px; }
+    .head-nav a { margin-right:14px; text-decoration:none; color:var(--accent); font-weight:500; }
+    .head-nav a:hover { text-decoration:underline; }
+    main { padding:36px 20px 40px; }
+    section { margin:26px auto; max-width:820px; background:var(--panel); padding:22px; border-radius:12px; box-shadow:0 1px 10px rgba(0,0,0,0.4); text-align:left; }
+    h2 { margin:0 0 14px; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    input[type="file"] { background:var(--bg); color:var(--text); border:1px solid var(--border); padding:8px; border-radius:6px; max-width:100%; }
+    button { background:var(--btn); color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:1rem; }
+    button:disabled { background:var(--btnDisabled); cursor:not-allowed; }
+    pre { background:var(--codeBg); color:#cbd5e1; padding:12px; border-radius:8px; overflow-x:auto; border:1px solid var(--border); }
+    .btn-link { display:inline-block; padding:10px 14px; margin-right:10px; background:#1f2937; border-radius:8px; text-decoration:none; color:var(--text); border:1px solid var(--border); }
+    .btn-link:hover { background:#263244; }
+    #uploadStatus { color:var(--muted); margin:6px 0 0; }
+    footer { margin:40px 0; color:var(--muted); font-size:0.9rem; }
   </style>
 </head>
 <body>
   <header>
     <img class="brand-logo" src="/static/LogoPlanytics.png" alt="PlanLytics logo" />
-    <h1>PlanLytics – AI-Powered Incentive Plan Analysis</h1>
+    <div>
+      <h1>PlanLytics</h1>
+      <p class="tagline">
+        AI for your Incentive Planning &amp; Pay — get insights, risks &amp; strategy,
+        plus SI requirements and detailed SI setups.
+      </p>
+      <ul class="tagline-points">
+        <li><strong>Comp Analysts:</strong> build great plans faster with AI-guided templates.</li>
+        <li><strong>Comp Admins:</strong> configure efficient plans with ready-to-deploy objects and best-practice setups.</li>
+      </ul>
+      <nav class="head-nav">
+        <a href="/">Home</a>
+        <a href="/planning.html">AI-Powered Compensation Planning</a>
+        <a href="/docs">API Docs</a>
+      </nav>
+    </div>
   </header>
-
-  <nav>
-    <a href="/">Home</a>
-    <a href="/planning.html">AI-Powered Compensation Planning</a>
-    <a href="/docs">API Docs</a>
-  </nav>
 
   <main>
     <section>
@@ -102,7 +74,6 @@
       <div class="row">
         <button id="analyzeBtn" disabled>Analyze</button>
       </div>
-
       <div id="analysisResult" style="margin-top:14px;">
         <pre>No result yet. Upload a file, then click Analyze.</pre>
       </div>
@@ -113,7 +84,7 @@
     &copy; 2025 PlanLytics. All rights reserved.
   </footer>
 
-  <!-- External JS (moved out of this file) -->
+  <!-- App logic -->
   <script src="/static/app.js"></script>
 </body>
 </html>
