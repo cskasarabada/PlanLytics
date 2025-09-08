@@ -97,16 +97,17 @@ analyzeBtn.addEventListener("click", async () => {
     });
 
     const csvUrl = data.download_url_csv + `?t=${Date.now()}`;
-    const xlsxUrl = data.download_url_xlsx + `?t=${Date.now()}`;
     const rows = typeof data.rows === "number" ? data.rows : "—";
+    let links = `<a class="btn-link" href="${csvUrl}" download>Download CSV</a>`;
+    if (data.download_url_xlsx) {
+      const xlsxUrl = data.download_url_xlsx + `?t=${Date.now()}`;
+      links += `<a class="btn-link" href="${xlsxUrl}" download>Download Excel</a>`;
+    }
 
     analysisResult.innerHTML = `
       <h3>Analysis complete</h3>
       <p>Rows extracted: <strong>${rows}</strong></p>
-      <div>
-        <a class="btn-link" href="${csvUrl}" download>Download CSV</a>
-        <a class="btn-link" href="${xlsxUrl}" download>Download Excel</a>
-      </div>
+      <div>${links}</div>
     `;
   } catch (err) {
     showError(analysisResult, err.message || "Analysis failed");

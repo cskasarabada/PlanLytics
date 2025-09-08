@@ -150,9 +150,17 @@ def write_outputs(base_name: str, rows: list[dict]) -> dict:
     xlsx_path = OUTPUT_DIR / xlsx_name
 
     df.to_csv(csv_path, index=False)
-    df.to_excel(xlsx_path, index=False)
 
-    return {"csv": csv_path.name, "xlsx": xlsx_path.name}
+    # Writing Excel can fail if optional deps like openpyxl aren't installed.
+    # Avoid crashing the API by catching any error and returning only CSV.
+    xlsx_name = None
+    try:
+        df.to_excel(xlsx_path, index=False)
+        xlsx_name = xlsx_path.name
+    except Exception:
+        pass
+
+    return {"csv": csv_path.name, "xlsx": xlsx_name}
 
 
 # ---------- Routes ----------
@@ -207,12 +215,15 @@ async def analyze(payload: dict):
     rows = extract_text(src)
     out = write_outputs(filename, rows)
 
-    return {
+    resp = {
         "message": "Analysis complete",
         "rows": len(rows),
         "download_url_csv": f"/api/download/{out['csv']}",
-        "download_url_xlsx": f"/api/download/{out['xlsx']}",
     }
+    if out.get("xlsx"):
+        resp["download_url_xlsx"] = f"/api/download/{out['xlsx']}"
+
+    return resp
 
 
 @app.post("/api/agent")
