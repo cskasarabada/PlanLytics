@@ -117,7 +117,7 @@ class DocumentAnalyzerAgent(BaseAgent):
         prompt = self._build_prompt(text, template)
         
         # Call LLM (using existing infrastructure)
-        from core.prompting import call_llm
+        from .prompting import call_llm
         result = call_llm(prompt)
         
         try:
@@ -239,8 +239,8 @@ class RiskAssessmentAgent(BaseAgent):
         region = context.get("region", "US")
         
         prompt = self._build_risk_prompt(plan_data, industry, region)
-        
-        from core.prompting import call_llm
+
+        from .prompting import call_llm
         result = call_llm(prompt)
         
         try:
@@ -407,8 +407,8 @@ class OracleMappingAgent(BaseAgent):
         existing_system = context.get("existing_system", None)
         
         prompt = self._build_oracle_prompt(plan_structure, existing_system)
-        
-        from core.prompting import call_llm
+
+        from .prompting import call_llm
         result = call_llm(prompt)
         
         try:
@@ -547,7 +547,7 @@ class PlanningAdvisorAgent(BaseAgent):
         text = inputs.get("text", "")
         prompt = self._build_prompt(plan_data, text)
 
-        from core.prompting import call_llm
+        from .prompting import call_llm
         result = call_llm(prompt)
 
         try:
