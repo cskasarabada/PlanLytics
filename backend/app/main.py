@@ -1,5 +1,5 @@
 # backend/app/main.py
-from fastapi import FastAPI, UploadFile, File, Request
+from fastapi import FastAPI, UploadFile, File, Request, Response, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -8,6 +8,10 @@ import os
 import time
 import pandas as pd
 from dataclasses import asdict
+import hmac
+import hashlib
+import secrets
+import redis.asyncio as redis
 
 from ..core.ai_agents import DocumentAnalyzerAgent
 
@@ -48,6 +52,27 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 # ---------- Helpers ----------
 ALLOWED_EXTS = {".pdf", ".txt", ".md", ".csv", ".log", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
 MAX_UPLOAD_MB = 50
+
+SESSION_SECRET = os.getenv("SESSION_SECRET", "change-me")
+redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"))
+
+
+def _sign_session(sid: str) -> str:
+    sig = hmac.new(SESSION_SECRET.encode(), sid.encode(), hashlib.sha256).hexdigest()
+    return f"{sid}.{sig}"
+
+
+def _verify_session(cookie: str | None) -> str | None:
+    if not cookie:
+        return None
+    try:
+        sid, sig = cookie.split(".", 1)
+        expected = hmac.new(SESSION_SECRET.encode(), sid.encode(), hashlib.sha256).hexdigest()
+        if hmac.compare_digest(sig, expected):
+            return sid
+    except Exception:
+        return None
+    return None
 
 
 def _safe_name(name: str) -> str:
@@ -208,6 +233,42 @@ async def agent_analysis(payload: dict):
     result = await agent.execute({"text": text, "template": payload.get("template", "master")})
 
     return asdict(result)
+
+
+@app.post("/api/homechat")
+async def homechat(payload: dict, request: Request, response: Response):
+    """Simple mini chat with per-visitor limits."""
+    ip = request.client.host if request.client else ""
+    sid = _verify_session(request.cookies.get("hc_sid"))
+    if not sid:
+        sid = secrets.token_hex(16)
+        response.set_cookie(
+            "hc_sid",
+            _sign_session(sid),
+            max_age=365 * 24 * 3600,
+            httponly=True,
+            samesite="lax",
+        )
+
+    date = time.strftime("%Y%m%d")
+    key = f"homechat:{date}:{sid}:{ip}"
+    try:
+        count = await redis_client.incr(key)
+        if count == 1:
+            await redis_client.expire(key, 24 * 3600)
+        if count > 10:
+            raise HTTPException(status_code=429, detail="Daily question limit reached")
+        burst_key = f"homechat:burst:{sid}:{ip}"
+        if not await redis_client.setnx(burst_key, 1):
+            raise HTTPException(status_code=429, detail="Too many requests")
+        await redis_client.expire(burst_key, 1)
+    except Exception:
+        count = 0
+
+    question = str(payload.get("question", ""))
+    answer = f"Echo: {question}"
+    remaining = max(0, 10 - count)
+    return {"answer": answer, "remaining": remaining}
 
 
 @app.get("/api/download/{filename}")
