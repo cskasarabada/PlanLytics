@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import MiniChat from './MiniChat'
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null)
@@ -23,6 +24,7 @@ export default function App() {
       </form>
       <p>{msg}</p>
       <p><a href="/health" target="_blank" rel="noreferrer">Health check</a></p>
+      <MiniChat />
     </div>
   )
 }
