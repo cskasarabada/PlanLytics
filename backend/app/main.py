@@ -16,15 +16,6 @@ import redis.asyncio as redis
 from ..core.ai_agents import DocumentAnalyzerAgent
 from fastapi.exceptions import RequestValidationError
 
-@app.exception_handler(Exception)
-async def _unhandled(request, exc):
-    print(f"[unhandled] {type(exc).__name__}: {exc}")
-    return JSONResponse({"error": f"Server error: {type(exc).__name__}: {exc}"}, status_code=500)
-
-@app.exception_handler(RequestValidationError)
-async def _validation(request, exc):
-    return JSONResponse({"error": "Invalid request body", "details": exc.errors()}, status_code=422)
-
 
 # Optional parsers (the app runs even if these aren't available)
 try:
@@ -58,6 +49,17 @@ app = FastAPI(
 
 # Serve static assets (your landing page lives in backend/static/)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# ---------- Exception Handlers ----------
+@app.exception_handler(Exception)
+async def _unhandled(request, exc):
+    print(f"[unhandled] {type(exc).__name__}: {exc}")
+    return JSONResponse({"error": f"Server error: {type(exc).__name__}: {exc}"}, status_code=500)
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation(request, exc):
+    return JSONResponse({"error": "Invalid request body", "details": exc.errors()}, status_code=422)
 
 
 # ---------- Helpers ----------
