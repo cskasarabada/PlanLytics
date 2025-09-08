@@ -217,8 +217,45 @@ class DocumentAnalyzerAgent(BaseAgent):
         for term in key_terms:
             if term in text_lower:
                 found_terms.append(term)
-        
+
         return found_terms
+
+    def _assess_calculation_clarity(self, result: Dict[str, Any]) -> float:
+        """Assess clarity of calculation rules"""
+        rules = result.get("calculation_rules", [])
+        if not rules:
+            return 0.0
+
+        clear_rules = 0
+        for rule in rules:
+            if rule.get("formula") and rule.get("examples"):
+                clear_rules += 1
+
+        return clear_rules / len(rules)
+
+    def _assess_completeness(self, result: Dict[str, Any]) -> float:
+        """Assess completeness of analysis"""
+        required = self._get_required_fields()
+        if not required:
+            return 1.0
+
+        present = sum(1 for field in required if field in result and result[field])
+        return present / len(required)
+
+    def _assess_consistency(self, result: Dict[str, Any]) -> float:
+        """Assess consistency between plan structure and calculation rules"""
+        structures = result.get("plan_structure", [])
+        rules = result.get("calculation_rules", [])
+        if not structures or not rules:
+            return 0.0
+
+        components = {s.get("component") for s in structures if s.get("component")}
+        rule_names = {r.get("rule_name") for r in rules if r.get("rule_name")}
+        if not components:
+            return 0.0
+
+        matches = components.intersection(rule_names)
+        return len(matches) / len(components)
     
     def _get_required_fields(self) -> List[str]:
         return ["plan_structure", "calculation_rules", "eligibility_criteria"]
