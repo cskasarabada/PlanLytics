@@ -1,6 +1,11 @@
 # test_config.py
 import os
-from dotenv import load_dotenv
+
+try:  # Optional dependency
+    from dotenv import load_dotenv  # type: ignore
+except Exception:  # pragma: no cover - module may be absent
+    def load_dotenv() -> bool:  # type: ignore
+        return False
 
 load_dotenv()
 
