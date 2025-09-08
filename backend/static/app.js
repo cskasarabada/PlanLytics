@@ -1,142 +1,71 @@
 // backend/static/app.js
-
-// Grab elements
-const uploadForm = document.getElementById("uploadForm");
-const fileInput = document.getElementById("fileInput");
-const uploadBtn = document.getElementById("uploadBtn");
-const uploadStatus = document.getElementById("uploadStatus");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const analysisResult = document.getElementById("analysisResult");
-const aiAgentBtn = document.getElementById("aiAgentBtn");
-const aiResult = document.getElementById("aiResult");
-
 let uploadedFile = null;
 
-function setBusy(btn, busy, busyText, idleText) {
-  if (!btn) return;
-  btn.disabled = !!busy;
-  if (busy && busyText) btn.textContent = busyText;
-  if (!busy && idleText) btn.textContent = idleText;
-}
+const $ = (sel) => document.querySelector(sel);
+const statusEl = $("#uploadStatus");
+const resultEl = $("#analysisResult");
+const analyzeBtn = $("#analyzeBtn");
 
-function showError(container, message) {
-  container.innerHTML = `<pre style="color:#ffb4b4;background:#2a0f14;border:1px solid #5b1f25;border-radius:8px;padding:10px;">Error: ${message}</pre>`;
-}
-
-// Helper to safely parse JSON responses. If the response isn't valid JSON,
-// the raw text is surfaced instead of triggering a "Unexpected token" error.
-async function fetchJSON(url, options = {}) {
-  const res = await fetch(url, options);
+// Parse response as JSON if possible, otherwise return raw text
+async function parseMaybeJSON(res) {
   const text = await res.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    throw new Error(text || res.statusText);
-  }
-  if (!res.ok) {
-    throw new Error(data.error || res.statusText);
-  }
-  return data;
+  try { return { data: JSON.parse(text), raw: text }; }
+  catch { return { data: null, raw: text }; }
 }
 
-// Handle upload submit
-uploadForm.addEventListener("submit", async (e) => {
+function showError(msg) {
+  resultEl.innerHTML =
+    `<pre style="background:#3a1f20;border:1px solid #6e2c2f;color:#ffb4b0;">Error: ${msg}</pre>`;
+}
+
+function showInfo(msg) {
+  resultEl.innerHTML = `<pre>${msg}</pre>`;
+}
+
+// ---- Upload ----
+$("#uploadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  if (!fileInput.files.length) {
-    alert("Choose a file first");
-    return;
-  }
-
-  const file = fileInput.files[0];
-  const formData = new FormData();
-  formData.append("file", file);
-
-  setBusy(uploadBtn, true, "Uploading...", "Upload");
-  analyzeBtn.disabled = true;
-  uploadStatus.textContent = "Uploading…";
-
   try {
-    const data = await fetchJSON("/api/upload", { method: "POST", body: formData });
+    const file = $("#fileInput").files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const { data, raw } = await parseMaybeJSON(res);
+    if (!res.ok) throw new Error((data && data.error) || raw || res.statusText);
 
     uploadedFile = data.filename;
-    uploadStatus.textContent = `Uploaded: ${uploadedFile}`;
+    statusEl.textContent = `Uploaded: ${uploadedFile}`;
     analyzeBtn.disabled = false;
-    aiAgentBtn.disabled = false;
-
-    // Reset preview
-    analysisResult.innerHTML = `<pre>Ready to analyze: ${uploadedFile}</pre>`;
-    aiResult.innerHTML = `<pre>Ready to run AI Agent on: ${uploadedFile}</pre>`;
+    showInfo("Ready to analyze.");
   } catch (err) {
-    uploadedFile = null;
     analyzeBtn.disabled = true;
-    aiAgentBtn.disabled = true;
-    showError(analysisResult, err.message || "Upload failed");
-    uploadStatus.textContent = "Upload failed";
-  } finally {
-    setBusy(uploadBtn, false, "", "Upload");
+    showError(err.message || String(err));
   }
 });
 
-// Handle analyze click
+// ---- Analyze ----
 analyzeBtn.addEventListener("click", async () => {
-  if (!uploadedFile) {
-    alert("Upload a file first");
-    return;
-  }
-
-  setBusy(analyzeBtn, true, "Analyzing...", "Analyze");
-  analysisResult.innerHTML = `<pre>Analyzing ${uploadedFile}…</pre>`;
-
+  if (!uploadedFile) return;
   try {
-    const data = await fetchJSON("/api/analyze", {
+    showInfo("Analyzing…");
+    const res = await fetch("/api/analyze", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ filename: uploadedFile })
     });
+    const { data, raw } = await parseMaybeJSON(res);
+    if (!res.ok) throw new Error((data && data.error) || raw || res.statusText);
 
-    const csvUrl = data.download_url_csv + `?t=${Date.now()}`;
-    const rows = typeof data.rows === "number" ? data.rows : "—";
-    let links = `<a class="btn-link" href="${csvUrl}" download>Download CSV</a>`;
-    if (data.download_url_xlsx) {
-      const xlsxUrl = data.download_url_xlsx + `?t=${Date.now()}`;
-      links += `<a class="btn-link" href="${xlsxUrl}" download>Download Excel</a>`;
-    }
-
-    analysisResult.innerHTML = `
-      <h3>Analysis complete</h3>
-      <p>Rows extracted: <strong>${rows}</strong></p>
-      <div>${links}</div>
-    `;
+    const { rows, download_url_csv, download_url_xlsx } = data;
+    resultEl.innerHTML = `
+      <pre>Analysis complete. Rows: ${rows}</pre>
+      <p>
+        <a class="btn-link" href="${download_url_csv}">Download CSV</a>
+        <a class="btn-link" href="${download_url_xlsx}">Download Excel</a>
+      </p>`;
   } catch (err) {
-    showError(analysisResult, err.message || "Analysis failed");
-  } finally {
-    setBusy(analyzeBtn, false, "", "Analyze");
-  }
-});
-
-// Handle AI agent analysis
-aiAgentBtn.addEventListener("click", async () => {
-  if (!uploadedFile) {
-    alert("Upload a file first");
-    return;
-  }
-
-  setBusy(aiAgentBtn, true, "Running AI...", "Run AI Agent");
-  aiResult.innerHTML = `<pre>Running AI Agent on ${uploadedFile}…</pre>`;
-
-  try {
-    const data = await fetchJSON("/api/agent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: uploadedFile })
-    });
-
-    aiResult.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-  } catch (err) {
-    showError(aiResult, err.message || "AI Agent failed");
-  } finally {
-    setBusy(aiAgentBtn, false, "", "Run AI Agent");
+    showError(err.message || String(err));
   }
 });

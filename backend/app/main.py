@@ -14,6 +14,17 @@ import secrets
 import redis.asyncio as redis
 
 from ..core.ai_agents import DocumentAnalyzerAgent
+from fastapi.exceptions import RequestValidationError
+
+@app.exception_handler(Exception)
+async def _unhandled(request, exc):
+    print(f"[unhandled] {type(exc).__name__}: {exc}")
+    return JSONResponse({"error": f"Server error: {type(exc).__name__}: {exc}"}, status_code=500)
+
+@app.exception_handler(RequestValidationError)
+async def _validation(request, exc):
+    return JSONResponse({"error": "Invalid request body", "details": exc.errors()}, status_code=422)
+
 
 # Optional parsers (the app runs even if these aren't available)
 try:
@@ -174,56 +185,55 @@ def healthz():
 
 @app.post("/api/upload")
 async def upload(request: Request, file: UploadFile = File(...)):
-    """
-    Save the uploaded file to /tmp/uploads and return its server filename.
-    Enforces basic extension and size checks.
-    """
-    filename = _safe_name(file.filename)
-    ext = Path(filename).suffix.lower()
-    if ext not in ALLOWED_EXTS:
-        return JSONResponse({"error": f"Unsupported file type: {ext}"}, status_code=400)
-
-    # Best-effort size check (uses header if present)
     try:
-        cl = int(request.headers.get("content-length", "0"))
-    except Exception:
-        cl = 0
-    if cl and cl > MAX_UPLOAD_MB * 1024 * 1024:
-        return JSONResponse({"error": f"File too large (> {MAX_UPLOAD_MB} MB)"}, status_code=413)
+        filename = _safe_name(file.filename)
+        ext = Path(filename).suffix.lower()
+        if ext not in ALLOWED_EXTS:
+            return JSONResponse({"error": f"Unsupported file type: {ext}"}, status_code=400)
 
-    target = UPLOAD_DIR / filename
-    with target.open("wb") as f:
-        shutil.copyfileobj(file.file, f)
+        # best-effort size guard
+        try:
+            cl = int(request.headers.get("content-length", "0"))
+        except Exception:
+            cl = 0
+        if cl and cl > MAX_UPLOAD_MB * 1024 * 1024:
+            return JSONResponse({"error": f"File too large (> {MAX_UPLOAD_MB} MB)"}, status_code=413)
 
-    return {"filename": filename}
+        target = UPLOAD_DIR / filename
+        with target.open("wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        return {"filename": filename}
+    except Exception as e:
+        print(f"[upload] ERROR: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"Upload failed: {e}"}, status_code=500)
+
 
 
 @app.post("/api/analyze")
 async def analyze(payload: dict):
-    """
-    Analyze a previously-uploaded file and produce CSV + Excel.
-    Expected JSON body: {"filename": "<name>"}
-    """
-    filename = _safe_name(str(payload.get("filename", "")))
-    if not filename:
-        return JSONResponse({"error": "filename required"}, status_code=400)
+    try:
+        filename = _safe_name(str(payload.get("filename", "")))
+        if not filename:
+            return JSONResponse({"error": "filename required"}, status_code=400)
 
-    src = UPLOAD_DIR / filename
-    if not src.exists():
-        return JSONResponse({"error": f"File not found: {filename}"}, status_code=404)
+        src = UPLOAD_DIR / filename
+        if not src.exists():
+            print("[analyze] upload dir contents:", [p.name for p in UPLOAD_DIR.glob("*")])
+            return JSONResponse({"error": f"File not found: {filename}"}, status_code=404)
 
-    rows = extract_text(src)
-    out = write_outputs(filename, rows)
+        rows = extract_text(src)
+        out = write_outputs(filename, rows)
 
-    resp = {
-        "message": "Analysis complete",
-        "rows": len(rows),
-        "download_url_csv": f"/api/download/{out['csv']}",
-    }
-    if out.get("xlsx"):
-        resp["download_url_xlsx"] = f"/api/download/{out['xlsx']}"
-
-    return resp
+        return {
+            "message": "Analysis complete",
+            "rows": len(rows),
+            "download_url_csv": f"/api/download/{out['csv']}",
+            "download_url_xlsx": f"/api/download/{out['xlsx']}",
+        }
+    except Exception as e:
+        print(f"[analyze] ERROR: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"Analyze failed: {e}"}, status_code=500)
 
 
 @app.post("/api/agent")
@@ -298,6 +308,12 @@ async def root():
         return FileResponse(str(INDEX_FILE))
     return HTMLResponse("<h1>index.html not found in /static</h1>", status_code=404)
 
+@app.get("/api/diagnostics")
+def diagnostics():
+    return {
+        "uploads": [p.name for p in UPLOAD_DIR.glob("*")],
+        "outputs": [p.name for p in OUTPUT_DIR.glob("*")],
+    }
 
 # SPA fallback so client-side routes work (non-API/Static paths → index.html)
 @app.middleware("http")
