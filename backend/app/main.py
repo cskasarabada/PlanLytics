@@ -7,6 +7,9 @@ import shutil
 import os
 import time
 import pandas as pd
+from dataclasses import asdict
+
+from ..core.ai_agents import DocumentAnalyzerAgent
 
 # Optional parsers (the app runs even if these aren't available)
 try:
@@ -185,6 +188,26 @@ async def analyze(payload: dict):
         "download_url_csv": f"/api/download/{out['csv']}",
         "download_url_xlsx": f"/api/download/{out['xlsx']}",
     }
+
+
+@app.post("/api/agent")
+async def agent_analysis(payload: dict):
+    """Run advanced AI analysis using the DocumentAnalyzerAgent."""
+    filename = _safe_name(str(payload.get("filename", "")))
+    if not filename:
+        return JSONResponse({"error": "filename required"}, status_code=400)
+
+    src = UPLOAD_DIR / filename
+    if not src.exists():
+        return JSONResponse({"error": f"File not found: {filename}"}, status_code=404)
+
+    rows = extract_text(src)
+    text = "\n\n".join(r.get("content", "") for r in rows if r.get("content"))
+
+    agent = DocumentAnalyzerAgent()
+    result = await agent.execute({"text": text, "template": payload.get("template", "master")})
+
+    return asdict(result)
 
 
 @app.get("/api/download/{filename}")
