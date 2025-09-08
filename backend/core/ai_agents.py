@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 class AgentType(Enum):
     DOCUMENT_ANALYZER = "document_analyzer"
     RISK_ASSESSOR = "risk_assessor"
-    ORACLE_MAPPER = "oracle_mapper" 
+    ORACLE_MAPPER = "oracle_mapper"
+    PLANNING_ADVISOR = "planning_advisor"
     COMPLIANCE_CHECKER = "compliance_checker"
     OPTIMIZATION_ADVISOR = "optimization_advisor"
     DATA_EXTRACTOR = "data_extractor"
@@ -531,6 +532,52 @@ class OracleMappingAgent(BaseAgent):
     def _get_required_fields(self) -> List[str]:
         return ["participants", "transactions", "credit_rules", "plan_elements"]
 
+class PlanningAdvisorAgent(BaseAgent):
+    """Specialized agent for strategic planning recommendations"""
+
+    def __init__(self):
+        super().__init__(
+            name="Planning Advisor",
+            description="Provides strategic recommendations for compensation plan design",
+            model_preferences=["gpt-4", "claude-3-sonnet", "gpt-3.5-turbo"],
+        )
+
+    async def _process(self, inputs: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        plan_data = inputs.get("plan_data", {})
+        text = inputs.get("text", "")
+        prompt = self._build_prompt(plan_data, text)
+
+        from core.prompting import call_llm
+        result = call_llm(prompt)
+
+        try:
+            return json.loads(result)
+        except json.JSONDecodeError:
+            return {"planning_recommendations": [result.strip()]}
+
+    def _build_prompt(self, plan_data: Dict, text: str) -> str:
+        return f"""
+        You are a Compensation Planning Advisor.
+
+        Analyze the provided plan details and offer strategic recommendations to improve design and alignment with business goals.
+
+        Plan Data: {json.dumps(plan_data, indent=2)}
+        Document Text:
+        <<<
+        {text[:20000]}
+        >>>
+
+        Respond in JSON:
+        {{
+            "planning_recommendations": [
+                {{"area": "", "suggestion": "", "rationale": ""}}
+            ]
+        }}
+        """
+
+    def _get_required_fields(self) -> List[str]:
+        return ["planning_recommendations"]
+
 class AIAgentOrchestrator:
     """Enhanced orchestrator for managing multiple AI agents"""
     
@@ -538,6 +585,7 @@ class AIAgentOrchestrator:
         self.agents = {
             AgentType.DOCUMENT_ANALYZER: DocumentAnalyzerAgent(),
             AgentType.RISK_ASSESSOR: RiskAssessmentAgent(),
+            AgentType.PLANNING_ADVISOR: PlanningAdvisorAgent(),
             AgentType.ORACLE_MAPPER: OracleMappingAgent(),
             # Add more agents as needed
         }
@@ -559,7 +607,8 @@ class AIAgentOrchestrator:
         workflows = {
             AnalysisApproach.COMPREHENSIVE: [
                 AgentType.DOCUMENT_ANALYZER,
-                AgentType.RISK_ASSESSOR, 
+                AgentType.RISK_ASSESSOR,
+                AgentType.PLANNING_ADVISOR,
                 AgentType.ORACLE_MAPPER
             ],
             AnalysisApproach.QUICK_SCAN: [
@@ -654,7 +703,15 @@ class AIAgentOrchestrator:
                 "plan_structure": doc_result.get("data", {}),
                 "template": template
             }
-        
+
+        elif agent_type == AgentType.PLANNING_ADVISOR:
+            doc_result = previous_results.get("agent_results", {}).get("document_analyzer", {})
+            return {
+                "plan_data": doc_result.get("data", {}),
+                "text": text,
+                "template": template
+            }
+
         return base_inputs
     
     def _calculate_overall_confidence(self, results: Dict) -> float:
@@ -715,18 +772,25 @@ class AIAgentOrchestrator:
         if "oracle_mapper" in agent_results:
             oracle_data = agent_results["oracle_mapper"].get("data", {})
             implementation = oracle_data.get("implementation_considerations", {})
-            
+
             if implementation.get("complexity_assessment"):
                 insights["recommendations"].append("Oracle ICM implementation roadmap generated")
-        
+
+        # Planning advisor insights
+        if "planning_advisor" in agent_results:
+            plan_data = agent_results["planning_advisor"].get("data", {})
+            if plan_data.get("planning_recommendations"):
+                insights["recommendations"].append("Strategic planning recommendations provided")
+
         return insights
 
 # Export main classes
 __all__ = [
     "AIAgentOrchestrator",
-    "AnalysisApproach", 
+    "AnalysisApproach",
     "AgentType",
     "DocumentAnalyzerAgent",
-    "RiskAssessmentAgent", 
-    "OracleMappingAgent"
+    "RiskAssessmentAgent",
+    "OracleMappingAgent",
+    "PlanningAdvisorAgent",
 ]
