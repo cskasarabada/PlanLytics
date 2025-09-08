@@ -23,6 +23,23 @@ function showError(container, message) {
   container.innerHTML = `<pre style="color:#ffb4b4;background:#2a0f14;border:1px solid #5b1f25;border-radius:8px;padding:10px;">Error: ${message}</pre>`;
 }
 
+// Helper to safely parse JSON responses. If the response isn't valid JSON,
+// the raw text is surfaced instead of triggering a "Unexpected token" error.
+async function fetchJSON(url, options = {}) {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(text || res.statusText);
+  }
+  if (!res.ok) {
+    throw new Error(data.error || res.statusText);
+  }
+  return data;
+}
+
 // Handle upload submit
 uploadForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -41,9 +58,7 @@ uploadForm.addEventListener("submit", async (e) => {
   uploadStatus.textContent = "Uploading…";
 
   try {
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
+    const data = await fetchJSON("/api/upload", { method: "POST", body: formData });
 
     uploadedFile = data.filename;
     uploadStatus.textContent = `Uploaded: ${uploadedFile}`;
@@ -75,13 +90,11 @@ analyzeBtn.addEventListener("click", async () => {
   analysisResult.innerHTML = `<pre>Analyzing ${uploadedFile}…</pre>`;
 
   try {
-    const res = await fetch("/api/analyze", {
+    const data = await fetchJSON("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: uploadedFile })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
 
     const csvUrl = data.download_url_csv + `?t=${Date.now()}`;
     const xlsxUrl = data.download_url_xlsx + `?t=${Date.now()}`;
@@ -113,13 +126,11 @@ aiAgentBtn.addEventListener("click", async () => {
   aiResult.innerHTML = `<pre>Running AI Agent on ${uploadedFile}…</pre>`;
 
   try {
-    const res = await fetch("/api/agent", {
+    const data = await fetchJSON("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: uploadedFile })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
 
     aiResult.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
   } catch (err) {
