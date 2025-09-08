@@ -7,6 +7,8 @@ const uploadBtn = document.getElementById("uploadBtn");
 const uploadStatus = document.getElementById("uploadStatus");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const analysisResult = document.getElementById("analysisResult");
+const aiAgentBtn = document.getElementById("aiAgentBtn");
+const aiResult = document.getElementById("aiResult");
 
 let uploadedFile = null;
 
@@ -46,12 +48,15 @@ uploadForm.addEventListener("submit", async (e) => {
     uploadedFile = data.filename;
     uploadStatus.textContent = `Uploaded: ${uploadedFile}`;
     analyzeBtn.disabled = false;
+    aiAgentBtn.disabled = false;
 
     // Reset preview
     analysisResult.innerHTML = `<pre>Ready to analyze: ${uploadedFile}</pre>`;
+    aiResult.innerHTML = `<pre>Ready to run AI Agent on: ${uploadedFile}</pre>`;
   } catch (err) {
     uploadedFile = null;
     analyzeBtn.disabled = true;
+    aiAgentBtn.disabled = true;
     showError(analysisResult, err.message || "Upload failed");
     uploadStatus.textContent = "Upload failed";
   } finally {
@@ -94,5 +99,32 @@ analyzeBtn.addEventListener("click", async () => {
     showError(analysisResult, err.message || "Analysis failed");
   } finally {
     setBusy(analyzeBtn, false, "", "Analyze");
+  }
+});
+
+// Handle AI agent analysis
+aiAgentBtn.addEventListener("click", async () => {
+  if (!uploadedFile) {
+    alert("Upload a file first");
+    return;
+  }
+
+  setBusy(aiAgentBtn, true, "Running AI...", "Run AI Agent");
+  aiResult.innerHTML = `<pre>Running AI Agent on ${uploadedFile}…</pre>`;
+
+  try {
+    const res = await fetch("/api/agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: uploadedFile })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+
+    aiResult.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+  } catch (err) {
+    showError(aiResult, err.message || "AI Agent failed");
+  } finally {
+    setBusy(aiAgentBtn, false, "", "Run AI Agent");
   }
 });
