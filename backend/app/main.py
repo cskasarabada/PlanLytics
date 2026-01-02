@@ -45,6 +45,7 @@ app = FastAPI(
     title="PlanLytics — Incentive Planning & Pay",
     version="1.1.0",
     description="AI-assisted insights, risks & strategy — SI requirements and detailed setups.",
+    openapi_version="3.1.0",
 )
 
 # Serve static assets (your landing page lives in backend/static/)
