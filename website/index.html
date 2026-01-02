@@ -68,7 +68,7 @@
                 <button onclick="scrollToDemo()" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
                     Try Free Demo Now
                 </button>
-                <button class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors">
+                <button onclick="scrollToDemo()" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors">
                     ▶ Watch Demo
                 </button>
             </div>
@@ -170,6 +170,63 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Flexible Pricing for Every Team</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Start free, then scale with advanced analysis and enterprise-grade governance.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Free Preview</h3>
+                    <p class="text-gray-600 mb-6">Perfect for quick validations.</p>
+                    <div class="text-4xl font-bold text-gray-900 mb-6">$0</div>
+                    <ul class="text-gray-600 space-y-3 mb-8">
+                        <li>Preview first 10 lines</li>
+                        <li>Single document upload</li>
+                        <li>Basic risk highlights</li>
+                    </ul>
+                    <button onclick="scrollToDemo()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Try Free Demo
+                    </button>
+                </div>
+
+                <div class="border-2 border-blue-600 rounded-2xl p-8 text-center shadow-lg">
+                    <div class="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-3">Most Popular</div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Pro Trial</h3>
+                    <p class="text-gray-600 mb-6">Full analysis for fast-moving teams.</p>
+                    <div class="text-4xl font-bold text-gray-900 mb-6">$199<span class="text-lg text-gray-500">/mo</span></div>
+                    <ul class="text-gray-600 space-y-3 mb-8">
+                        <li>Unlimited plan analysis</li>
+                        <li>ICM object mapping</li>
+                        <li>Export to PDF/Excel</li>
+                    </ul>
+                    <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Start Pro Trial
+                    </button>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Enterprise</h3>
+                    <p class="text-gray-600 mb-6">Custom governance and security.</p>
+                    <div class="text-4xl font-bold text-gray-900 mb-6">Let’s Talk</div>
+                    <ul class="text-gray-600 space-y-3 mb-8">
+                        <li>Private model training</li>
+                        <li>SSO and audit trails</li>
+                        <li>Dedicated success team</li>
+                    </ul>
+                    <a href="mailto:sales@icm-planlytics.com" class="block w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+                        Contact Sales
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Demo Section -->
     <section id="demo" class="py-20 px-4 bg-gray-50">
         <div class="max-w-6xl mx-auto">
@@ -200,7 +257,7 @@
                         </svg>
                         <div class="text-lg font-medium text-gray-900 mb-2">Drop your compensation document here</div>
                         <div class="text-sm text-gray-500 mb-4">or click to browse files</div>
-                        <div class="text-xs text-gray-400">Supports PDF, DOCX, XLSX up to 10MB</div>
+                        <div class="text-xs text-gray-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
                         <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
                     </div>
 
