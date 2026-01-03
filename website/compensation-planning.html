@@ -15,8 +15,11 @@
     </style>
 </head>
 <body class="bg-gray-50">
+    <a href="#features" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
+        Skip to main content
+    </a>
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm fixed w-full top-0 z-50">
+    <nav class="bg-white shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
@@ -29,7 +32,7 @@
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                    <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
                     <a href="compensation-planning.html" class="text-blue-600 font-medium">Compensation Planning</a>
                 </div>
             </div>
@@ -47,7 +50,7 @@
     </section>
 
     <!-- Compensation Planning Features -->
-    <section id="features" class="py-20 px-4 bg-white">
+    <main id="features" class="py-20 px-4 bg-white">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Compensation Planning Features</h2>
@@ -61,7 +64,7 @@
                 <div class="feature-card bg-gray-50 p-8 rounded-2xl">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
@@ -76,7 +79,7 @@
                 <div class="feature-card bg-gray-50 p-8 rounded-2xl">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                             </svg>
                         </div>
@@ -91,7 +94,7 @@
                 <div class="feature-card bg-gray-50 p-8 rounded-2xl">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
@@ -106,7 +109,7 @@
                 <div class="feature-card bg-gray-50 p-8 rounded-2xl">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
@@ -118,7 +121,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
     <!-- Planning Guidelines -->
     <section class="py-20 px-4 bg-gray-50">
@@ -130,7 +133,7 @@
                 <li>Follow a structured compensation plan design process for consistent outcomes.</li>
             </ul>
         </div>
-  </section>
+    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16 px-4">
@@ -150,5 +153,5 @@
             </div>
         </div>
     </footer>
-  </body>
-  </html>
+</body>
+</html>
