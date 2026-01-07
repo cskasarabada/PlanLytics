@@ -12,6 +12,12 @@
         .gradient-bg { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
         .feature-card { transition: all 0.3s ease; }
         .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .challenge-card { border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer; }
+        .challenge-card.is-active { background: #ffffff; border-color: #c7d2fe; box-shadow: 0 16px 30px rgba(37, 99, 235, 0.12); }
+        .market-chip { border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; color: #475569; background: #ffffff; transition: all 0.2s ease; }
+        .market-chip.is-active { background: #111827; color: #ffffff; border-color: #111827; }
+        .philosophy-toggle .indicator { transition: transform 0.2s ease; }
+        .philosophy-toggle.is-open .indicator { transform: rotate(45deg); }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -78,102 +84,141 @@
     <main id="features" class="py-20 px-4 bg-white">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Compensation Planning Features</h2>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Startup Planning Challenges, Solved</h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Core capabilities designed to streamline incentive compensation planning.
+                    Plan Studio turns early-stage uncertainty into a credible, fundable compensation plan.
                 </p>
             </div>
 
             <div class="grid lg:grid-cols-2 gap-12">
-                <!-- Feature 1 -->
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                <!-- Challenge 1 -->
+                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="quotas" aria-pressed="true">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Plan Modeling</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">Unclear quotas and OTE</h3>
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
-                        Draft and iterate plan components with real-time validation and AI-driven recommendations.
+                        Plan Studio converts product economics into role-based quotas, OTE, and pay mix in minutes.
                     </p>
-                </div>
+                </button>
 
-                <!-- Feature 2 -->
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                <!-- Challenge 2 -->
+                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="burn" aria-pressed="false">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
                             <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Scenario Simulation</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">Cash burn vs commission risk</h3>
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
-                        Run what-if scenarios to evaluate plan impact and adjust parameters before launch.
+                        Model commission cost by sales volume and see margin impact before you hire.
                     </p>
-                </div>
+                </button>
 
-                <!-- Feature 3 -->
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                <!-- Challenge 3 -->
+                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="ramp" aria-pressed="false">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
                             <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Workflow Management</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">Hiring and ramp uncertainty</h3>
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
-                        Coordinate approvals and version control with integrated workflows and tracking.
+                        Estimate reps needed, ramp timelines, and coverage based on your target growth.
                     </p>
-                </div>
+                </button>
 
-                <!-- Feature 4 -->
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl">
+                <!-- Benefit 4 -->
+                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="investor" aria-pressed="false">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                             <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Analytics & Reporting</h3>
+                        <h3 class="text-2xl font-semibold text-gray-900">Investor-ready plan story</h3>
                     </div>
                     <p class="text-gray-600 mb-6 text-lg">
-                        Monitor performance metrics and generate insights with built-in analytics dashboards.
+                        Produce a credible plan draft, scenarios, and benchmarks you can share with investors.
                     </p>
+                </button>
+            </div>
+
+            <div class="mt-10 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <div class="text-xs uppercase tracking-wide text-gray-400 mb-2">Plan Studio benefit</div>
+                <div class="space-y-3">
+                    <div class="challenge-panel" data-challenge-panel="quotas">
+                        <div class="text-lg font-semibold text-gray-900">Quota and OTE guidance</div>
+                        <p class="text-gray-600">
+                            Auto-suggested quotas, pay mix, and OTE based on pricing, sales cycle, and ramp assumptions.
+                        </p>
+                    </div>
+                    <div class="challenge-panel hidden" data-challenge-panel="burn">
+                        <div class="text-lg font-semibold text-gray-900">Burn-aware commission modeling</div>
+                        <p class="text-gray-600">
+                            Live scenarios show commission cost, margin impact, and break-even targets before you scale.
+                        </p>
+                    </div>
+                    <div class="challenge-panel hidden" data-challenge-panel="ramp">
+                        <div class="text-lg font-semibold text-gray-900">Hiring and coverage planning</div>
+                        <p class="text-gray-600">
+                            Plan rep count, ramp curves, and territory coverage to hit revenue goals on time.
+                        </p>
+                    </div>
+                    <div class="challenge-panel hidden" data-challenge-panel="investor">
+                        <div class="text-lg font-semibold text-gray-900">Investor-ready narrative</div>
+                        <p class="text-gray-600">
+                            Generate a shareable plan summary with assumptions, scenarios, and benchmarks.
+                        </p>
+                    </div>
                 </div>
+                <div class="mt-4 text-xs text-gray-500">Tip: click a challenge above to explore the benefit.</div>
             </div>
         </div>
     </main>
 
     <!-- AI Compensation Plan Studio -->
-    <section id="ai-planning" class="py-20 px-4 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
+    <section id="ai-planning" class="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-indigo-50 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-100/70 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-16 w-72 h-72 bg-sky-100/70 rounded-full blur-3xl"></div>
+        <div class="max-w-7xl mx-auto relative">
             <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-indigo-100 text-xs uppercase tracking-[0.2em] text-indigo-700 mb-4">
+                    Plan Studio
+                </div>
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">AI Compensation Plan Studio</h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
                     Bring the same AI experience from ICM analysis into compensation planning. Upload a brief or share your
                     goals to generate a plan draft with modeled scenarios.
                 </p>
-                <div class="mt-6 max-w-3xl mx-auto bg-white border border-gray-200 rounded-xl px-6 py-4 text-gray-700">
-                    <div class="text-xs uppercase tracking-wide text-gray-400 mb-2">Founder moment</div>
-                    <p class="text-base">"Sure, let's build. With what you suggested, I'm living the startup journey with the rewarding experience at my fingertips."</p>
+                <div class="mt-6 max-w-3xl mx-auto bg-white/90 border border-white/70 rounded-2xl px-8 py-6 text-gray-700 shadow-lg shadow-indigo-100">
+                    <div class="text-xs uppercase tracking-wide text-indigo-500 mb-2">Founder moment</div>
+                    <div class="flex items-start gap-3">
+                        <div class="text-3xl leading-none text-indigo-200">“</div>
+                        <p class="text-base italic">Sure, let's build. With what you suggested, I'm living the startup journey with the rewarding experience at my fingertips.</p>
+                    </div>
                 </div>
-                <div class="mt-6 max-w-4xl mx-auto">
+                <div class="mt-8 max-w-4xl mx-auto">
                     <div class="text-sm font-semibold text-gray-900 mb-3">Unique Plan Build and Plan Experience</div>
                     <div class="grid sm:grid-cols-2 gap-4 text-left">
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
                             Startup speed: turn product context into a plan draft in minutes.
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
                             Enterprise rigor: benchmark, govern, and audit every change.
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
                             One AI flow: draft, simulate, and export across ICM and payroll.
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
                             Admin-ready outputs: guardrails, compliance checks, and reporting.
                         </div>
                     </div>
@@ -491,6 +536,11 @@
                     </div>
                     <div class="text-xs text-gray-500 uppercase tracking-wide">Commission as % of revenue</div>
                 </div>
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button type="button" class="market-chip is-active" data-planner-preset="startup">SaaS Starter</button>
+                    <button type="button" class="market-chip" data-planner-preset="growth">Growth Motion</button>
+                    <button type="button" class="market-chip" data-planner-preset="enterprise">Enterprise Motion</button>
+                </div>
 
                 <div class="grid lg:grid-cols-2 gap-8">
                     <form id="profit-form" class="space-y-4">
@@ -593,22 +643,58 @@
 
                 <div class="grid lg:grid-cols-3 gap-6">
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <div class="text-sm font-semibold text-gray-900 mb-2">1. Job Analysis and Evaluation</div>
-                        <p class="text-gray-600">
-                            Define roles, responsibilities, and impact. Map levels and career paths to ensure internal equity.
-                        </p>
+                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-1">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm font-semibold text-gray-900">1. Job Analysis and Evaluation</div>
+                                <span class="indicator text-indigo-500 text-lg">+</span>
+                            </div>
+                            <p class="text-gray-600 mt-2">
+                                Define roles, responsibilities, and impact. Map levels and career paths to ensure internal equity.
+                            </p>
+                        </button>
+                        <div id="philosophy-1" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Role clarity and scope alignment</li>
+                                <li>Leveling and career progression</li>
+                                <li>Internal equity checkpoints</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <div class="text-sm font-semibold text-gray-900 mb-2">2. Market Data Benchmarking</div>
-                        <p class="text-gray-600">
-                            Gather salary data for similar roles by industry, location, and company size to set competitive ranges.
-                        </p>
+                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-2">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm font-semibold text-gray-900">2. Market Data Benchmarking</div>
+                                <span class="indicator text-indigo-500 text-lg">+</span>
+                            </div>
+                            <p class="text-gray-600 mt-2">
+                                Gather salary data for similar roles by industry, location, and company size to set competitive ranges.
+                            </p>
+                        </button>
+                        <div id="philosophy-2" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Percentile bands by role and region</li>
+                                <li>Pay mix alignment to market norms</li>
+                                <li>Offer competitiveness signals</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <div class="text-sm font-semibold text-gray-900 mb-2">3. Design the Compensation Structure</div>
-                        <p class="text-gray-600">
-                            Choose pay mix, incentives, accelerators, and guardrails aligned to performance and budget goals.
-                        </p>
+                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm font-semibold text-gray-900">3. Design the Compensation Structure</div>
+                                <span class="indicator text-indigo-500 text-lg">+</span>
+                            </div>
+                            <p class="text-gray-600 mt-2">
+                                Choose pay mix, incentives, accelerators, and guardrails aligned to performance and budget goals.
+                            </p>
+                        </button>
+                        <div id="philosophy-3" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Quota, accelerators, and caps</li>
+                                <li>Ramp guarantees and draws</li>
+                                <li>Governance and compliance checks</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -622,6 +708,12 @@
                     <div class="text-xs text-gray-500 uppercase tracking-wide">Market signals</div>
                 </div>
 
+                <div id="market-lens" class="flex flex-wrap gap-2 mb-8">
+                    <button type="button" class="market-chip is-active" data-market="startup">Startup</button>
+                    <button type="button" class="market-chip" data-market="growth">Growth</button>
+                    <button type="button" class="market-chip" data-market="enterprise">Enterprise</button>
+                </div>
+
                 <div class="grid lg:grid-cols-2 gap-8">
                     <div class="space-y-4">
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
@@ -630,6 +722,7 @@
                                 <li>Role: Mid-market AE, SDR</li>
                                 <li>Region: North America</li>
                                 <li>Industry: Fintech SaaS</li>
+                                <li>Stage: <span class="font-semibold text-gray-900" data-market-label>Startup</span></li>
                                 <li>Plan type: Base + commission with accelerators</li>
                                 <li>Quota: $600k annual</li>
                             </ul>
@@ -637,26 +730,51 @@
 
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4" data-role="demo">
                             <div class="text-xs text-gray-500 uppercase tracking-wide">Preview insights</div>
-                            <ul class="mt-3 space-y-2 text-gray-700">
-                                <li>OTE aligned to 55th percentile</li>
-                                <li>Variable mix slightly below market median</li>
-                                <li>Accelerator starts later than peers</li>
-                            </ul>
+                            <div class="market-insights mt-3 space-y-2 text-gray-700" data-market="startup">
+                                <div>OTE aligned to 55th percentile</div>
+                                <div>Variable mix slightly below market median</div>
+                                <div>Accelerator starts later than peers</div>
+                            </div>
+                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="growth">
+                                <div>OTE aligned to 60th percentile</div>
+                                <div>Ramp guarantees common for first 2 quarters</div>
+                                <div>Accelerators begin at 105%</div>
+                            </div>
+                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="enterprise">
+                                <div>OTE aligned to 65th percentile</div>
+                                <div>Higher base mix to reduce volatility</div>
+                                <div>Formal clawback language expected</div>
+                            </div>
                         </div>
 
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 hidden" data-role="paid">
                             <div class="text-xs text-gray-500 uppercase tracking-wide">Full insights</div>
-                            <ul class="mt-3 space-y-2 text-gray-700">
-                                <li>OTE at 60th percentile with 50/50 mix target</li>
-                                <li>Accelerators typically begin at 105% with 1.2x to 1.4x rates</li>
-                                <li>75% of peer plans include a Q1 ramp guarantee</li>
-                                <li>Clawback language present in 40% of peer plans</li>
-                            </ul>
+                            <div class="market-insights mt-3 space-y-2 text-gray-700" data-market="startup">
+                                <div>OTE at 60th percentile with 50/50 mix target</div>
+                                <div>Accelerators begin at 105% with 1.2x to 1.4x rates</div>
+                                <div>75% of peer plans include a Q1 ramp guarantee</div>
+                                <div>Clawback language present in 40% of peer plans</div>
+                            </div>
+                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="growth">
+                                <div>OTE at 65th percentile with 50/50 mix target</div>
+                                <div>Accelerators begin at 100% with 1.3x to 1.5x rates</div>
+                                <div>Monthly payout cadence favored by 70% of peers</div>
+                                <div>SPIFs used in 55% of plans for new product launches</div>
+                            </div>
+                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="enterprise">
+                                <div>OTE at 70th percentile with 55/45 mix target</div>
+                                <div>Accelerators begin at 100% with 1.4x to 1.6x rates</div>
+                                <div>Territory protection clauses present in 60% of plans</div>
+                                <div>Quarterly payout true-ups standard for 65% of peers</div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Benchmark snapshot</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Benchmark snapshot</div>
+                            <div class="text-xs text-gray-400 uppercase tracking-wide">Lens: <span data-market-label>Startup</span></div>
+                        </div>
                         <div class="mt-4 overflow-x-auto">
                             <table class="min-w-full text-sm">
                                 <thead>
@@ -1047,11 +1165,163 @@
             btn.textContent = 'Generate Another Draft';
         }
 
+        function initChallengeNavigator() {
+            const cards = Array.from(document.querySelectorAll('.challenge-card'));
+            const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
+            if (!cards.length || !panels.length) {
+                return;
+            }
+
+            const activate = (target) => {
+                cards.forEach((card) => {
+                    const isActive = card === target;
+                    card.classList.toggle('is-active', isActive);
+                    card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                panels.forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.getAttribute('data-challenge-panel') !== target.getAttribute('data-challenge'));
+                });
+            };
+
+            activate(cards[0]);
+            cards.forEach((card) => {
+                card.addEventListener('click', () => activate(card));
+            });
+        }
+
+        function initPhilosophyAccordion() {
+            const toggles = Array.from(document.querySelectorAll('.philosophy-toggle'));
+            if (!toggles.length) {
+                return;
+            }
+
+            const closeAll = () => {
+                toggles.forEach((toggle) => {
+                    toggle.classList.remove('is-open');
+                    const panel = document.getElementById(toggle.getAttribute('data-panel'));
+                    if (panel) {
+                        panel.classList.add('hidden');
+                    }
+                });
+            };
+
+            closeAll();
+            const defaultToggle = toggles[0];
+            if (defaultToggle) {
+                defaultToggle.classList.add('is-open');
+                const panel = document.getElementById(defaultToggle.getAttribute('data-panel'));
+                if (panel) {
+                    panel.classList.remove('hidden');
+                }
+            }
+
+            toggles.forEach((toggle) => {
+                toggle.addEventListener('click', () => {
+                    const panel = document.getElementById(toggle.getAttribute('data-panel'));
+                    if (!panel) {
+                        return;
+                    }
+
+                    if (!panel.classList.contains('hidden')) {
+                        toggle.classList.remove('is-open');
+                        panel.classList.add('hidden');
+                        return;
+                    }
+
+                    closeAll();
+                    toggle.classList.add('is-open');
+                    panel.classList.remove('hidden');
+                });
+            });
+        }
+
+        function initMarketLens() {
+            const lensButtons = Array.from(document.querySelectorAll('#market-lens button'));
+            const insights = Array.from(document.querySelectorAll('.market-insights'));
+            const labels = Array.from(document.querySelectorAll('[data-market-label]'));
+            if (!lensButtons.length || !insights.length) {
+                return;
+            }
+
+            const labelMap = {
+                startup: 'Startup',
+                growth: 'Growth',
+                enterprise: 'Enterprise'
+            };
+
+            const activate = (market) => {
+                lensButtons.forEach((button) => {
+                    button.classList.toggle('is-active', button.getAttribute('data-market') === market);
+                });
+                insights.forEach((block) => {
+                    block.classList.toggle('hidden', block.getAttribute('data-market') !== market);
+                });
+                labels.forEach((label) => {
+                    label.textContent = labelMap[market] || 'Startup';
+                });
+            };
+
+            activate('startup');
+            lensButtons.forEach((button) => {
+                button.addEventListener('click', () => activate(button.getAttribute('data-market')));
+            });
+        }
+
+        function initPlannerPresets() {
+            const presetButtons = Array.from(document.querySelectorAll('[data-planner-preset]'));
+            if (!presetButtons.length) {
+                return;
+            }
+
+            const presets = {
+                startup: { price: 10, cost: 4, expenses: 100000, margin: 20, commission: 8, salesPerRep: 600000, reps: 4 },
+                growth: { price: 25, cost: 6, expenses: 250000, margin: 25, commission: 10, salesPerRep: 800000, reps: 6 },
+                enterprise: { price: 50, cost: 12, expenses: 500000, margin: 30, commission: 12, salesPerRep: 1200000, reps: 8 }
+            };
+
+            const setValue = (id, value) => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.value = value;
+                }
+            };
+
+            const activate = (key) => {
+                presetButtons.forEach((button) => {
+                    button.classList.toggle('is-active', button.getAttribute('data-planner-preset') === key);
+                });
+                const preset = presets[key];
+                if (!preset) {
+                    return;
+                }
+
+                setValue('input-price', preset.price);
+                setValue('input-cost', preset.cost);
+                setValue('input-expenses', preset.expenses);
+                setValue('input-margin', preset.margin);
+                setValue('input-commission', preset.commission);
+                setValue('input-sales-per-rep', preset.salesPerRep);
+                setValue('input-reps', preset.reps);
+                updateProfitPlanner();
+            };
+
+            activate('startup');
+            presetButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    activate(button.getAttribute('data-planner-preset'));
+                });
+            });
+        }
+
         window.addEventListener('load', () => {
             initRoleControls();
             initProfitPlanner();
             initPlanStudio();
             initMobileNav();
+            initChallengeNavigator();
+            initPhilosophyAccordion();
+            initMarketLens();
+            initPlannerPresets();
         });
     </script>
 </body>
