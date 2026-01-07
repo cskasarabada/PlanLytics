@@ -716,15 +716,63 @@
 
                 <div class="grid lg:grid-cols-2 gap-8">
                     <div class="space-y-4">
+                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide mb-3">AI Agentic Interaction</div>
+                            <div class="space-y-4">
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                    <div class="text-xs text-slate-500 uppercase tracking-wide mb-2">Agent prompt</div>
+                                    <p class="text-sm text-slate-700">
+                                        Tell me your stage, roles, region, industry, plan type, and quota so I can benchmark your plan.
+                                    </p>
+                                </div>
+                                <div class="grid sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label for="agent-stage" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Stage</label>
+                                        <select id="agent-stage" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                            <option value="startup">Startup</option>
+                                            <option value="growth">Growth</option>
+                                            <option value="enterprise">Enterprise</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="agent-roles" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Roles</label>
+                                        <input id="agent-roles" type="text" value="Mid-market AE, SDR" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label for="agent-region" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Region</label>
+                                        <input id="agent-region" type="text" value="North America" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label for="agent-industry" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Industry</label>
+                                        <input id="agent-industry" type="text" value="Fintech SaaS" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label for="agent-plan" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Plan type</label>
+                                        <input id="agent-plan" type="text" value="Base + commission with accelerators" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label for="agent-quota" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Quota</label>
+                                        <input id="agent-quota" type="text" value="$600k annual" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                                    </div>
+                                </div>
+                                <button id="agent-generate" type="button" class="w-full bg-gray-900 text-white py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+                                    Generate Market Analysis
+                                </button>
+                                <div id="agent-status" class="hidden text-xs text-emerald-600">
+                                    ✅ Market analysis updated from agentic inputs.
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
                             <div class="text-xs text-gray-500 uppercase tracking-wide">Market inputs</div>
                             <ul class="mt-3 space-y-2 text-gray-700">
-                                <li>Role: Mid-market AE, SDR</li>
-                                <li>Region: North America</li>
-                                <li>Industry: Fintech SaaS</li>
+                                <li>Role: <span class="font-semibold text-gray-900" data-market-role>Mid-market AE, SDR</span></li>
+                                <li>Region: <span class="font-semibold text-gray-900" data-market-region>North America</span></li>
+                                <li>Industry: <span class="font-semibold text-gray-900" data-market-industry>Fintech SaaS</span></li>
                                 <li>Stage: <span class="font-semibold text-gray-900" data-market-label>Startup</span></li>
-                                <li>Plan type: Base + commission with accelerators</li>
-                                <li>Quota: $600k annual</li>
+                                <li>Plan type: <span class="font-semibold text-gray-900" data-market-plan>Base + commission with accelerators</span></li>
+                                <li>Quota: <span class="font-semibold text-gray-900" data-market-quota>$600k annual</span></li>
                             </ul>
                         </div>
 
@@ -1235,6 +1283,8 @@
             });
         }
 
+        let marketLensActivate = null;
+
         function initMarketLens() {
             const lensButtons = Array.from(document.querySelectorAll('#market-lens button'));
             const insights = Array.from(document.querySelectorAll('.market-insights'));
@@ -1261,9 +1311,48 @@
                 });
             };
 
+            marketLensActivate = activate;
             activate('startup');
             lensButtons.forEach((button) => {
                 button.addEventListener('click', () => activate(button.getAttribute('data-market')));
+            });
+        }
+
+        function initMarketAgentic() {
+            const stage = document.getElementById('agent-stage');
+            const roles = document.getElementById('agent-roles');
+            const region = document.getElementById('agent-region');
+            const industry = document.getElementById('agent-industry');
+            const plan = document.getElementById('agent-plan');
+            const quota = document.getElementById('agent-quota');
+            const button = document.getElementById('agent-generate');
+            const status = document.getElementById('agent-status');
+
+            const roleOut = document.querySelector('[data-market-role]');
+            const regionOut = document.querySelector('[data-market-region]');
+            const industryOut = document.querySelector('[data-market-industry]');
+            const planOut = document.querySelector('[data-market-plan]');
+            const quotaOut = document.querySelector('[data-market-quota]');
+
+            if (!button) {
+                return;
+            }
+
+            button.addEventListener('click', () => {
+                if (roleOut && roles) roleOut.textContent = roles.value.trim() || 'Mid-market AE, SDR';
+                if (regionOut && region) regionOut.textContent = region.value.trim() || 'North America';
+                if (industryOut && industry) industryOut.textContent = industry.value.trim() || 'Fintech SaaS';
+                if (planOut && plan) planOut.textContent = plan.value.trim() || 'Base + commission with accelerators';
+                if (quotaOut && quota) quotaOut.textContent = quota.value.trim() || '$600k annual';
+
+                if (stage && marketLensActivate) {
+                    marketLensActivate(stage.value);
+                }
+
+                if (status) {
+                    status.classList.remove('hidden');
+                    setTimeout(() => status.classList.add('hidden'), 2000);
+                }
             });
         }
 
@@ -1322,6 +1411,7 @@
             initPhilosophyAccordion();
             initMarketLens();
             initPlannerPresets();
+            initMarketAgentic();
         });
     </script>
 </body>
