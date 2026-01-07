@@ -17,6 +17,7 @@
         .feature-card { transition: all 0.3s ease; }
         .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .demo-output { font-family: 'Courier New', monospace; background: #f8fafc; }
+        .demo-output.expanded { max-height: none; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -323,7 +324,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-gray-800 text-green-400 p-4 rounded-lg demo-output text-sm mb-6">
+                        <div class="bg-gray-800 text-green-400 p-4 rounded-lg demo-output text-sm mb-6" id="analysis-console">
                             <div id="analysis-output">
                                 <div data-role="demo">
                                     <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
@@ -337,6 +338,11 @@
                                     <div>PLAN STRUCTURE:</div>
                                     <div>• Base Commission: 2% on all sales</div>
                                     <div>• Tier 1 Accelerator: 0.5% above $50K</div>
+                                    <div class="my-2">─────────────────────────────────────</div>
+                                    <div>RISK CHECKS:</div>
+                                    <div>• Overpayment risk flagged at 140%+</div>
+                                    <div>• Clawback policy missing on cancellations</div>
+                                    <div>• Territory overlap risk detected</div>
                                     <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
                                         ⚠️ PREVIEW MODE - Upgrade for full analysis
                                     </div>
@@ -360,9 +366,38 @@
                                     <div>• Quota Policy: 3 segments with attainment thresholds</div>
                                     <div>• Payout Curves: 5 tiers with caps and clawbacks</div>
                                     <div>• Exceptions: 2 approvals with audit notes</div>
+                                    <div class="my-2">─────────────────────────────────────</div>
+                                    <div>RISK CHECKS:</div>
+                                    <div>• Overpayment risk flagged at 140%+</div>
+                                    <div>• Clawback policy missing on cancellations</div>
+                                    <div>• Territory overlap risk detected</div>
+                                    <div>• SPIFF conflicts with margin guardrail</div>
                                     <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
                                         ✅ FULL MODE - Exportable ICM package ready
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 mb-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900">Risk Assessment — Real Time</div>
+                                    <div class="text-xs text-gray-500">Click to expand what the agent checks as it analyzes.</div>
+                                </div>
+                                <button id="risk-toggle" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                                    View checks
+                                </button>
+                            </div>
+                            <div id="risk-details" class="hidden mt-4 text-sm text-gray-700">
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Compliance coverage: payout timing, local labor rules, and clawback triggers.</li>
+                                    <li>Plan leakage: overpayment risk, crediting overlaps, and double counting.</li>
+                                    <li>Behavioral alignment: accelerator thresholds and quota fairness.</li>
+                                    <li>Audit readiness: approvals, exceptions, and version traceability.</li>
+                                </ul>
+                                <div class="mt-3 text-xs text-gray-500">
+                                    Example: “Territory overlap risk detected for North America overlay.”
                                 </div>
                             </div>
                         </div>
@@ -637,6 +672,20 @@
         window.addEventListener('load', async () => {
             initRoleControls();
             initMobileNav();
+
+            const riskToggle = document.getElementById('risk-toggle');
+            const riskDetails = document.getElementById('risk-details');
+            const analysisConsole = document.getElementById('analysis-console');
+
+            if (riskToggle && riskDetails && analysisConsole) {
+                riskToggle.addEventListener('click', () => {
+                    const isHidden = riskDetails.classList.contains('hidden');
+                    riskDetails.classList.toggle('hidden');
+                    analysisConsole.classList.toggle('expanded', isHidden);
+                    riskToggle.textContent = isHidden ? 'Hide checks' : 'View checks';
+                });
+            }
+
             const isConnected = await testAPIConnection();
             if (isConnected) {
                 console.log('✅ Backend API is connected and healthy');
