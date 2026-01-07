@@ -38,10 +38,36 @@
                     <a href="compensation-planning.html" class="text-gray-600 hover:text-blue-600 transition-colors">Compensation Planning</a>
                     <a href="#pricing" class="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
                     <a href="#demo" class="text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
+                    <span data-role-badge class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Role: Demo</span>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors">
+                        Sign in
+                    </button>
                     <button onclick="scrollToDemo()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                         Start Free Trial
                     </button>
                 </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
+                        Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
+            <div class="px-4 pb-4 pt-3 space-y-3">
+                <a href="#features" class="block text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                <a href="compensation-planning.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Compensation Planning</a>
+                <a href="#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="#demo" class="block text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
+                <div class="flex items-center justify-between">
+                    <span data-role-badge class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Role: Demo</span>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors">
+                        Sign in
+                    </button>
+                </div>
+                <button onclick="scrollToDemo()" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    Start Free Trial
+                </button>
             </div>
         </div>
     </nav>
@@ -199,7 +225,7 @@
                     <div class="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-3">Most Popular</div>
                     <h3 class="text-2xl font-semibold text-gray-900 mb-2">Pro Trial</h3>
                     <p class="text-gray-600 mb-6">Full analysis for fast-moving teams.</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-6">$199<span class="text-lg text-gray-500">/mo</span></div>
+                    <div class="text-4xl font-bold text-gray-900 mb-6">$39<span class="text-lg text-gray-500">/mo</span></div>
                     <ul class="text-gray-600 space-y-3 mb-8">
                         <li>Unlimited plan analysis</li>
                         <li>ICM object mapping</li>
@@ -236,12 +262,20 @@
                     Upload a compensation document and see our AI analysis in action. 
                     Free users get a preview of the first 10 lines of analysis.
                 </p>
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-2xl mx-auto">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-2xl mx-auto" data-role="demo">
                     <div class="flex items-center justify-center">
                         <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
                         <span class="text-yellow-800 font-medium">Free Preview: See first 10 lines • Upgrade for full results</span>
+                    </div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto hidden" data-role="paid">
+                    <div class="flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-blue-800 font-medium">Full Analysis Enabled: Detailed ICM + Compensation outputs</span>
                     </div>
                 </div>
             </div>
@@ -291,26 +325,54 @@
 
                         <div class="bg-gray-800 text-green-400 p-4 rounded-lg demo-output text-sm mb-6">
                             <div id="analysis-output">
-                                <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
-                                <div class="mb-2">═══════════════════════════════════════</div>
-                                <div>Document Type: Sales Commission Plan</div>
-                                <div>Plan Complexity: High (Score: 8.2/10)</div>
-                                <div>Key Components: 7 identified</div>
-                                <div>Risk Level: Medium (3 issues found)</div>
-                                <div>ICM Objects: 12 required</div>
-                                <div class="my-2">─────────────────────────────────────</div>
-                                <div>PLAN STRUCTURE:</div>
-                                <div>• Base Commission: 2% on all sales</div>
-                                <div>• Tier 1 Accelerator: 0.5% above $50K</div>
-                                <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
-                                    ⚠️ PREVIEW MODE - Upgrade for full analysis
+                                <div data-role="demo">
+                                    <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
+                                    <div class="mb-2">═══════════════════════════════════════</div>
+                                    <div>Document Type: Sales Commission Plan</div>
+                                    <div>Plan Complexity: High (Score: 8.2/10)</div>
+                                    <div>Key Components: 7 identified</div>
+                                    <div>Risk Level: Medium (3 issues found)</div>
+                                    <div>ICM Objects: 12 required</div>
+                                    <div class="my-2">─────────────────────────────────────</div>
+                                    <div>PLAN STRUCTURE:</div>
+                                    <div>• Base Commission: 2% on all sales</div>
+                                    <div>• Tier 1 Accelerator: 0.5% above $50K</div>
+                                    <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
+                                        ⚠️ PREVIEW MODE - Upgrade for full analysis
+                                    </div>
+                                </div>
+                                <div class="hidden" data-role="paid">
+                                    <div class="mb-2">📊 ICM PLANLYTICS FULL ANALYSIS</div>
+                                    <div class="mb-2">═══════════════════════════════════════</div>
+                                    <div>Document Type: Sales Commission Plan</div>
+                                    <div>Plan Complexity: High (Score: 8.2/10)</div>
+                                    <div>Key Components: 7 identified</div>
+                                    <div>Risk Level: Medium (3 issues found)</div>
+                                    <div>ICM Objects: 12 required</div>
+                                    <div class="my-2">─────────────────────────────────────</div>
+                                    <div>ICM OUTPUTS:</div>
+                                    <div>• Crediting Rules: 4 (Direct, Overlay, Split, House)</div>
+                                    <div>• Rates: 6 with step-up tiers + accelerators</div>
+                                    <div>• Deposits: 3 schedule types (Monthly/Quarterly/Annual)</div>
+                                    <div>• Eligibility: 5 rules + territory overrides</div>
+                                    <div class="my-2">─────────────────────────────────────</div>
+                                    <div>COMP PLAN OUTPUTS:</div>
+                                    <div>• Quota Policy: 3 segments with attainment thresholds</div>
+                                    <div>• Payout Curves: 5 tiers with caps and clawbacks</div>
+                                    <div>• Exceptions: 2 approvals with audit notes</div>
+                                    <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
+                                        ✅ FULL MODE - Exportable ICM package ready
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors" data-role="demo">
                                 Get Full Analysis - Start Pro Trial
+                            </button>
+                            <button onclick="showUpgradeModal()" class="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors hidden" data-role="paid">
+                                Download Full Report
                             </button>
                         </div>
                     </div>
@@ -346,11 +408,40 @@
         </div>
     </footer>
 
+    <!-- Role Modal -->
+    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
+            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form" class="space-y-4">
+                <div>
+                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Sign in
+                </button>
+            </form>
+            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
         // Global variables
         let selectedFile = null;
         const API_BASE_URL = 'https://icm-planlytics.onrender.com'; // Update this with your Render URL
+        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+        let activeRole = 'demo';
+        const ROLE_CREDENTIALS = {
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+        };
 
         // File upload handling
         document.getElementById('upload-area').addEventListener('click', () => {
@@ -449,8 +540,103 @@
             alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
         }
 
+        function applyRole(role) {
+            activeRole = role;
+            localStorage.setItem(ROLE_STORAGE_KEY, role);
+            document.querySelectorAll('[data-role-badge]').forEach((badge) => {
+                badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
+            });
+
+            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'demo');
+            });
+            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'paid');
+            });
+
+            const analyzeBtn = document.getElementById('analyze-btn');
+            if (analyzeBtn) {
+                analyzeBtn.textContent = role === 'paid'
+                    ? 'Analyze Document (Full Analysis)'
+                    : 'Analyze Document (Free Preview)';
+            }
+        }
+
+        function initRoleControls() {
+            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+            const roleModal = document.getElementById('role-modal');
+            const roleClose = document.getElementById('role-close');
+            const roleForm = document.getElementById('role-form');
+            const roleError = document.getElementById('role-error');
+            const roleUsername = document.getElementById('role-username');
+            const rolePassword = document.getElementById('role-password');
+            const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+            roleToggles.forEach((toggle) => {
+                toggle.addEventListener('click', () => {
+                    roleModal.classList.remove('hidden');
+                    roleModal.classList.add('flex');
+                    roleError.classList.add('hidden');
+                    roleForm.reset();
+                });
+            });
+
+            roleClose.addEventListener('click', () => {
+                roleModal.classList.add('hidden');
+                roleModal.classList.remove('flex');
+            });
+
+            roleModal.addEventListener('click', (event) => {
+                if (event.target === roleModal) {
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                }
+            });
+
+            roleForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = roleUsername.value.trim();
+                const password = rolePassword.value.trim();
+                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+
+                if (isDemo || isPaid) {
+                    applyRole(isPaid ? 'paid' : 'demo');
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                } else {
+                    roleError.classList.remove('hidden');
+                }
+            });
+        }
+
+        function initMobileNav() {
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!menuToggle || !mobileMenu) {
+                return;
+            }
+
+            menuToggle.addEventListener('click', () => {
+                const isOpen = !mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+            });
+
+            mobileMenu.querySelectorAll('a, button').forEach((item) => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
         // Test API connection on page load
         window.addEventListener('load', async () => {
+            initRoleControls();
+            initMobileNav();
             const isConnected = await testAPIConnection();
             if (isConnected) {
                 console.log('✅ Backend API is connected and healthy');

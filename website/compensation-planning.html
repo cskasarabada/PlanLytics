@@ -32,8 +32,33 @@
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
                     <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
                     <a href="compensation-planning.html" class="text-blue-600 font-medium">Compensation Planning</a>
+                    <a href="#ai-planning" class="text-gray-600 hover:text-blue-600 transition-colors">AI Plan Studio</a>
+                    <span data-role-badge class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Role: Demo</span>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors">
+                        Sign in
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
+                        Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
+            <div class="px-4 pb-4 pt-3 space-y-3">
+                <a href="index.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Home</a>
+                <a href="#features" class="block text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                <a href="compensation-planning.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Compensation Planning</a>
+                <a href="#ai-planning" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Studio</a>
+                <div class="flex items-center justify-between">
+                    <span data-role-badge class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Role: Demo</span>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors">
+                        Sign in
+                    </button>
                 </div>
             </div>
         </div>
@@ -123,6 +148,570 @@
         </div>
     </main>
 
+    <!-- AI Compensation Plan Studio -->
+    <section id="ai-planning" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">AI Compensation Plan Studio</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Bring the same AI experience from ICM analysis into compensation planning. Upload a brief or share your
+                    goals to generate a plan draft with modeled scenarios.
+                </p>
+                <div class="mt-6 max-w-3xl mx-auto bg-white border border-gray-200 rounded-xl px-6 py-4 text-gray-700">
+                    <div class="text-xs uppercase tracking-wide text-gray-400 mb-2">Founder moment</div>
+                    <p class="text-base">"Sure, let's build. With what you suggested, I'm living the startup journey with the rewarding experience at my fingertips."</p>
+                </div>
+                <div class="mt-6 max-w-4xl mx-auto">
+                    <div class="text-sm font-semibold text-gray-900 mb-3">Unique Plan Build and Plan Experience</div>
+                    <div class="grid sm:grid-cols-2 gap-4 text-left">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                            Startup speed: turn product context into a plan draft in minutes.
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                            Enterprise rigor: benchmark, govern, and audit every change.
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                            One AI flow: draft, simulate, and export across ICM and payroll.
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-gray-700">
+                            Admin-ready outputs: guardrails, compliance checks, and reporting.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Provide your inputs</h3>
+
+                    <div id="plan-upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
+                        <div class="text-lg font-medium text-gray-900 mb-2">Upload your product brief or plan notes</div>
+                        <div class="text-sm text-gray-500 mb-4">or click to browse files</div>
+                        <div class="text-xs text-gray-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
+                        <input type="file" id="plan-file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
+                    </div>
+
+                    <div id="plan-file-info" class="hidden mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="plan-file-name" class="text-green-700 font-medium"></span>
+                        </div>
+                    </div>
+
+                    <label for="plan-notes" class="block text-sm font-medium text-gray-700 mb-2">Business context</label>
+                    <textarea id="plan-notes" rows="4" class="w-full rounded-lg border border-gray-200 px-4 py-3 focus:border-blue-500 focus:outline-none mb-6" placeholder="Example: $25k ACV, 75-day cycle, hiring 4 AEs, target 20% margin."></textarea>
+
+                    <button id="plan-analyze-btn" onclick="startPlanBuild()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Generate Plan Draft
+                    </button>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">AI Output</h3>
+
+                    <div id="plan-results" class="hidden">
+                        <div class="bg-green-50 p-4 rounded-lg mb-6">
+                            <div class="flex items-center text-green-600">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-medium">Plan Draft Complete</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg demo-output text-sm mb-6">
+                            <div data-role="demo">
+                                <div class="mb-2">📌 COMP PLAN DRAFT PREVIEW</div>
+                                <div class="mb-2">═══════════════════════════════════════</div>
+                                <div>Role Mix: 4 AEs, 2 SDRs</div>
+                                <div>Quota Guidance: $600k per AE</div>
+                                <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
+                                <div>Commission Rate: 8% to 100%</div>
+                                <div class="my-2">─────────────────────────────────────</div>
+                                <div>Scenario Summary:</div>
+                                <div>• $1.2M revenue → 42% margin</div>
+                                <div>• $2.0M revenue → 45% margin</div>
+                                <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
+                                    ⚠️ PREVIEW MODE - Upgrade for full plan package
+                                </div>
+                            </div>
+                            <div class="hidden" data-role="paid">
+                                <div class="mb-2">📌 COMP PLAN DRAFT + ICM OUTPUT</div>
+                                <div class="mb-2">═══════════════════════════════════════</div>
+                                <div>Role Mix: 4 AEs, 2 SDRs, 1 Manager</div>
+                                <div>Quota Guidance: $600k per AE</div>
+                                <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
+                                <div>Commission Rate: 8% to 100% + 1.3x at 120%</div>
+                                <div class="my-2">─────────────────────────────────────</div>
+                                <div>Scenario Summary:</div>
+                                <div>• $1.2M revenue → 42% margin</div>
+                                <div>• $2.0M revenue → 45% margin</div>
+                                <div>• $3.0M revenue → 47% margin</div>
+                                <div class="my-2">─────────────────────────────────────</div>
+                                <div>ICM Objects: 12 with crediting, rates, and deposits</div>
+                                <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
+                                    ✅ FULL MODE - Exportable plan package ready
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors" data-role="demo">
+                                Get Full Plan Package
+                            </button>
+                            <button onclick="showUpgradeModal()" class="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors hidden" data-role="paid">
+                                Download Plan Draft
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="plan-placeholder" class="text-center py-12">
+                        <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Generate a plan draft</h3>
+                        <p class="text-gray-500">Your AI-generated compensation plan will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Story Journey -->
+    <section class="py-20 px-4 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Entrepreneur Journey: From Product to Profitable Plan</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    You have a product and need help hiring reps and designing a selling plan. The agent holds your hand
+                    through plan selection, estimates commission cost by sales volume, and shows profit margin impact.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">1</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Describe your product and sales motion</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Share your product, ICP, pricing, ACV, and sales cycle so the agent understands the motion.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">2</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Identify plan options</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Compare base-plus-commission, tiered accelerators, and SPIFFs aligned to your product.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">3</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Model cost scenarios</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Estimate commission cost by sales volume and see profit margin impact before launch.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">4</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Plan draft and simulation</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Receive a draft plan, run scenarios, and refine before launch.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+                    <div class="text-sm font-semibold text-gray-900 mb-4">Agentic Conversation</div>
+                    <div class="space-y-4" data-role="demo">
+                        <div class="flex">
+                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
+                                <div class="text-sm text-gray-700">
+                                    We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
+                                <div class="text-sm text-gray-700">
+                                    Great. What are ACV, sales cycle length, and target quota per AE?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
+                                <div class="text-sm text-gray-700">
+                                    ACV is $25k, 75-day cycle, $600k annual quota, 50/50 pay mix.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
+                                <div class="text-sm text-gray-700">
+                                    Drafting a plan with 8% commission to 100% and a 1.2x accelerator after 110%.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-900 text-gray-100 rounded-xl p-4 text-sm">
+                            <div class="font-semibold mb-2">Preview Plan Snapshot</div>
+                            <div>AE OTE: $140k (50/50)</div>
+                            <div>SDR OTE: $70k (60/40)</div>
+                            <div>Accelerator: 1.2x after 110%</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-sm">
+                            <div class="font-semibold text-gray-900 mb-2">Scenario Snapshot (Preview)</div>
+                            <div class="text-gray-600 mb-3">Estimated commission cost by sales volume.</div>
+                            <div class="grid grid-cols-3 gap-3 text-gray-700 text-xs uppercase tracking-wide">
+                                <div>Volume</div>
+                                <div>Comm Cost</div>
+                                <div>Margin</div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-3 gap-3 text-gray-900">
+                                <div>$1.2M</div>
+                                <div>$96k</div>
+                                <div>42%</div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-3 gap-3 text-gray-900">
+                                <div>$2.0M</div>
+                                <div>$174k</div>
+                                <div>45%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 hidden" data-role="paid">
+                        <div class="flex">
+                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
+                                <div class="text-sm text-gray-700">
+                                    We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
+                                <div class="text-sm text-gray-700">
+                                    What ACV, sales cycle, and target attainment curve should we model?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
+                                <div class="text-sm text-gray-700">
+                                    ACV $25k, 75-day cycle, 60% of reps hit 90% quota by month 6.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
+                                <div class="text-sm text-gray-700">
+                                    I will set a 3-month ramp, monthly quota schedule, and a draw with clawback.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
+                                <div class="text-sm text-gray-700">
+                                    Add a 1.3x accelerator after 120% and a SPIFF for multi-year deals.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
+                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
+                                <div class="text-sm text-gray-700">
+                                    Done. Generating full ICM objects and compensation plan outputs.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">
+                            <div class="font-semibold mb-2">Full Plan Draft</div>
+                            <div>AE OTE: $140k (50/50), quota: $600k</div>
+                            <div>Accelerators: 1.1x at 105%, 1.3x at 120%</div>
+                            <div>SPIFF: 1% bonus for multi-year deals</div>
+                            <div>ICM Outputs: 12 objects, 4 crediting rules, 3 deposits</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-sm">
+                            <div class="font-semibold text-gray-900 mb-2">Scenario Snapshot (Full)</div>
+                            <div class="text-gray-600 mb-3">Commission cost and profit margin by sales volume.</div>
+                            <div class="grid grid-cols-4 gap-3 text-gray-700 text-xs uppercase tracking-wide">
+                                <div>Volume</div>
+                                <div>Comm Cost</div>
+                                <div>Margin</div>
+                                <div>Cost/Sale</div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
+                                <div>$1.2M</div>
+                                <div>$96k</div>
+                                <div>42%</div>
+                                <div>$800</div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
+                                <div>$2.0M</div>
+                                <div>$174k</div>
+                                <div>45%</div>
+                                <div>$725</div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
+                                <div>$3.0M</div>
+                                <div>$285k</div>
+                                <div>47%</div>
+                                <div>$675</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 bg-gray-50 border border-gray-200 rounded-2xl p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Founder Profit Planner</h3>
+                        <p class="text-gray-600">Plug in unit economics and profit targets to size your sales plan.</p>
+                    </div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Commission as % of revenue</div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <form id="profit-form" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="input-price" class="block text-sm font-medium text-gray-700 mb-2">Product price ($)</label>
+                                <input id="input-price" type="number" min="0" step="0.01" value="10" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="input-cost" class="block text-sm font-medium text-gray-700 mb-2">Product cost ($)</label>
+                                <input id="input-cost" type="number" min="0" step="0.01" value="4" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="input-expenses" class="block text-sm font-medium text-gray-700 mb-2">Annual fixed expenses ($)</label>
+                            <input id="input-expenses" type="number" min="0" step="1000" value="100000" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="input-margin" class="block text-sm font-medium text-gray-700 mb-2">Target profit margin (%)</label>
+                                <input id="input-margin" type="number" min="0" max="80" step="0.1" value="20" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="input-commission" class="block text-sm font-medium text-gray-700 mb-2">Commission rate (%)</label>
+                                <input id="input-commission" type="number" min="0" max="40" step="0.1" value="8" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="input-sales-per-rep" class="block text-sm font-medium text-gray-700 mb-2">Annual sales per rep ($)</label>
+                                <input id="input-sales-per-rep" type="number" min="0" step="1000" value="600000" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="input-reps" class="block text-sm font-medium text-gray-700 mb-2">Planned reps (optional)</label>
+                                <input id="input-reps" type="number" min="0" step="1" placeholder="e.g. 4" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Required revenue</div>
+                            <div id="output-revenue" class="text-2xl font-semibold text-gray-900">$0</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Units to sell</div>
+                            <div id="output-units" class="text-2xl font-semibold text-gray-900">0</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Commission budget</div>
+                            <div id="output-commission" class="text-2xl font-semibold text-gray-900">$0</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Commission per sale</div>
+                            <div id="output-commission-per-sale" class="text-2xl font-semibold text-gray-900">$0</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Reps needed</div>
+                            <div id="output-reps" class="text-2xl font-semibold text-gray-900">0</div>
+                            <div class="text-xs text-gray-500 mt-1">Based on sales per rep</div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Sales per rep needed</div>
+                            <div id="output-sales-per-rep" class="text-2xl font-semibold text-gray-900">$0</div>
+                            <div class="text-xs text-gray-500 mt-1">Based on planned reps</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p id="calc-error" class="hidden text-sm text-red-600 mt-4">
+                    Check inputs. Target margin + commission rate must be less than gross margin.
+                </p>
+
+                <div class="mt-8">
+                    <div class="text-sm font-semibold text-gray-900 mb-2">Scenario by sales volume</div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-gray-500 uppercase tracking-wide text-xs">
+                                    <th class="py-2 pr-4">Revenue</th>
+                                    <th class="py-2 pr-4">Commission cost</th>
+                                    <th class="py-2 pr-4">Profit margin</th>
+                                    <th class="py-2">Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scenario-body" class="text-gray-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 bg-white border border-gray-200 rounded-2xl p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Compensation Philosophy Framework</h3>
+                        <p class="text-gray-600">A structured way to build plans that are fair, competitive, and scalable.</p>
+                    </div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Your philosophy</div>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                        <div class="text-sm font-semibold text-gray-900 mb-2">1. Job Analysis and Evaluation</div>
+                        <p class="text-gray-600">
+                            Define roles, responsibilities, and impact. Map levels and career paths to ensure internal equity.
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                        <div class="text-sm font-semibold text-gray-900 mb-2">2. Market Data Benchmarking</div>
+                        <p class="text-gray-600">
+                            Gather salary data for similar roles by industry, location, and company size to set competitive ranges.
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                        <div class="text-sm font-semibold text-gray-900 mb-2">3. Design the Compensation Structure</div>
+                        <p class="text-gray-600">
+                            Choose pay mix, incentives, accelerators, and guardrails aligned to performance and budget goals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 bg-white border border-gray-200 rounded-2xl p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900">Compensation Admin Market Analysis</h3>
+                        <p class="text-gray-600">Benchmark plan competitiveness with market data and role norms.</p>
+                    </div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Market signals</div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Market inputs</div>
+                            <ul class="mt-3 space-y-2 text-gray-700">
+                                <li>Role: Mid-market AE, SDR</li>
+                                <li>Region: North America</li>
+                                <li>Industry: Fintech SaaS</li>
+                                <li>Plan type: Base + commission with accelerators</li>
+                                <li>Quota: $600k annual</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4" data-role="demo">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Preview insights</div>
+                            <ul class="mt-3 space-y-2 text-gray-700">
+                                <li>OTE aligned to 55th percentile</li>
+                                <li>Variable mix slightly below market median</li>
+                                <li>Accelerator starts later than peers</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 hidden" data-role="paid">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">Full insights</div>
+                            <ul class="mt-3 space-y-2 text-gray-700">
+                                <li>OTE at 60th percentile with 50/50 mix target</li>
+                                <li>Accelerators typically begin at 105% with 1.2x to 1.4x rates</li>
+                                <li>75% of peer plans include a Q1 ramp guarantee</li>
+                                <li>Clawback language present in 40% of peer plans</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Benchmark snapshot</div>
+                        <div class="mt-4 overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-gray-500 uppercase tracking-wide text-xs">
+                                        <th class="py-2 pr-4">Role</th>
+                                        <th class="py-2 pr-4">Base</th>
+                                        <th class="py-2 pr-4">Variable</th>
+                                        <th class="py-2 pr-4">OTE</th>
+                                        <th class="py-2">Mix</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-t border-gray-200">
+                                        <td class="py-2 pr-4 text-gray-900">SDR</td>
+                                        <td class="py-2 pr-4">$45k</td>
+                                        <td class="py-2 pr-4">$25k</td>
+                                        <td class="py-2 pr-4">$70k</td>
+                                        <td class="py-2">65/35</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-200" data-role="demo">
+                                        <td class="py-2 pr-4 text-gray-900">AE</td>
+                                        <td class="py-2 pr-4">$70k</td>
+                                        <td class="py-2 pr-4">$70k</td>
+                                        <td class="py-2 pr-4">$140k</td>
+                                        <td class="py-2">50/50</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-200 hidden" data-role="paid">
+                                        <td class="py-2 pr-4 text-gray-900">Enterprise AE</td>
+                                        <td class="py-2 pr-4">$95k</td>
+                                        <td class="py-2 pr-4">$105k</td>
+                                        <td class="py-2 pr-4">$200k</td>
+                                        <td class="py-2">48/52</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-200 hidden" data-role="paid">
+                                        <td class="py-2 pr-4 text-gray-900">Manager</td>
+                                        <td class="py-2 pr-4">$110k</td>
+                                        <td class="py-2 pr-4">$40k</td>
+                                        <td class="py-2 pr-4">$150k</td>
+                                        <td class="py-2">73/27</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600" data-role="demo">
+                            Preview includes core benchmarks only. Paid access adds percentile bands and geo splits.
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600 hidden" data-role="paid">
+                            Includes percentile bands, geo splits, and plan compliance benchmarks.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Planning Guidelines -->
     <section class="py-20 px-4 bg-gray-50">
         <div class="max-w-4xl mx-auto">
@@ -133,11 +722,61 @@
                 <li>Follow a structured compensation plan design process for consistent outcomes.</li>
             </ul>
         </div>
-<<<<<<< HEAD
     </section>
-=======
-  </section>
->>>>>>> 8c934a02ac43d4fd190a0208f465a27e470b9705
+
+    <!-- Detailed Outputs -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Detailed Outputs</h2>
+                <p class="text-lg text-gray-600">Paid access unlocks full ICM and compensation planning deliverables.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-10">
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">ICM Output Package</h3>
+                    <div data-role="demo">
+                        <p class="text-gray-600 mb-4">Preview mode shows summary only.</p>
+                        <ul class="list-disc text-gray-600 space-y-2 pl-5">
+                            <li>High-level object count</li>
+                            <li>Top 3 risk flags</li>
+                            <li>Sample mapping snippet</li>
+                        </ul>
+                    </div>
+                    <div class="hidden" data-role="paid">
+                        <p class="text-gray-600 mb-4">Full output includes implementation-ready artifacts.</p>
+                        <ul class="list-disc text-gray-700 space-y-2 pl-5">
+                            <li>Complete object inventory with dependencies</li>
+                            <li>Crediting and eligibility rules by role and region</li>
+                            <li>Payout schedule, caps, and clawback logic</li>
+                            <li>Exportable ICM configuration package</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Compensation Plan Output</h3>
+                    <div data-role="demo">
+                        <p class="text-gray-600 mb-4">Preview mode shows summary only.</p>
+                        <ul class="list-disc text-gray-600 space-y-2 pl-5">
+                            <li>Plan complexity score</li>
+                            <li>Top 2 scenarios simulated</li>
+                            <li>Sample payout curve</li>
+                        </ul>
+                    </div>
+                    <div class="hidden" data-role="paid">
+                        <p class="text-gray-600 mb-4">Full output with detailed modeling results.</p>
+                        <ul class="list-disc text-gray-700 space-y-2 pl-5">
+                            <li>Scenario simulation results with variance breakdown</li>
+                            <li>Quota and territory alignment diagnostics</li>
+                            <li>Accelerator and decelerator impact analysis</li>
+                            <li>Workflow-ready approval checklist</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16 px-4">
@@ -157,10 +796,263 @@
             </div>
         </div>
     </footer>
-<<<<<<< HEAD
+
+    <!-- Role Modal -->
+    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
+            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form" class="space-y-4">
+                <div>
+                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Sign in
+                </button>
+            </form>
+            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+        let activeRole = 'demo';
+        const ROLE_CREDENTIALS = {
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+        };
+        const SCENARIO_MULTIPLIERS = [0.8, 1, 1.2];
+        let selectedPlanFile = null;
+
+        function applyRole(role) {
+            activeRole = role;
+            localStorage.setItem(ROLE_STORAGE_KEY, role);
+            document.querySelectorAll('[data-role-badge]').forEach((badge) => {
+                badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
+            });
+
+            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'demo');
+            });
+            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'paid');
+            });
+        }
+
+        function initRoleControls() {
+            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+            const roleModal = document.getElementById('role-modal');
+            const roleClose = document.getElementById('role-close');
+            const roleForm = document.getElementById('role-form');
+            const roleError = document.getElementById('role-error');
+            const roleUsername = document.getElementById('role-username');
+            const rolePassword = document.getElementById('role-password');
+            const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+            roleToggles.forEach((toggle) => {
+                toggle.addEventListener('click', () => {
+                    roleModal.classList.remove('hidden');
+                    roleModal.classList.add('flex');
+                    roleError.classList.add('hidden');
+                    roleForm.reset();
+                });
+            });
+
+            roleClose.addEventListener('click', () => {
+                roleModal.classList.add('hidden');
+                roleModal.classList.remove('flex');
+            });
+
+            roleModal.addEventListener('click', (event) => {
+                if (event.target === roleModal) {
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                }
+            });
+
+            roleForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = roleUsername.value.trim();
+                const password = rolePassword.value.trim();
+                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+
+                if (isDemo || isPaid) {
+                    applyRole(isPaid ? 'paid' : 'demo');
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                } else {
+                    roleError.classList.remove('hidden');
+                }
+            });
+        }
+
+        function initMobileNav() {
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!menuToggle || !mobileMenu) {
+                return;
+            }
+
+            menuToggle.addEventListener('click', () => {
+                const isOpen = !mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+            });
+
+            mobileMenu.querySelectorAll('a, button').forEach((item) => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        function formatCurrency(value) {
+            return `$${Math.round(value).toLocaleString('en-US')}`;
+        }
+
+        function formatNumber(value) {
+            return Math.round(value).toLocaleString('en-US');
+        }
+
+        function updateProfitPlanner() {
+            const price = parseFloat(document.getElementById('input-price').value);
+            const cost = parseFloat(document.getElementById('input-cost').value);
+            const expenses = parseFloat(document.getElementById('input-expenses').value);
+            const targetMargin = parseFloat(document.getElementById('input-margin').value) / 100;
+            const commissionRate = parseFloat(document.getElementById('input-commission').value) / 100;
+            const salesPerRep = parseFloat(document.getElementById('input-sales-per-rep').value);
+            const plannedReps = parseFloat(document.getElementById('input-reps').value);
+
+            const error = document.getElementById('calc-error');
+            const hasInvalidInput = [
+                !Number.isFinite(price) || price <= 0,
+                !Number.isFinite(cost) || cost < 0,
+                !Number.isFinite(expenses) || expenses < 0,
+                !Number.isFinite(targetMargin) || targetMargin < 0,
+                !Number.isFinite(commissionRate) || commissionRate < 0,
+                !Number.isFinite(salesPerRep) || salesPerRep <= 0
+            ].some(Boolean);
+
+            const grossMarginRate = 1 - (cost / price);
+            const denominator = grossMarginRate - commissionRate - targetMargin;
+
+            if (hasInvalidInput || grossMarginRate <= 0 || denominator <= 0) {
+                error.classList.remove('hidden');
+                document.getElementById('output-revenue').textContent = '$0';
+                document.getElementById('output-units').textContent = '0';
+                document.getElementById('output-commission').textContent = '$0';
+                document.getElementById('output-commission-per-sale').textContent = '$0';
+                document.getElementById('output-reps').textContent = '0';
+                document.getElementById('output-sales-per-rep').textContent = '$0';
+                document.getElementById('scenario-body').innerHTML = '';
+                return;
+            }
+
+            error.classList.add('hidden');
+
+            const requiredRevenue = expenses / denominator;
+            const unitsToSell = requiredRevenue / price;
+            const commissionBudget = requiredRevenue * commissionRate;
+            const commissionPerSale = price * commissionRate;
+            const repsNeeded = requiredRevenue / salesPerRep;
+
+            document.getElementById('output-revenue').textContent = formatCurrency(requiredRevenue);
+            document.getElementById('output-units').textContent = formatNumber(unitsToSell);
+            document.getElementById('output-commission').textContent = formatCurrency(commissionBudget);
+            document.getElementById('output-commission-per-sale').textContent = formatCurrency(commissionPerSale);
+            document.getElementById('output-reps').textContent = Math.ceil(repsNeeded).toString();
+
+            if (plannedReps && plannedReps > 0) {
+                const requiredSalesPerRep = requiredRevenue / plannedReps;
+                document.getElementById('output-sales-per-rep').textContent = formatCurrency(requiredSalesPerRep);
+            } else {
+                document.getElementById('output-sales-per-rep').textContent = 'Set reps';
+            }
+
+            const cogsRate = cost / price;
+            const scenarioRows = SCENARIO_MULTIPLIERS.map((multiplier) => {
+                const revenue = requiredRevenue * multiplier;
+                const commission = revenue * commissionRate;
+                const cogs = revenue * cogsRate;
+                const profit = revenue - commission - cogs - expenses;
+                const margin = (profit / revenue) * 100;
+
+                return `
+                    <tr class="border-t border-gray-100">
+                        <td class="py-2 pr-4 text-gray-900">${formatCurrency(revenue)}</td>
+                        <td class="py-2 pr-4">${formatCurrency(commission)}</td>
+                        <td class="py-2 pr-4">${margin.toFixed(1)}%</td>
+                        <td class="py-2">${formatCurrency(profit)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('scenario-body').innerHTML = scenarioRows;
+        }
+
+        function initProfitPlanner() {
+            document.querySelectorAll('#profit-form input').forEach((input) => {
+                input.addEventListener('input', updateProfitPlanner);
+            });
+            updateProfitPlanner();
+        }
+
+        function initPlanStudio() {
+            const uploadArea = document.getElementById('plan-upload-area');
+            const fileInput = document.getElementById('plan-file-input');
+            const fileInfo = document.getElementById('plan-file-info');
+            const fileName = document.getElementById('plan-file-name');
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    selectedPlanFile = file;
+                    fileName.textContent = file.name;
+                    fileInfo.classList.remove('hidden');
+                }
+            });
+        }
+
+        async function startPlanBuild() {
+            const notes = document.getElementById('plan-notes').value.trim();
+            if (!selectedPlanFile && !notes) {
+                alert('Please upload a file or add business context.');
+                return;
+            }
+
+            const btn = document.getElementById('plan-analyze-btn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
+            document.getElementById('plan-placeholder').classList.add('hidden');
+            document.getElementById('plan-results').classList.remove('hidden');
+
+            btn.disabled = false;
+            btn.textContent = 'Generate Another Draft';
+        }
+
+        window.addEventListener('load', () => {
+            initRoleControls();
+            initProfitPlanner();
+            initPlanStudio();
+            initMobileNav();
+        });
+    </script>
 </body>
 </html>
-=======
-  </body>
-  </html>
->>>>>>> 8c934a02ac43d4fd190a0208f465a27e470b9705
