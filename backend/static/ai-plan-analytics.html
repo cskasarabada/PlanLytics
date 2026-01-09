@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Plan Analytics - ICM PlanLytics</title>
+    <meta name="description" content="AI Plan Analytics turns compensation plans into deployment-ready insights: diagnostics, risk radar, and ICM-ready outputs.">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --slate: #334155;
+            --mist: #f8fafc;
+            --accent: #0ea5e9;
+            --accent-2: #22c55e;
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at top right, #e0f2fe 0%, #f8fafc 40%, #e2e8f0 100%);
+        }
+        h1, h2, h3, .display-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+        }
+        .glow-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(60px);
+            opacity: 0.45;
+            animation: float 12s ease-in-out infinite;
+        }
+        .glow-1 { width: 260px; height: 260px; background: rgba(14, 165, 233, 0.35); top: -120px; left: 5%; }
+        .glow-2 { width: 320px; height: 320px; background: rgba(34, 197, 94, 0.25); bottom: -160px; right: 10%; animation-delay: 1.5s; }
+        .glow-3 { width: 220px; height: 220px; background: rgba(59, 130, 246, 0.25); top: 35%; right: -80px; animation-delay: 2.5s; }
+        .analytics-tab {
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+        }
+        .analytics-tab.is-active {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.2);
+        }
+        .analytics-tab.is-active .tab-subtext {
+            color: #e2e8f0;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(12px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <a href="#analytics-loop" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
+        Skip to main content
+    </a>
+    <nav class="bg-white/90 backdrop-blur shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">ICM</span>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-5 whitespace-nowrap text-sm">
+                    <a href="ai-plan-analytics.html" class="text-blue-600 font-medium whitespace-nowrap">AI Plan Analytics</a>
+                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
+                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
+                    <a href="index.html#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
+                    <a href="index.html#demo" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Try Demo</a>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                        Sign in
+                    </button>
+                    <button onclick="location.href='index.html#demo'" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap">
+                        Start Free Trial
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
+                        Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
+            <div class="px-4 pb-4 pt-3 space-y-3">
+                <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
+                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
+                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
+                <a href="index.html#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="index.html#demo" class="block text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
+                <div class="flex items-center justify-between">
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                        Sign in
+                    </button>
+                </div>
+                <button onclick="location.href='index.html#demo'" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    Start Free Trial
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24">
+        <section class="relative overflow-hidden px-4 pb-16">
+            <div class="glow-orb glow-1" aria-hidden="true"></div>
+            <div class="glow-orb glow-2" aria-hidden="true"></div>
+            <div class="glow-orb glow-3" aria-hidden="true"></div>
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-500">
+                        AI Plan Analytics
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-semibold leading-tight text-slate-900">
+                        Turn compensation plans into deployment-ready intelligence.
+                    </h1>
+                    <p class="text-lg text-slate-600 max-w-2xl">
+                        Analyze plan documents, uncover compliance risk, and generate ICM-ready outputs in minutes.
+                        AI Plan Analytics keeps every stakeholder aligned with the same source of truth.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition-colors font-semibold">
+                            View sample analytics
+                        </button>
+                        <button class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg hover:border-slate-500 transition-colors font-semibold">
+                            Book an analytics walk-through
+                        </button>
+                    </div>
+                    <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-600">
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="text-slate-900 font-semibold text-xl">95%</div>
+                            Extraction accuracy
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="text-slate-900 font-semibold text-xl">12 mins</div>
+                            From upload to outputs
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="text-slate-900 font-semibold text-xl">50+</div>
+                            Risk checks per plan
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-6 md:p-8">
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-4">Analytics console</div>
+                    <div class="space-y-4">
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <div class="flex items-center justify-between text-sm text-slate-500">
+                                <span>Plan summary</span>
+                                <span class="text-emerald-600 font-semibold">Healthy</span>
+                            </div>
+                            <div class="mt-3 space-y-1 text-sm text-slate-700">
+                                <div>Plan type: Base + commission</div>
+                                <div>Eligible roles: AE, SDR, Manager</div>
+                                <div>Quota mix: 50/50</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <div class="text-sm font-semibold text-slate-900">Risk radar</div>
+                            <div class="mt-2 text-sm text-slate-600">3 compliance flags to review.</div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-200">
+                                <div class="h-2 rounded-full bg-amber-400" style="width: 42%;"></div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <div class="text-sm font-semibold text-slate-900">ICM blueprint</div>
+                            <p class="text-sm text-slate-600 mt-2">11 objects created with crediting rules + deposits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="analytics-loop" class="px-4 py-16 bg-white">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
+                <div class="lg:w-2/5 space-y-4">
+                    <div class="text-xs uppercase tracking-[0.35em] text-slate-500">Analytics loop</div>
+                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">
+                        Diagnose, de-risk, deploy.
+                    </h2>
+                    <p class="text-slate-600 text-lg">
+                        Each stage produces tangible outputs you can share with finance, HR, and sales leaders.
+                    </p>
+                    <div class="grid gap-3 mt-6">
+                        <button type="button" class="analytics-tab is-active rounded-2xl px-4 py-3 text-left" data-analytics-step="diagnose" aria-pressed="true">
+                            <div class="text-sm font-semibold">Plan diagnostics</div>
+                            <div class="tab-subtext text-xs text-slate-500 mt-1">Extract structure and intent.</div>
+                        </button>
+                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="risk" aria-pressed="false">
+                            <div class="text-sm font-semibold">Risk radar</div>
+                            <div class="tab-subtext text-xs text-slate-500 mt-1">Identify compliance gaps.</div>
+                        </button>
+                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="icm" aria-pressed="false">
+                            <div class="text-sm font-semibold">ICM blueprint</div>
+                            <div class="tab-subtext text-xs text-slate-500 mt-1">Map objects to deploy.</div>
+                        </button>
+                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="report" aria-pressed="false">
+                            <div class="text-sm font-semibold">Executive brief</div>
+                            <div class="tab-subtext text-xs text-slate-500 mt-1">Summaries ready for board decks.</div>
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:w-3/5">
+                    <div class="glass-card rounded-3xl p-8 min-h-[320px]">
+                        <div class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-4">AI output preview</div>
+                        <div class="space-y-4" data-analytics-panel="diagnose">
+                            <h3 class="text-2xl font-semibold text-slate-900">Plan diagnostics</h3>
+                            <p class="text-slate-600">
+                                Extract pay mix, quota logic, eligibility rules, and payout cadence in one pass.
+                            </p>
+                            <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                                <div class="bg-slate-50 rounded-xl p-4">
+                                    <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">Detected</div>
+                                    <ul class="text-slate-700 space-y-1">
+                                        <li>Tiered accelerators after 110%</li>
+                                        <li>Quarterly true-ups</li>
+                                        <li>SPIFFs for multi-year deals</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-50 rounded-xl p-4">
+                                    <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">Missing</div>
+                                    <ul class="text-slate-700 space-y-1">
+                                        <li>Clawback language</li>
+                                        <li>Ramp guarantee definition</li>
+                                        <li>Policy references</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 hidden" data-analytics-panel="risk">
+                            <h3 class="text-2xl font-semibold text-slate-900">Risk radar</h3>
+                            <p class="text-slate-600">
+                                Prioritize compliance, finance, and operational risks before launch.
+                            </p>
+                            <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-700">
+                                <div class="bg-slate-50 rounded-xl p-4">2 overpayment risks</div>
+                                <div class="bg-slate-50 rounded-xl p-4">3 policy gaps</div>
+                                <div class="bg-slate-50 rounded-xl p-4">1 approval dependency</div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 hidden" data-analytics-panel="icm">
+                            <h3 class="text-2xl font-semibold text-slate-900">ICM blueprint</h3>
+                            <p class="text-slate-600">
+                                Generate object mapping, rate tables, and crediting rules ready for implementation.
+                            </p>
+                            <div class="grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
+                                <div class="bg-slate-50 rounded-xl p-4">11 ICM objects generated</div>
+                                <div class="bg-slate-50 rounded-xl p-4">4 crediting rules mapped</div>
+                                <div class="bg-slate-50 rounded-xl p-4">2 territory models</div>
+                                <div class="bg-slate-50 rounded-xl p-4">Export ready in Excel + JSON</div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 hidden" data-analytics-panel="report">
+                            <h3 class="text-2xl font-semibold text-slate-900">Executive brief</h3>
+                            <p class="text-slate-600">
+                                Deliver a board-ready summary with risks, assumptions, and next steps.
+                            </p>
+                            <div class="grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
+                                <div class="bg-slate-50 rounded-xl p-4">Plan summary + financial impact</div>
+                                <div class="bg-slate-50 rounded-xl p-4">Risk register + mitigation plan</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 py-16">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Plan diagnostics pack</h3>
+                        <p class="text-slate-600">
+                            Structured summary, pay mix, quota logic, and exception list for quick review.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Risk & compliance report</h3>
+                        <p class="text-slate-600">
+                            Highlight overpayment, governance, and operational risks with recommended fixes.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">ICM output blueprint</h3>
+                        <p class="text-slate-600">
+                            Object mapping, rate tables, and crediting rules ready for implementation.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-10 glass-card rounded-3xl p-8 grid lg:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Before vs after</div>
+                        <h3 class="text-3xl font-semibold text-slate-900">From manual review to instant answers.</h3>
+                        <p class="text-slate-600 mt-2">
+                            Replace weeks of manual plan review with an AI summary, risk checklist, and deployment plan.
+                        </p>
+                    </div>
+                    <div class="grid gap-3 text-sm text-slate-600">
+                        <div class="bg-white border border-slate-200 rounded-xl p-4">Before: 3-4 weeks of plan review and alignment</div>
+                        <div class="bg-white border border-slate-200 rounded-xl p-4">After: diagnostics + output pack in under 15 minutes</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 pb-20">
+            <div class="max-w-7xl mx-auto glass-card rounded-3xl p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div>
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Next step</div>
+                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">Ready to connect analytics to Plan Studio?</h2>
+                    <p class="text-slate-600 mt-2 max-w-xl">
+                        Use AI Plan Analytics to diagnose and de-risk. Then move straight into Plan Studio to draft, simulate,
+                        and launch the new plan.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="ai-plan-studio.html" class="bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">
+                        Go to Plan Studio
+                    </a>
+                    <a href="sales-360-ai.html" class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:border-slate-500 transition-colors">
+                        Explore Sales 360 AI
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-white py-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">ICM</span>
+                </div>
+                <span class="text-2xl font-bold">ICM PlanLytics</span>
+            </div>
+            <p class="text-slate-300 mb-6 max-w-md mx-auto">
+                AI Plan Analytics keeps every compensation plan ready for launch.
+            </p>
+            <div class="text-slate-400 text-sm">
+                (c) 2025 ICM PlanLytics. All rights reserved.<br>
+                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
+            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form" class="space-y-4">
+                <div>
+                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Sign in
+                </button>
+            </form>
+            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+        let activeRole = 'demo';
+        const ROLE_CREDENTIALS = {
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+        };
+
+        function applyRole(role) {
+            activeRole = role;
+            localStorage.setItem(ROLE_STORAGE_KEY, role);
+            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'demo');
+            });
+            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'paid');
+            });
+        }
+
+        function initRoleControls() {
+            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+            const roleModal = document.getElementById('role-modal');
+            const roleClose = document.getElementById('role-close');
+            const roleForm = document.getElementById('role-form');
+            const roleError = document.getElementById('role-error');
+            const roleUsername = document.getElementById('role-username');
+            const rolePassword = document.getElementById('role-password');
+            const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+            roleToggles.forEach((toggle) => {
+                toggle.addEventListener('click', () => {
+                    roleModal.classList.remove('hidden');
+                    roleModal.classList.add('flex');
+                    roleError.classList.add('hidden');
+                    roleForm.reset();
+                });
+            });
+
+            roleClose.addEventListener('click', () => {
+                roleModal.classList.add('hidden');
+                roleModal.classList.remove('flex');
+            });
+
+            roleModal.addEventListener('click', (event) => {
+                if (event.target === roleModal) {
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                }
+            });
+
+            roleForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = roleUsername.value.trim();
+                const password = rolePassword.value.trim();
+                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+
+                if (isDemo || isPaid) {
+                    applyRole(isPaid ? 'paid' : 'demo');
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                } else {
+                    roleError.classList.remove('hidden');
+                }
+            });
+        }
+
+        function initMobileNav() {
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!menuToggle || !mobileMenu) {
+                return;
+            }
+
+            menuToggle.addEventListener('click', () => {
+                const isOpen = !mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+            });
+
+            mobileMenu.querySelectorAll('a, button').forEach((item) => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        function initAnalyticsTabs() {
+            const tabs = Array.from(document.querySelectorAll('[data-analytics-step]'));
+            const panels = Array.from(document.querySelectorAll('[data-analytics-panel]'));
+            if (!tabs.length || !panels.length) {
+                return;
+            }
+
+            const activate = (step) => {
+                tabs.forEach((tab) => {
+                    const isActive = tab.getAttribute('data-analytics-step') === step;
+                    tab.classList.toggle('is-active', isActive);
+                    tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                panels.forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.getAttribute('data-analytics-panel') !== step);
+                });
+            };
+
+            activate(tabs[0].getAttribute('data-analytics-step'));
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => activate(tab.getAttribute('data-analytics-step')));
+            });
+        }
+
+        window.addEventListener('load', () => {
+            initRoleControls();
+            initMobileNav();
+            initAnalyticsTabs();
+        });
+    </script>
+</body>
+</html>
