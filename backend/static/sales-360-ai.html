@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales 360 AI - ICM PlanLytics</title>
+    <meta name="description" content="End-to-end Sales 360 AI that connects pipeline, forecasting, compensation, and coaching in one loop.">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --slate: #334155;
+            --mist: #f8fafc;
+            --accent: #2563eb;
+            --accent-2: #f97316;
+            --mint: #10b981;
+        }
+        body {
+            font-family: 'Sora', sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at top left, #e0f2fe 0%, #f8fafc 35%, #fef3c7 90%);
+        }
+        h1, h2, h3, .display-font {
+            font-family: 'Unbounded', sans-serif;
+        }
+        .hero-panel {
+            background: linear-gradient(140deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.08));
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        }
+        .loop-tab {
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+        }
+        .loop-tab.is-active {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+        }
+        .loop-tab.is-active .loop-subtext {
+            color: #e2e8f0;
+        }
+        .glow-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(60px);
+            opacity: 0.5;
+            animation: float 10s ease-in-out infinite;
+        }
+        .glow-1 { width: 280px; height: 280px; background: rgba(37, 99, 235, 0.35); top: -120px; right: 12%; }
+        .glow-2 { width: 320px; height: 320px; background: rgba(16, 185, 129, 0.28); bottom: -160px; left: 8%; animation-delay: 1.5s; }
+        .glow-3 { width: 220px; height: 220px; background: rgba(249, 115, 22, 0.25); top: 40%; right: -80px; animation-delay: 2.5s; }
+        .fade-up {
+            animation: fadeUp 0.6s ease both;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(14px); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <a href="#sales-360-loop" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
+        Skip to main content
+    </a>
+    <nav class="bg-white/90 backdrop-blur shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">ICM</span>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-5 whitespace-nowrap text-sm">
+                    <a href="index.html#features" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">AI Plan Analytics</a>
+                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
+                    <a href="sales-360-ai.html" class="text-blue-600 font-medium whitespace-nowrap">Sales 360 AI</a>
+                    <a href="index.html#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
+                    <a href="index.html#demo" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Try Demo</a>
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                        Sign in
+                    </button>
+                    <button onclick="location.href='index.html#demo'" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap">
+                        Start Free Trial
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
+                        Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
+            <div class="px-4 pb-4 pt-3 space-y-3">
+                <a href="index.html#features" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
+                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
+                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
+                <a href="index.html#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="index.html#demo" class="block text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
+                <div class="flex items-center justify-between">
+                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                        Sign in
+                    </button>
+                </div>
+                <button onclick="location.href='index.html#demo'" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    Start Free Trial
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24">
+        <section class="relative overflow-hidden px-4 pb-16">
+            <div class="glow-orb glow-1" aria-hidden="true"></div>
+            <div class="glow-orb glow-2" aria-hidden="true"></div>
+            <div class="glow-orb glow-3" aria-hidden="true"></div>
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-500">
+                        End-to-end Sales 360 AI
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-semibold leading-tight text-slate-900">
+                        Align pipeline, comp, and coaching in one AI loop.
+                    </h1>
+                    <p class="text-lg text-slate-600 max-w-2xl">
+                        Sales 360 AI orchestrates every revenue motion, from pipeline quality to commission impact. Capture
+                        signals, run scenarios, and keep every rep and leader in sync with a living plan.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition-colors font-semibold">
+                            Book a 360 demo
+                        </button>
+                        <button class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg hover:border-slate-500 transition-colors font-semibold">
+                            See sample outputs
+                        </button>
+                    </div>
+                    <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-600">
+                        <div class="glass-card rounded-2xl p-4 fade-up" style="animation-delay: 0.1s;">
+                            <div class="text-slate-900 font-semibold text-xl">5 min</div>
+                            Signal-to-forecast refresh
+                        </div>
+                        <div class="glass-card rounded-2xl p-4 fade-up" style="animation-delay: 0.2s;">
+                            <div class="text-slate-900 font-semibold text-xl">32%</div>
+                            Pipeline risk reduced
+                        </div>
+                        <div class="glass-card rounded-2xl p-4 fade-up" style="animation-delay: 0.3s;">
+                            <div class="text-slate-900 font-semibold text-xl">4X</div>
+                            Faster plan iterations
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-panel rounded-3xl p-6 md:p-8">
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-4">Sales cockpit</div>
+                    <div class="space-y-4">
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center justify-between text-sm text-slate-500">
+                                <span>Pipeline health</span>
+                                <span class="text-emerald-600 font-semibold">Strong</span>
+                            </div>
+                            <div class="mt-3 flex items-baseline gap-2">
+                                <span class="text-3xl font-semibold text-slate-900">$12.4M</span>
+                                <span class="text-xs text-slate-500 uppercase tracking-[0.2em]">Q2 total</span>
+                            </div>
+                            <div class="mt-3 h-2 rounded-full bg-slate-100">
+                                <div class="h-2 rounded-full bg-emerald-400" style="width: 72%;"></div>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="text-sm font-semibold text-slate-900">ICM impact preview</div>
+                            <div class="mt-2 text-sm text-slate-600">Commission burn stays within target at 8.2% of revenue.</div>
+                            <div class="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500 uppercase tracking-[0.2em]">
+                                <div>
+                                    <div class="text-slate-900 font-semibold text-lg">$1.1M</div>
+                                    Q2 commission
+                                </div>
+                                <div>
+                                    <div class="text-slate-900 font-semibold text-lg">46%</div>
+                                    Margin after comp
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="text-sm font-semibold text-slate-900">Coaching nudge</div>
+                            <p class="text-sm text-slate-600 mt-2">
+                                6 reps are lagging in stage conversion. Auto-assign enablement and update quotas.
+                            </p>
+                            <button class="mt-4 w-full bg-white border border-slate-200 text-slate-700 rounded-lg py-2 text-sm font-semibold hover:border-slate-400 transition-colors">
+                                Generate coaching plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sales-360-loop" class="px-4 py-16">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col lg:flex-row gap-10 items-start">
+                    <div class="lg:w-2/5 space-y-4">
+                        <div class="text-xs uppercase tracking-[0.35em] text-slate-500">Sales 360 loop</div>
+                        <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">
+                            Connect every decision to revenue reality.
+                        </h2>
+                        <p class="text-slate-600 text-lg">
+                            The loop updates forecasts, compensation exposure, and rep plans in real time. Pick a stage to
+                            preview the AI outputs.
+                        </p>
+                        <div class="grid gap-3 mt-6">
+                            <button type="button" class="loop-tab is-active rounded-2xl px-4 py-3 text-left" data-loop-step="sense" aria-pressed="true">
+                                <div class="text-sm font-semibold">Sense & score pipeline</div>
+                                <div class="loop-subtext text-xs text-slate-500 mt-1">Detect deal risk and quality.</div>
+                            </button>
+                            <button type="button" class="loop-tab rounded-2xl px-4 py-3 text-left" data-loop-step="plan" aria-pressed="false">
+                                <div class="text-sm font-semibold">Plan territory and quota</div>
+                                <div class="loop-subtext text-xs text-slate-500 mt-1">Align coverage to growth.</div>
+                            </button>
+                            <button type="button" class="loop-tab rounded-2xl px-4 py-3 text-left" data-loop-step="pay" aria-pressed="false">
+                                <div class="text-sm font-semibold">Simulate comp exposure</div>
+                                <div class="loop-subtext text-xs text-slate-500 mt-1">Protect margin while scaling.</div>
+                            </button>
+                            <button type="button" class="loop-tab rounded-2xl px-4 py-3 text-left" data-loop-step="coach" aria-pressed="false">
+                                <div class="text-sm font-semibold">Coach and optimize</div>
+                                <div class="loop-subtext text-xs text-slate-500 mt-1">Automate enablement plays.</div>
+                            </button>
+                            <button type="button" class="loop-tab rounded-2xl px-4 py-3 text-left" data-loop-step="report" aria-pressed="false">
+                                <div class="text-sm font-semibold">Report to execs</div>
+                                <div class="loop-subtext text-xs text-slate-500 mt-1">Board-ready snapshots.</div>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="lg:w-3/5">
+                        <div class="glass-card rounded-3xl p-8 min-h-[320px]">
+                            <div class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-4">AI output preview</div>
+                            <div class="space-y-4" data-loop-panel="sense">
+                                <h3 class="text-2xl font-semibold text-slate-900">Pipeline signal board</h3>
+                                <p class="text-slate-600">
+                                    Flag stalled deals, identify missing stakeholders, and surface next-best actions.
+                                </p>
+                                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">Risk alerts</div>
+                                        <ul class="text-slate-700 space-y-1">
+                                            <li>12 deals missing exec sponsor</li>
+                                            <li>9 deals at stage 2 for 30+ days</li>
+                                            <li>4 renewals below 80% usage</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">AI actions</div>
+                                        <ul class="text-slate-700 space-y-1">
+                                            <li>Auto-assign exec outreach</li>
+                                            <li>Trigger discovery checklist</li>
+                                            <li>Generate renewal playbook</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4 hidden" data-loop-panel="plan">
+                                <h3 class="text-2xl font-semibold text-slate-900">Coverage and quota map</h3>
+                                <p class="text-slate-600">
+                                    Auto-balance territories with pipeline density, capacity, and planned headcount.
+                                </p>
+                                <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-700">
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">AE headcount</div>
+                                        10 active, 2 ramping
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Quota mix</div>
+                                        60% growth, 40% net new
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Coverage gaps</div>
+                                        3 accounts unassigned
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4 hidden" data-loop-panel="pay">
+                                <h3 class="text-2xl font-semibold text-slate-900">Comp exposure simulation</h3>
+                                <p class="text-slate-600">
+                                    Forecast commission burn, payouts, and margin impact by scenario.
+                                </p>
+                                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Scenario A</div>
+                                        $2.4M revenue, 8.1% comp, 46% margin
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Scenario B</div>
+                                        $3.0M revenue, 9.4% comp, 43% margin
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4 hidden" data-loop-panel="coach">
+                                <h3 class="text-2xl font-semibold text-slate-900">Coaching command center</h3>
+                                <p class="text-slate-600">
+                                    Generate personalized coaching plans and adjust targets based on real performance.
+                                </p>
+                                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Enablement</div>
+                                        Playbooks for stage 3 conversion
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-2">Comp nudges</div>
+                                        Adjust accelerator for Q3 push
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4 hidden" data-loop-panel="report">
+                                <h3 class="text-2xl font-semibold text-slate-900">Board-ready reporting</h3>
+                                <p class="text-slate-600">
+                                    One slide summary with pipeline, forecast, comp exposure, and rep readiness.
+                                </p>
+                                <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-700">
+                                    <div class="bg-slate-50 rounded-xl p-4">Forecast confidence: 86%</div>
+                                    <div class="bg-slate-50 rounded-xl p-4">Budget variance: +2.4%</div>
+                                    <div class="bg-slate-50 rounded-xl p-4">Quota attainment: 74%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 pb-16">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6 fade-up" style="animation-delay: 0.1s;">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Signal stack</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Deal intelligence</h3>
+                        <p class="text-slate-600">
+                            AI reads call notes, pipeline activity, and buyer intent to score every opportunity.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 fade-up" style="animation-delay: 0.2s;">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Scenario engine</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Comp-aware forecasting</h3>
+                        <p class="text-slate-600">
+                            Tie compensation exposure to every forecast scenario, protecting margin in real time.
+                        </p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 fade-up" style="animation-delay: 0.3s;">
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Action layer</div>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Guided execution</h3>
+                        <p class="text-slate-600">
+                            Auto-assign coaching, update plan targets, and push changes to ICM objects.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-10 glass-card rounded-3xl p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                    <div>
+                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Offerings</div>
+                        <h3 class="text-3xl font-semibold text-slate-900">Sales 360 AI packages</h3>
+                        <p class="text-slate-600 mt-2">
+                            Start with a signal scan, then scale into planning and coaching automation.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Pipeline Signal Scan</span>
+                        <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Forecast + Comp Simulation</span>
+                        <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Coaching Orchestration</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 pb-20">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.3fr_0.7fr] gap-8 items-center">
+                <div class="glass-card rounded-3xl p-8">
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Why it wins</div>
+                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
+                        Revenue leaders get a single source of truth.
+                    </h2>
+                    <div class="grid sm:grid-cols-2 gap-4 text-sm text-slate-600">
+                        <div class="bg-white rounded-2xl p-4 border border-slate-100">
+                            <div class="text-slate-900 font-semibold mb-1">Unified dashboards</div>
+                            Track pipeline, quota, payout, and coaching on one screen.
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 border border-slate-100">
+                            <div class="text-slate-900 font-semibold mb-1">Real-time adjustments</div>
+                            Update plans without breaking budget guardrails.
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 border border-slate-100">
+                            <div class="text-slate-900 font-semibold mb-1">Board-ready cadence</div>
+                            Produce exec briefs automatically each month.
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 border border-slate-100">
+                            <div class="text-slate-900 font-semibold mb-1">Rep-ready next steps</div>
+                            AI delivers next best actions per rep.
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-8 text-center">
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-4">Activation</div>
+                    <div class="text-5xl font-semibold text-slate-900 mb-2">30 days</div>
+                    <p class="text-slate-600 mb-6">From pilot to live 360 loop.</p>
+                    <button class="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">
+                        Schedule a launch call
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-white py-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">ICM</span>
+                </div>
+                <span class="text-2xl font-bold">ICM PlanLytics</span>
+            </div>
+            <p class="text-slate-300 mb-6 max-w-md mx-auto">
+                Sales 360 AI keeps pipeline, compensation, and coaching aligned for every revenue leader.
+            </p>
+            <div class="text-slate-400 text-sm">
+                (c) 2025 ICM PlanLytics. All rights reserved.<br>
+                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
+            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form" class="space-y-4">
+                <div>
+                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Sign in
+                </button>
+            </form>
+            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+        let activeRole = 'demo';
+        const ROLE_CREDENTIALS = {
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+        };
+
+        function applyRole(role) {
+            activeRole = role;
+            localStorage.setItem(ROLE_STORAGE_KEY, role);
+            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'demo');
+            });
+            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+                el.classList.toggle('hidden', role !== 'paid');
+            });
+        }
+
+        function initRoleControls() {
+            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+            const roleModal = document.getElementById('role-modal');
+            const roleClose = document.getElementById('role-close');
+            const roleForm = document.getElementById('role-form');
+            const roleError = document.getElementById('role-error');
+            const roleUsername = document.getElementById('role-username');
+            const rolePassword = document.getElementById('role-password');
+            const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+            roleToggles.forEach((toggle) => {
+                toggle.addEventListener('click', () => {
+                    roleModal.classList.remove('hidden');
+                    roleModal.classList.add('flex');
+                    roleError.classList.add('hidden');
+                    roleForm.reset();
+                });
+            });
+
+            roleClose.addEventListener('click', () => {
+                roleModal.classList.add('hidden');
+                roleModal.classList.remove('flex');
+            });
+
+            roleModal.addEventListener('click', (event) => {
+                if (event.target === roleModal) {
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                }
+            });
+
+            roleForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = roleUsername.value.trim();
+                const password = rolePassword.value.trim();
+                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+
+                if (isDemo || isPaid) {
+                    applyRole(isPaid ? 'paid' : 'demo');
+                    roleModal.classList.add('hidden');
+                    roleModal.classList.remove('flex');
+                } else {
+                    roleError.classList.remove('hidden');
+                }
+            });
+        }
+
+        function initMobileNav() {
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!menuToggle || !mobileMenu) {
+                return;
+            }
+
+            menuToggle.addEventListener('click', () => {
+                const isOpen = !mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+            });
+
+            mobileMenu.querySelectorAll('a, button').forEach((item) => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        function initLoopTabs() {
+            const tabs = Array.from(document.querySelectorAll('[data-loop-step]'));
+            const panels = Array.from(document.querySelectorAll('[data-loop-panel]'));
+            if (!tabs.length || !panels.length) {
+                return;
+            }
+
+            const activate = (step) => {
+                tabs.forEach((tab) => {
+                    const isActive = tab.getAttribute('data-loop-step') === step;
+                    tab.classList.toggle('is-active', isActive);
+                    tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                panels.forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.getAttribute('data-loop-panel') !== step);
+                });
+            };
+
+            activate(tabs[0].getAttribute('data-loop-step'));
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => activate(tab.getAttribute('data-loop-step')));
+            });
+        }
+
+        window.addEventListener('load', () => {
+            initRoleControls();
+            initMobileNav();
+            initLoopTabs();
+        });
+    </script>
+</body>
+</html>
