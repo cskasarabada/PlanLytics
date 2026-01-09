@@ -11,7 +11,7 @@ openpyxl==3.1.2
 python-docx==1.1.2
 
 # Optional extractors (code tolerates absence; keep only if you use them)
-pymupdf==1.24.10
+pymupdf==1.24.10; python_version < "3.13"
 pytesseract==0.3.10
 pillow==10.4.0
 unstructured==0.17.2
