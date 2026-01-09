@@ -854,21 +854,88 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid gap-4">
-                        <div class="bg-gray-900 text-white rounded-2xl p-5">
-                            <div class="text-xs uppercase tracking-[0.3em] text-gray-300 mb-2">Pipeline health</div>
-                            <div class="text-3xl font-semibold">$12.4M</div>
-                            <div class="text-sm text-gray-300 mt-1">72% confidence, 4 risks flagged</div>
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs uppercase tracking-[0.3em] text-gray-400">Live scenario</div>
+                            <div id="s360-health-label" class="text-xs font-semibold text-emerald-600">Health 0%</div>
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-2xl p-5">
-                            <div class="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Comp exposure</div>
-                            <div class="text-2xl font-semibold text-gray-900">8.2% of revenue</div>
-                            <div class="text-sm text-gray-600 mt-1">Margin protected across scenarios</div>
+                        <form id="sales360-form" class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                            <div>
+                                <label for="s360-pipeline" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Pipeline ($)</label>
+                                <input id="s360-pipeline" type="number" min="0" step="1000" value="12400000" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="s360-winrate" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Win rate (%)</label>
+                                <input id="s360-winrate" type="number" min="0" max="100" step="0.1" value="28" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="s360-deal" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Avg deal size ($)</label>
+                                <input id="s360-deal" type="number" min="0" step="1000" value="50000" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="s360-cycle" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Sales cycle (days)</label>
+                                <input id="s360-cycle" type="number" min="0" step="1" value="78" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="s360-reps" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Active reps</label>
+                                <input id="s360-reps" type="number" min="1" step="1" value="12" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="s360-comp" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Comp rate (%)</label>
+                                <input id="s360-comp" type="number" min="0" max="30" step="0.1" value="8.2" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="s360-margin" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Gross margin (%)</label>
+                                <input id="s360-margin" type="number" min="0" max="100" step="0.1" value="72" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </form>
+                        <div class="bg-gray-900 text-white rounded-2xl p-4">
+                            <div class="text-xs uppercase tracking-[0.3em] text-gray-300 mb-2">Forecast</div>
+                            <div id="s360-forecast" class="text-3xl font-semibold">$0</div>
+                            <div class="mt-3 h-2 rounded-full bg-white/10">
+                                <div id="s360-health-bar" class="h-2 rounded-full bg-emerald-400" style="width: 0%;"></div>
+                            </div>
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-2xl p-5">
-                            <div class="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">Coaching impact</div>
-                            <div class="text-2xl font-semibold text-gray-900">+11% stage lift</div>
-                            <div class="text-sm text-gray-600 mt-1">Auto-assign plays to reps</div>
+                        <div class="grid sm:grid-cols-2 gap-3 text-sm">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Expected deals</div>
+                                <div id="s360-deals" class="text-xl font-semibold text-gray-900">0</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Quota per rep</div>
+                                <div id="s360-quota" class="text-xl font-semibold text-gray-900">$0</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Commission exposure</div>
+                                <div id="s360-commission" class="text-xl font-semibold text-gray-900">$0</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Margin after comp</div>
+                                <div id="s360-margin-after" class="text-xl font-semibold text-gray-900">0%</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div class="text-xs uppercase tracking-[0.25em] text-gray-500 mb-3">Risk signals</div>
+                            <div class="grid sm:grid-cols-2 gap-2 text-xs text-gray-600">
+                                <label class="flex items-start gap-2"><input id="s360-risk-stall" type="checkbox" class="mt-1"> Deals stalled &gt; 45 days</label>
+                                <label class="flex items-start gap-2"><input id="s360-risk-slip" type="checkbox" class="mt-1" checked> Late-stage slip &gt; 15%</label>
+                                <label class="flex items-start gap-2"><input id="s360-risk-activity" type="checkbox" class="mt-1" checked> Low activity touches</label>
+                                <label class="flex items-start gap-2"><input id="s360-risk-renewal" type="checkbox" class="mt-1"> Renewal risk rising</label>
+                            </div>
+                            <div class="mt-3 text-xs text-gray-500">Risks flagged: <span id="s360-risk-count">0</span></div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div class="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Coaching focus</div>
+                            <ul id="s360-coaching" class="text-sm text-gray-700 list-disc pl-5 space-y-1"></ul>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button id="s360-generate" type="button" class="bg-gray-900 text-white px-5 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+                                Generate Sales 360 Brief
+                            </button>
+                            <a href="sales-360-ai.html" class="border border-gray-300 text-gray-700 px-5 py-3 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors font-semibold">
+                                Full offering
+                            </a>
+                            <span id="s360-status" class="hidden text-xs text-emerald-600">✅ Brief refreshed.</span>
                         </div>
                     </div>
                 </div>
@@ -1300,6 +1367,113 @@
             });
         }
 
+        function initSales360() {
+            const form = document.getElementById('sales360-form');
+            if (!form) {
+                return;
+            }
+
+            const readNumber = (id) => {
+                const input = document.getElementById(id);
+                if (!input) {
+                    return 0;
+                }
+                const value = parseFloat(input.value);
+                return Number.isFinite(value) ? value : 0;
+            };
+
+            const riskInputs = [
+                { id: 's360-risk-stall', tip: 'Run deal-rescue sprints for stalled opportunities.' },
+                { id: 's360-risk-slip', tip: 'Align stage exit criteria with MEDDICC checks.' },
+                { id: 's360-risk-activity', tip: 'Trigger weekly activity goals and manager reviews.' },
+                { id: 's360-risk-renewal', tip: 'Launch renewal plays 90 days before term.' }
+            ];
+
+            const healthLabel = document.getElementById('s360-health-label');
+            const healthBar = document.getElementById('s360-health-bar');
+            const riskCountEl = document.getElementById('s360-risk-count');
+            const coachingEl = document.getElementById('s360-coaching');
+            const statusEl = document.getElementById('s360-status');
+            const generateBtn = document.getElementById('s360-generate');
+
+            const update = () => {
+                const pipeline = readNumber('s360-pipeline');
+                const winRate = readNumber('s360-winrate') / 100;
+                const dealSize = readNumber('s360-deal');
+                const cycleDays = readNumber('s360-cycle');
+                const reps = readNumber('s360-reps');
+                const compRate = readNumber('s360-comp') / 100;
+                const grossMargin = readNumber('s360-margin') / 100;
+
+                const forecast = pipeline * winRate;
+                const deals = dealSize > 0 ? forecast / dealSize : 0;
+                const commission = forecast * compRate;
+                const quota = reps > 0 ? forecast / reps : 0;
+                const marginAfter = (grossMargin - compRate) * 100;
+
+                document.getElementById('s360-forecast').textContent = formatCurrency(forecast);
+                document.getElementById('s360-deals').textContent = formatNumber(deals);
+                document.getElementById('s360-quota').textContent = formatCurrency(quota);
+                document.getElementById('s360-commission').textContent = formatCurrency(commission);
+                document.getElementById('s360-margin-after').textContent = `${marginAfter.toFixed(1)}%`;
+
+                let health = 92;
+                if (winRate < 0.2) health -= 6;
+                if (cycleDays > 90) health -= 5;
+                if (cycleDays > 120) health -= 5;
+
+                const coachingTips = [];
+                let risks = 0;
+                riskInputs.forEach((risk) => {
+                    const input = document.getElementById(risk.id);
+                    if (input && input.checked) {
+                        risks += 1;
+                        health -= 7;
+                        coachingTips.push(risk.tip);
+                    }
+                });
+
+                if (coachingTips.length === 0) {
+                    coachingTips.push('Hold weekly pipeline hygiene reviews.');
+                    coachingTips.push('Reinforce next-step commitments on every deal.');
+                }
+
+                if (pipeline <= 0) {
+                    health = 0;
+                }
+
+                health = Math.max(30, Math.min(98, Math.round(health)));
+                if (healthLabel) {
+                    healthLabel.textContent = `Health ${health}%`;
+                }
+                if (healthBar) {
+                    const colorClass = health >= 80 ? 'bg-emerald-400' : health >= 60 ? 'bg-amber-400' : 'bg-rose-400';
+                    healthBar.className = `h-2 rounded-full ${colorClass}`;
+                    healthBar.style.width = `${health}%`;
+                }
+                if (riskCountEl) {
+                    riskCountEl.textContent = risks.toString();
+                }
+                if (coachingEl) {
+                    coachingEl.innerHTML = coachingTips.map((tip) => `<li>${tip}</li>`).join('');
+                }
+            };
+
+            form.querySelectorAll('input').forEach((input) => {
+                input.addEventListener('input', update);
+                input.addEventListener('change', update);
+            });
+
+            if (generateBtn && statusEl) {
+                generateBtn.addEventListener('click', () => {
+                    statusEl.classList.remove('hidden');
+                    setTimeout(() => statusEl.classList.add('hidden'), 2000);
+                });
+            }
+
+            update();
+        }
+
         function initPlannerPresets() {
             const presetButtons = Array.from(document.querySelectorAll('[data-planner-preset]'));
             if (!presetButtons.length) {
@@ -1352,6 +1526,7 @@
             initPlanStudio();
             initMobileNav();
             initStudioModules();
+            initSales360();
             initPhilosophyAccordion();
             initMarketLens();
             initPlannerPresets();
