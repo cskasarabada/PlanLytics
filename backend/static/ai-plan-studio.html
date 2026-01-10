@@ -19,6 +19,26 @@
         .studio-tab.is-active .tab-eyebrow { color: #a5b4fc; }
         .studio-module { animation: fadeUp 0.4s ease; }
         .module-card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 24px; }
+        .journey-map { background: linear-gradient(120deg, #0f766e 0%, #0b7285 45%, #1e3a8a 100%); border-radius: 32px; padding: 28px; color: #e0f2fe; position: relative; overflow: hidden; }
+        .journey-map::before { content: ""; position: absolute; top: -40%; right: -10%; width: 320px; height: 320px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; }
+        .journey-map::after { content: ""; position: absolute; bottom: -30%; left: -15%; width: 280px; height: 280px; background: rgba(255, 255, 255, 0.06); border-radius: 50%; }
+        .journey-track { position: relative; margin-top: 24px; padding: 32px 0 6px; }
+        .journey-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.4; }
+        .journey-steps { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+        .journey-map .studio-tab { background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; padding: 18px; text-align: left; min-height: 150px; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; --step-offset: 0px; transform: translateY(var(--step-offset)); }
+        .journey-map .studio-tab::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 999px; background: #14b8a6; border: 3px solid #ffffff; top: -18px; left: 20px; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2); }
+        .journey-map .studio-tab:hover { transform: translateY(calc(var(--step-offset) - 4px)); box-shadow: 0 18px 35px rgba(15, 23, 42, 0.2); }
+        .journey-map .studio-tab.is-active { background: #0f172a; color: #ffffff; border-color: #0f172a; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35); transform: translateY(calc(var(--step-offset) - 6px)); }
+        .journey-map .studio-tab.is-active::before { background: #22c55e; border-color: #0f172a; }
+        .journey-map .tab-eyebrow { color: #0f766e; }
+        .journey-map .studio-tab.is-active .tab-eyebrow { color: #c7d2fe; }
+        .journey-map .tab-desc { color: #475569; }
+        .journey-map .studio-tab.is-active .tab-desc { color: #e2e8f0; }
+        .journey-map .step-1 { --step-offset: 8px; }
+        .journey-map .step-2 { --step-offset: -12px; }
+        .journey-map .step-3 { --step-offset: 6px; }
+        .journey-map .step-4 { --step-offset: -8px; }
+        .journey-map .step-5 { --step-offset: 12px; }
         .market-chip { border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; color: #475569; background: #ffffff; transition: all 0.2s ease; }
         .market-chip.is-active { background: #111827; color: #ffffff; border-color: #111827; }
         .philosophy-toggle .indicator { transition: transform 0.2s ease; }
@@ -26,6 +46,14 @@
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 1024px) {
+            .journey-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .journey-line { display: none; }
+            .journey-map .studio-tab { transform: none; }
+        }
+        @media (max-width: 640px) {
+            .journey-steps { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -117,36 +145,51 @@
                 </div>
             </div>
 
-            <div class="mt-10 grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <button type="button" class="studio-tab is-active" data-module-tab="draft" aria-pressed="true">
-                    <div class="tab-eyebrow mb-2">Module 01</div>
-                    <div class="text-lg font-semibold">Draft Builder</div>
-                    <p class="tab-desc text-sm text-slate-500 mt-2">Upload context and generate a plan draft with scenarios.</p>
-                </button>
-                <button type="button" class="studio-tab" data-module-tab="journey" aria-pressed="false">
-                    <div class="tab-eyebrow mb-2">Module 02</div>
-                    <div class="text-lg font-semibold">Founder Journey</div>
-                    <p class="tab-desc text-sm text-slate-500 mt-2">See the guided conversation that turns inputs into decisions.</p>
-                </button>
-                <button type="button" class="studio-tab" data-module-tab="profit" aria-pressed="false">
-                    <div class="tab-eyebrow mb-2">Module 03</div>
-                    <div class="text-lg font-semibold">Profit Planner</div>
-                    <p class="tab-desc text-sm text-slate-500 mt-2">Stress-test margin, commission budget, and rep capacity.</p>
-                </button>
-                <button type="button" class="studio-tab" data-module-tab="admin" aria-pressed="false">
-                    <div class="tab-eyebrow mb-2">Module 04</div>
-                    <div class="text-lg font-semibold">Admin Insights</div>
-                    <p class="tab-desc text-sm text-slate-500 mt-2">Benchmark philosophy and market data with agentic inputs.</p>
-                </button>
-                <button type="button" class="studio-tab" data-module-tab="sales360" aria-pressed="false">
-                    <div class="tab-eyebrow mb-2">Module 05</div>
-                    <div class="text-lg font-semibold">Sales 360 AI</div>
-                    <p class="tab-desc text-sm text-slate-500 mt-2">Pipeline, comp, and coaching in one AI loop.</p>
-                </button>
-            </div>
-            <div class="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                Focus the page by selecting a module.
+            <div class="mt-10 journey-map">
+                <div class="relative z-10">
+                    <div class="text-xs uppercase tracking-[0.3em] text-white/70">Founder journey roadmap</div>
+                    <h3 class="text-3xl md:text-4xl font-semibold text-white mt-2">End-to-end Plan Studio path</h3>
+                    <p class="text-white/80 mt-3 max-w-3xl">
+                        Follow the curve from first inputs to launch-ready outputs. Tap a milestone to focus the page.
+                    </p>
+                </div>
+                <div class="journey-track">
+                    <svg class="journey-line" viewBox="0 0 1200 240" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="8" stroke-linecap="round"></path>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-dasharray="6 10" stroke-linecap="round"></path>
+                    </svg>
+                    <div class="journey-steps">
+                        <button type="button" class="studio-tab journey-step step-1 is-active" data-module-tab="draft" aria-pressed="true">
+                            <div class="tab-eyebrow mb-2">Module 01</div>
+                            <div class="text-lg font-semibold">Draft Builder</div>
+                            <p class="tab-desc text-sm mt-2">Upload context and generate a plan draft with scenarios.</p>
+                        </button>
+                        <button type="button" class="studio-tab journey-step step-2" data-module-tab="journey" aria-pressed="false">
+                            <div class="tab-eyebrow mb-2">Module 02</div>
+                            <div class="text-lg font-semibold">Founder Journey</div>
+                            <p class="tab-desc text-sm mt-2">See the guided conversation that turns inputs into decisions.</p>
+                        </button>
+                        <button type="button" class="studio-tab journey-step step-3" data-module-tab="profit" aria-pressed="false">
+                            <div class="tab-eyebrow mb-2">Module 03</div>
+                            <div class="text-lg font-semibold">Profit Planner</div>
+                            <p class="tab-desc text-sm mt-2">Stress-test margin, commission budget, and rep capacity.</p>
+                        </button>
+                        <button type="button" class="studio-tab journey-step step-4" data-module-tab="admin" aria-pressed="false">
+                            <div class="tab-eyebrow mb-2">Module 04</div>
+                            <div class="text-lg font-semibold">Admin Insights</div>
+                            <p class="tab-desc text-sm mt-2">Benchmark philosophy and market data with agentic inputs.</p>
+                        </button>
+                        <button type="button" class="studio-tab journey-step step-5" data-module-tab="sales360" aria-pressed="false">
+                            <div class="tab-eyebrow mb-2">Module 05</div>
+                            <div class="text-lg font-semibold">Sales 360 AI</div>
+                            <p class="tab-desc text-sm mt-2">Pipeline, comp, and coaching in one AI loop.</p>
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-xs text-white/70">
+                    <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
+                    Focus the page by selecting a module.
+                </div>
             </div>
 
             <div id="studio-modules" class="mt-12">
