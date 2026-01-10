@@ -23,8 +23,10 @@
         .journey-map::before { content: ""; position: absolute; top: -40%; right: -10%; width: 320px; height: 320px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; }
         .journey-map::after { content: ""; position: absolute; bottom: -30%; left: -15%; width: 280px; height: 280px; background: rgba(255, 255, 255, 0.06); border-radius: 50%; }
         .journey-track { position: relative; margin-top: 24px; padding: 32px 0 6px; }
-        .journey-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.4; }
+        .journey-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.6; z-index: 0; }
         .journey-steps { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+        .journey-flag { position: absolute; top: 6px; right: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.85); color: #ffffff; padding: 6px 12px; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; }
+        .journey-flag svg { width: 14px; height: 14px; }
         .journey-map .studio-tab { background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; padding: 18px; text-align: left; min-height: 150px; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; --step-offset: 0px; transform: translateY(var(--step-offset)); }
         .journey-map .studio-tab::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 999px; background: #14b8a6; border: 3px solid #ffffff; top: -18px; left: 20px; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2); }
         .journey-map .studio-tab:hover { transform: translateY(calc(var(--step-offset) - 4px)); box-shadow: 0 18px 35px rgba(15, 23, 42, 0.2); }
@@ -155,9 +157,16 @@
                 </div>
                 <div class="journey-track">
                     <svg class="journey-line" viewBox="0 0 1200 240" preserveAspectRatio="none" aria-hidden="true">
-                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="8" stroke-linecap="round"></path>
-                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-dasharray="6 10" stroke-linecap="round"></path>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="26" stroke-linecap="round"></path>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6" stroke-linecap="round"></path>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-dasharray="6 10" stroke-linecap="round"></path>
                     </svg>
+                    <div class="journey-flag">
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M4 2a1 1 0 011 1v13a1 1 0 11-2 0V3a1 1 0 011-1zm2.5 1.5a1 1 0 011-1h7.793a1 1 0 01.707 1.707L13.414 6l2.586 2.793A1 1 0 0115.293 10H7.5a1 1 0 01-1-1V3.5z"></path>
+                        </svg>
+                        Launch success
+                    </div>
                     <div class="journey-steps">
                         <button type="button" class="studio-tab journey-step step-1 is-active" data-module-tab="draft" aria-pressed="true">
                             <div class="tab-eyebrow mb-2">Module 01</div>
