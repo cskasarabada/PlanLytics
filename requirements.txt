@@ -14,15 +14,7 @@ python-docx==1.1.2
 pymupdf==1.24.10; python_version < "3.13"
 pytesseract==0.3.10
 pillow==10.4.0
-unstructured==0.17.2
-
-# Vector/AI stack (these slow builds; keep only if you actually use them in prod)
-sentence-transformers==3.0.1
-chromadb==0.5.20
 
 # Utilities
 requests==2.32.3
 redis==5.0.1
-
-# Optional HTML→PDF (needs system libs; see note below)
-weasyprint==62.3
