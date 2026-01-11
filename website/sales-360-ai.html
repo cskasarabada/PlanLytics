@@ -48,6 +48,16 @@
         .loop-tab.is-active .loop-subtext {
             color: #e2e8f0;
         }
+        .workspace-shell {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 64, 175, 0.78));
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 30px 70px rgba(15, 23, 42, 0.22);
+        }
+        .workspace-tile {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 18px;
+        }
         .glow-orb {
             position: absolute;
             border-radius: 999px;
@@ -378,6 +388,68 @@
                         <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Pipeline Signal Scan</span>
                         <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Forecast + Comp Simulation</span>
                         <span class="px-4 py-2 rounded-full border border-slate-200 text-sm text-slate-700 bg-white">Coaching Orchestration</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 pb-20">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
+                <div class="space-y-5">
+                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500">Workspace launch</div>
+                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">
+                        Sign up for your Sales 360 AI workspace.
+                    </h2>
+                    <p class="text-slate-600 text-lg">
+                        After launch, founders get a live workspace that connects lead-to-quote health, plan guidance, and
+                        comp math in one view.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="mailto:sales@icm-planlytics.com?subject=Sales%20360%20Workspace%20Setup" class="bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">
+                            Request Workspace
+                        </a>
+                        <a href="ai-plan-studio.html" class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:border-slate-500 transition-colors">
+                            See Plan Studio Flow
+                        </a>
+                    </div>
+                </div>
+                <div class="workspace-shell rounded-3xl p-6 md:p-8 text-white">
+                    <div class="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/70 mb-5">
+                        <span>Founder workspace</span>
+                        <span>Live after launch</span>
+                    </div>
+                    <div class="text-2xl font-semibold mb-6">Sales 360 AI Workspace</div>
+                    <div class="grid md:grid-cols-3 gap-4 text-slate-700">
+                        <div class="workspace-tile p-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-2">Sales 360 AI</div>
+                            <div class="text-lg font-semibold text-slate-900 mb-2">Lead → Quote</div>
+                            <ul class="text-sm text-slate-600 space-y-1">
+                                <li>Pipeline health: 86%</li>
+                                <li>Rep coverage: 12 AEs</li>
+                                <li>Deal risk alerts</li>
+                            </ul>
+                        </div>
+                        <div class="workspace-tile p-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-2">Plan AI</div>
+                            <div class="text-lg font-semibold text-slate-900 mb-2">Best plan fit</div>
+                            <ul class="text-sm text-slate-600 space-y-1">
+                                <li>Recommended mix: 60/40</li>
+                                <li>Quota band: $500k-$650k</li>
+                                <li>Scenario fit: Growth push</li>
+                            </ul>
+                        </div>
+                        <div class="workspace-tile p-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-2">CompLytics</div>
+                            <div class="text-lg font-semibold text-slate-900 mb-2">Comp math</div>
+                            <ul class="text-sm text-slate-600 space-y-1">
+                                <li>Commission burn: 8.1%</li>
+                                <li>OTE cost: $1.1M</li>
+                                <li>Margin after comp: 46%</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-white/10 border border-white/15 rounded-2xl px-4 py-3 text-sm text-white/80">
+                        Founder view stays synced as the loop updates pipeline, plan decisions, and comp exposure.
                     </div>
                 </div>
             </div>
