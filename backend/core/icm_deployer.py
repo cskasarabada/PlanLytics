@@ -704,6 +704,66 @@ def deploy_to_oracle_icm(
         api_client, config_manager, **_mgr_kwargs()
     )
 
+    # Shared ExpressionManager for expression creation + validation
+    expr_manager = ExpressionManager(
+        api_client, config_manager, **_mgr_kwargs()
+    )
+
+    def _validate_and_fix_expressions() -> bool:
+        """Post-creation step: check all expressions, fix INVALID ones.
+
+        Oracle expressions start with Status=INVALID.  They auto-transition
+        to VALID when ExpressionDetails are correctly set.  If any are still
+        INVALID after configure_expressions(), retry PATCH with force_replace.
+        """
+        logger.info("Validating expression statuses...")
+        expressions = expr_manager.load_expressions()
+        if not expressions:
+            return True  # No expressions to validate
+
+        all_valid = True
+        for expr in expressions:
+            name = expr["Name"]
+            details = expr_manager.get_expression_details(name)
+            if not details:
+                logger.warning("Expression '%s' not found during validation", name)
+                continue
+
+            status = details.get("Status", "INVALID")
+            uniq_id = details.get("_uniq_id")
+
+            if status == "VALID":
+                logger.info("✅ Expression '%s' Status=VALID", name)
+                continue
+
+            # Expression is INVALID — try to fix by (re)setting ExpressionDetails
+            logger.warning("⚠ Expression '%s' Status=%s — attempting fix", name, status)
+            if uniq_id:
+                detail_rows = expr_manager._build_expression_detail_rows(expr)
+                if detail_rows:
+                    logger.info("🔧 Re-PATCHing %d ExpressionDetails for '%s'", len(detail_rows), name)
+                    expr_manager._set_expression_details(
+                        uniq_id, name, detail_rows,
+                        description=expr.get("Description", name),
+                        force_replace=True,
+                    )
+                    # Re-check status
+                    updated = expr_manager.get_expression_details(name)
+                    new_status = updated.get("Status", "INVALID") if updated else "UNKNOWN"
+                    if new_status == "VALID":
+                        logger.info("✅ Expression '%s' fixed → Status=VALID", name)
+                    else:
+                        logger.warning("⚠ Expression '%s' still %s after fix attempt", name, new_status)
+                        all_valid = False
+                else:
+                    logger.warning("⚠ No detail rows for '%s' — cannot fix", name)
+                    all_valid = False
+            else:
+                logger.warning("⚠ No UniqID for '%s' — cannot fix", name)
+                all_valid = False
+
+        return all_valid
+
     # Execute deployment in dependency order (matches Oracle ICM object hierarchy)
     steps = [
         ("Rate Dimensions", lambda: RateDimensionManager(
@@ -712,9 +772,8 @@ def deploy_to_oracle_icm(
         ("Rate Tables", lambda: RateTableManager(
             api_client, config_manager, **_mgr_kwargs()
         ).create_rate_tables(force=True)),
-        ("Expressions", lambda: ExpressionManager(
-            api_client, config_manager, **_mgr_kwargs()
-        ).configure_expressions(force=True)),
+        ("Expressions", lambda: expr_manager.configure_expressions(force=True)),
+        ("Validate Expressions", _validate_and_fix_expressions),
         ("Performance Measures", lambda: pm_manager.create_performance_measures(
             force=True)),
         ("Plan Components", lambda: PlanComponentManager(

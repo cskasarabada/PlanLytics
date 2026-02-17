@@ -592,7 +592,7 @@ async def import_xml(
         return JSONResponse({"error": f"XML import failed: {e}"}, status_code=500)
 
 
-@app.get("/api/icm-workbook/{analysis_id}")
+@app.api_route("/api/icm-workbook/{analysis_id}", methods=["GET", "HEAD"])
 def get_icm_workbook(analysis_id: str):
     """Download the generated ICM workbook for review."""
     wb_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
@@ -955,6 +955,164 @@ async def icm_deploy_list_orgs(payload: dict):
         }
     except Exception as e:
         return {"success": False, "orgs": [], "message": f"Failed to query orgs: {e}"}
+
+
+@app.post("/api/icm-deploy/fix-expressions")
+async def icm_deploy_fix_expressions(payload: dict):
+    """Fix INVALID expressions by setting their ExpressionDetails via server-side API.
+
+    This endpoint bypasses Oracle WAF (which blocks browser/Postman requests with
+    long UniqID URLs) by using the Python requests-based APIClient.
+
+    Payload:
+        base_url: Oracle Fusion base URL
+        username: API username
+        password: API password
+        expression_names: (optional) list of expression names to fix; if empty, fixes all INVALID
+        analysis_id: (optional) analysis ID to look up workbook for detail inference
+    """
+    from ..icm_optimizer.utils.api_client import APIClient
+    from ..icm_optimizer.core.expression import ExpressionManager
+    from ..icm_optimizer.config.config_manager import ConfigManager
+
+    base_url = payload.get("base_url", "")
+    username = payload.get("username", "")
+    password = payload.get("password", "")
+    expression_names = payload.get("expression_names", [])
+    analysis_id = payload.get("analysis_id", "")
+
+    if not base_url or not username or not password:
+        return JSONResponse({"success": False, "message": "base_url, username, password required"}, status_code=400)
+
+    try:
+        api_client = APIClient(base_url=base_url, username=username, password=password)
+
+        # Determine OrgId from API
+        response, status = api_client.get("/compensationPlans?limit=1&fields=OrgId")
+        org_id = 0
+        if status == 200 and response.get("items"):
+            org_id = int(response["items"][0].get("OrgId", 0))
+        if org_id == 0:
+            return JSONResponse({"success": False, "message": "Could not determine OrgId from API"}, status_code=400)
+
+        # Create a minimal config proxy for ExpressionManager
+        class _ConfigProxy:
+            def __init__(self, oid):
+                self._cfg = {"organization": {"org_id": oid}}
+            def get(self, section, key=None, default=None):
+                if key is None:
+                    return self._cfg.get(section, default)
+                return self._cfg.get(section, {}).get(key, default)
+            def get_section(self, section):
+                return self._cfg.get(section, {})
+
+        config_proxy = _ConfigProxy(org_id)
+
+        # Load workbook data for expression detail inference (if analysis_id provided)
+        workbook_expressions = []
+        if analysis_id:
+            excel_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
+            if excel_path.exists():
+                import pandas as pd
+                try:
+                    norm_path = str(excel_path)
+                    # Create a temporary ExpressionManager to load + infer expression details
+                    temp_mgr = ExpressionManager(api_client, config_proxy, log_file="fix_expressions.log", excel_path=norm_path)
+                    # Normalize columns if needed
+                    from ..core.icm_deployer import _normalize_workbook_for_managers
+                    norm_wb = _normalize_workbook_for_managers(excel_path)
+                    temp_mgr.excel_path = str(norm_wb)
+                    workbook_expressions = temp_mgr.load_expressions()
+                except Exception as e:
+                    logger.warning("Could not load workbook expressions: %s", e)
+
+        # Create the expression manager for API operations
+        expr_mgr = ExpressionManager(api_client, config_proxy, log_file="fix_expressions.log")
+
+        # If no specific names given, query all INVALID expressions for this org
+        if not expression_names:
+            resp, st = api_client.get(f"/incentiveCompensationExpressions?q=OrgId={org_id}&limit=100")
+            if st == 200 and resp.get("items"):
+                expression_names = [
+                    item["Name"] for item in resp["items"]
+                    if item.get("Status") == "INVALID"
+                ]
+
+        results = []
+        for expr_name in expression_names:
+            expr_result = {"name": expr_name, "before": "UNKNOWN", "after": "UNKNOWN", "action": "none"}
+
+            # Get current expression details
+            details = expr_mgr.get_expression_details(expr_name)
+            if not details:
+                expr_result["action"] = "not_found"
+                results.append(expr_result)
+                continue
+
+            expr_result["before"] = details.get("Status", "UNKNOWN")
+            uniq_id = details.get("_uniq_id")
+            expr_id = details.get("ExpressionId")
+
+            if details.get("Status") == "VALID":
+                expr_result["action"] = "already_valid"
+                expr_result["after"] = "VALID"
+                results.append(expr_result)
+                continue
+
+            if not uniq_id:
+                expr_result["action"] = "no_uniq_id"
+                results.append(expr_result)
+                continue
+
+            # Find matching workbook expression for detail inference
+            wb_expr = None
+            for we in workbook_expressions:
+                if we.get("Name") == expr_name:
+                    wb_expr = we
+                    break
+
+            detail_rows = []
+            if wb_expr and wb_expr.get("_detail_rows"):
+                detail_rows = wb_expr["_detail_rows"]
+                expr_result["action"] = f"patching_{len(detail_rows)}_details_from_workbook"
+            else:
+                expr_result["action"] = "no_detail_rows_available"
+
+            if detail_rows:
+                success = expr_mgr._set_expression_details(
+                    uniq_id, expr_name, detail_rows,
+                    description=wb_expr.get("Description", expr_name),
+                    force_replace=True
+                )
+                expr_result["patch_success"] = success
+
+                # Re-check status
+                updated = expr_mgr.get_expression_details(expr_name)
+                if updated:
+                    expr_result["after"] = updated.get("Status", "UNKNOWN")
+
+            results.append(expr_result)
+
+        # Clean up normalized workbook if created
+        try:
+            import glob
+            for f in glob.glob(str(OUTPUT_DIR / "_deploy_*.xlsx")):
+                Path(f).unlink(missing_ok=True)
+        except Exception:
+            pass
+
+        fixed_count = sum(1 for r in results if r.get("after") == "VALID" and r.get("before") != "VALID")
+        return {
+            "success": True,
+            "org_id": org_id,
+            "total_checked": len(results),
+            "fixed": fixed_count,
+            "results": results,
+        }
+
+    except Exception as e:
+        logger.exception("fix-expressions failed: %s", e)
+        return JSONResponse({"success": False, "message": str(e)}, status_code=500)
 
 
 @app.post("/api/icm-deploy/run")
