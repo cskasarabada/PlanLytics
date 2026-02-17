@@ -766,10 +766,13 @@ def deploy_to_oracle_icm(
 
     # Execute deployment in dependency order (matches Oracle ICM object hierarchy).
     #
-    # Performance Measures MUST be created before Expressions because
-    # ExpressionDetails with type "Measure result" reference Performance
-    # Measures by MeasureName — Oracle rejects the POST with
-    # "LOV_MeasureName leads to no matching row" if the PM doesn't exist yet.
+    # Key ordering constraints:
+    # 1. Performance Measures MUST be created before Expressions because
+    #    ExpressionDetails with type "Measure result" reference Performance
+    #    Measures by MeasureName — Oracle rejects with LOV_MeasureName error.
+    # 2. Expressions MUST be created & validated before PM formula assignment
+    #    because MeasureFormulaExpressionName references an Expression by name.
+    # 3. Both PMs and Expressions must be ready before Plan Components.
     steps = [
         ("Rate Dimensions", lambda: RateDimensionManager(
             api_client, config_manager, **_mgr_kwargs()
@@ -781,6 +784,8 @@ def deploy_to_oracle_icm(
             force=True)),
         ("Expressions", lambda: expr_manager.configure_expressions(force=True)),
         ("Validate Expressions", _validate_and_fix_expressions),
+        ("Assign PM Formulas", lambda: pm_manager.assign_all_measure_formula_expressions(
+            force=True)),
         ("Plan Components", lambda: PlanComponentManager(
             api_client, config_manager, **_mgr_kwargs(),
             performance_measure_manager=pm_manager,

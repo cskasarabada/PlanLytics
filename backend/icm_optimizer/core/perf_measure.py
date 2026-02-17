@@ -73,6 +73,85 @@ class PerformanceMeasureManager:
         self.logger.warning(f"⚠ Performance Measure '{name}' not found.")
         return None
 
+    def assign_measure_formula_expression(self, performance_measure_name: str,
+                                           expression_name: str) -> bool:
+        """Assign a Measure Formula Expression to a Performance Measure via PATCH.
+
+        The Measure Formula Expression is set as a direct attribute on the
+        Performance Measure object (not via a child endpoint).  The referenced
+        expression MUST exist and be VALID in Oracle before assignment.
+
+        This is separate from PM creation because the deploy pipeline creates
+        PMs before Expressions (PMs don't depend on Expressions, but Expressions
+        CAN depend on PMs via MeasureName).  The formula expression is assigned
+        in a later step after Expressions are validated.
+
+        Args:
+            performance_measure_name: Name of the Performance Measure to update
+            expression_name: Name of the Expression to assign as the formula
+        """
+        self.logger.info(
+            f"🔧 Assigning Measure Formula Expression '{expression_name}' "
+            f"to Performance Measure '{performance_measure_name}'"
+        )
+        pm_id = self.get_performance_measure_id(performance_measure_name)
+        if not pm_id:
+            self.logger.error(f"❌ Performance Measure '{performance_measure_name}' not found.")
+            return False
+
+        payload = {"MeasureFormulaExpressionName": expression_name}
+        endpoint = f"{self.performance_measure_endpoint}/{pm_id}"
+        response, status_code = self.api_client.patch(endpoint, payload)
+        log_api_response(
+            f"PATCH Measure Formula Expression on PM '{performance_measure_name}'",
+            {"status_code": status_code, "response": response}, self.log_file,
+        )
+        if status_code == 200:
+            self.logger.info(
+                f"✅ Assigned Measure Formula Expression '{expression_name}' "
+                f"to Performance Measure '{performance_measure_name}'"
+            )
+            return True
+        self.logger.error(
+            f"❌ Failed to assign Measure Formula Expression. "
+            f"Status: {status_code}, Response: {response}"
+        )
+        return False
+
+    def assign_all_measure_formula_expressions(self, force: bool = False) -> bool:
+        """Assign Measure Formula Expressions to all PMs that have one defined.
+
+        Reads the workbook to find PMs with MeasureFormulaExpressionName set,
+        then PATCHes each PM to assign the expression.  Should be called AFTER
+        Expressions are created and validated (Status=VALID).
+        """
+        self.logger.info("🔧 Assigning Measure Formula Expressions to Performance Measures")
+        performance_measures = self.load_performance_measures()
+        if not performance_measures:
+            self.logger.info("ℹ No Performance Measures to process.")
+            return True
+
+        success_count = 0
+        error_count = 0
+        for pm in performance_measures:
+            expr_name = pm.get("MeasureFormulaExpressionName")
+            pm_name = pm.get("Name", "")
+            if not expr_name or not pm_name:
+                continue
+
+            if self.assign_measure_formula_expression(pm_name, expr_name):
+                success_count += 1
+            else:
+                error_count += 1
+                if not force:
+                    return False
+
+        self.logger.info(
+            f"✅ Measure Formula assignment complete: {success_count} assigned, "
+            f"{error_count} failed"
+        )
+        return error_count == 0
+
     def get_credit_category_id(self, credit_category_name: str) -> Optional[int]:
         """Look up Credit Category by name and OrgId.
 
