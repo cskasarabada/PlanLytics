@@ -820,7 +820,23 @@ async def icm_deploy_upload_config(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, f)
 
     cp = configparser.ConfigParser()
-    cp.read(str(config_path))
+    raw = config_path.read_text()
+    # Sanitize: replace Unicode arrows/fancy separators with '='
+    raw = raw.replace('\u2192', '=').replace('\u2190', '=').replace('\u2794', '=').replace(' → ', '=').replace('→', '=')
+    try:
+        cp.read_string(raw)
+    except configparser.MissingSectionHeaderError:
+        # Config file has no [section] headers — wrap content under [api]
+        cp.read_string("[api]\n" + raw)
+    except configparser.ParsingError:
+        # Last resort: parse key=value lines manually
+        api_dict = {}
+        for line in raw.splitlines():
+            line = line.strip()
+            if '=' in line and not line.startswith('[') and not line.startswith('#'):
+                k, v = line.split('=', 1)
+                api_dict[k.strip().lower()] = v.strip()
+        cp.read_string("[api]\n" + "\n".join(f"{k}={v}" for k, v in api_dict.items()))
     yaml_config = {section: dict(cp[section]) for section in cp.sections()}
     yaml_path = config_dir / f"config_{config_id}.yaml"
     with yaml_path.open("w") as f:

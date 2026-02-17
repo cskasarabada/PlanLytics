@@ -220,7 +220,7 @@ class PlanComponentManager:
         self.logger.error(f"❌ Rate Table '{rate_table_name}' not found.")
         return None
 
-    def get_existing_rate_table_assignment(self, plan_components_uniq_id: str, incentive_formula_id: int, rate_table_id: int) -> Optional[str]:
+    def get_existing_rate_table_assignment(self, plan_components_uniq_id: str, incentive_formula_id: int, rate_table_id: int, plan_component_id: int = None) -> Optional[str]:
         self.logger.info(f"🔍 Checking existing Rate Table assignment for RateTableId {rate_table_id} to Incentive Formula ID {incentive_formula_id}")
         endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}/child/planComponentRateTables?q=RateTableId={rate_table_id}"
         response, status_code = self.api_client.get(endpoint)
@@ -235,9 +235,15 @@ class PlanComponentManager:
             if rate_dimensional_inputs_endpoint:
                 self.logger.info(f"✅ Found existing Rate Table assignment with RateDimensionalInputs endpoint")
                 return rate_dimensional_inputs_endpoint
-            else:
-                self.logger.info(f"⚠ Rate Table ID {rate_table_id} assigned but no RateDimensionalInputs endpoint found.")
-                return None
+            elif plan_component_id:
+                # Construct using numeric IDs (Oracle returns 404 with UniqID at 4+ levels deep)
+                pc_rt_id = rate_table_assignment.get("PlanComponentRateTableId")
+                if pc_rt_id:
+                    rate_dimensional_inputs_endpoint = f"{self.plan_component_endpoint}/{plan_component_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}/child/planComponentRateTables/{pc_rt_id}/child/planComponentRateDimensionalInputs"
+                    self.logger.info(f"✅ Constructed RateDimensionalInputs endpoint (numeric IDs)")
+                    return rate_dimensional_inputs_endpoint
+            self.logger.info(f"⚠ Rate Table ID {rate_table_id} assigned but no RateDimensionalInputs endpoint found.")
+            return None
         return None
 
     def get_rate_table_details(self, rate_table_id: int) -> Optional[Dict[str, Any]]:
@@ -252,6 +258,17 @@ class PlanComponentManager:
         return None
 
     def assign_rate_table_to_incentive_formula(self, plan_component_id: int, incentive_formula_id: int, rate_table_name: str, start_date: str, end_date: str, plan_components_uniq_id: str) -> Optional[str]:
+        """Assign a Rate Table to a Plan Component's Incentive Formula.
+
+        Oracle planComponentRateTables endpoint for POST uses the UniqID path:
+            .../planComponents/{uniqId}/child/planComponentIncentiveFormulas/{formulaId}/child/planComponentRateTables
+
+        However, for deeply-nested child resources (planComponentRateDimensionalInputs,
+        4 levels deep), Oracle requires numeric IDs in the path — the long UniqID hash
+        causes 404 errors.  So the returned RateDimensionalInputs endpoint uses
+        numeric plan_component_id instead of uniqId, matching the working reference
+        implementation (CreatePC.py).
+        """
         self.logger.info(f"🔧 Assigning Rate Table '{rate_table_name}' to Incentive Formula ID {incentive_formula_id}")
         try:
             rate_table_id = self.get_rate_table_id(rate_table_name)
@@ -269,9 +286,11 @@ class PlanComponentManager:
                 existing_end_date = existing_assignment["EndDate"]
                 if existing_start_date == start_date and existing_end_date == end_date:
                     self.logger.info(f"✅ Rate Table '{rate_table_name}' already assigned with matching dates ({start_date} to {end_date}). Reusing existing assignment.")
+                    # Use numeric plan_component_id for deeply nested child paths
+                    # (Oracle returns 404 with UniqID hash at 4+ levels deep)
                     plan_component_rate_table_id = existing_assignment["PlanComponentRateTableId"]
-                    rate_dimensional_inputs_endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}/child/planComponentRateTables/{plan_component_rate_table_id}/child/planComponentRateDimensionalInputs"
-                    self.logger.debug(f"Constructed RateDimensionalInputs endpoint: {rate_dimensional_inputs_endpoint}")
+                    rate_dimensional_inputs_endpoint = f"{self.plan_component_endpoint}/{plan_component_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}/child/planComponentRateTables/{plan_component_rate_table_id}/child/planComponentRateDimensionalInputs"
+                    self.logger.debug(f"Constructed RateDimensionalInputs endpoint (numeric IDs): {rate_dimensional_inputs_endpoint}")
                     return rate_dimensional_inputs_endpoint
 
             # Proceed with new assignment if no matching existing assignment
@@ -302,18 +321,22 @@ class PlanComponentManager:
                             {"status_code": status_code, "response": response, "endpoint": endpoint, "payload": payload}, self.log_file)
             if status_code in [200, 201]:
                 self.logger.info(f"✅ Successfully assigned Rate Table '{rate_table_name}' to Incentive Formula ID {incentive_formula_id}")
+                # Prefer the Oracle-returned link for RateDimensionalInputs
                 rate_dimensional_inputs_endpoint = None
                 for link in response.get("links", []):
                     if link.get("name") == "planComponentRateDimensionalInputs":
                         rate_dimensional_inputs_endpoint = link.get("href")
                         break
                 if not rate_dimensional_inputs_endpoint:
-                    self.logger.error(f"❌ No Rate Dimensional Inputs endpoint found in response for Rate Table '{rate_table_name}'. Response: {response}")
+                    # Construct using numeric plan_component_id (not UniqID hash)
+                    # Oracle returns 404 for deeply nested child resources when the
+                    # parent path uses the long UniqID hash.
                     plan_component_rate_table_id = response.get("PlanComponentRateTableId")
                     if plan_component_rate_table_id:
-                        rate_dimensional_inputs_endpoint = f"{endpoint}/{plan_component_rate_table_id}/child/planComponentRateDimensionalInputs"
-                        self.logger.debug(f"Constructed RateDimensionalInputs endpoint: {rate_dimensional_inputs_endpoint}")
+                        rate_dimensional_inputs_endpoint = f"{self.plan_component_endpoint}/{plan_component_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}/child/planComponentRateTables/{plan_component_rate_table_id}/child/planComponentRateDimensionalInputs"
+                        self.logger.debug(f"Constructed RateDimensionalInputs endpoint (numeric IDs): {rate_dimensional_inputs_endpoint}")
                     else:
+                        self.logger.error(f"❌ No PlanComponentRateTableId in response for Rate Table '{rate_table_name}'.")
                         return None
                 self.logger.debug(f"Rate Dimensional Inputs endpoint: {rate_dimensional_inputs_endpoint}")
                 return rate_dimensional_inputs_endpoint

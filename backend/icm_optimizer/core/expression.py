@@ -81,6 +81,25 @@ class ExpressionManager:
             self.logger.debug(f"Initial DataFrame columns: {df.columns.tolist()}")
             self.logger.debug(f"Initial DataFrame head:\n{df.head().to_string()}")
 
+            # Normalize column names: the AI-generated workbook uses space-separated
+            # names (e.g. "Measure Name") but the code uses camelCase (e.g. "MeasureName").
+            # Map common space-separated variants to the expected camelCase names.
+            col_mapping = {
+                'Expression Detail Type': 'ExpressionDetailType',
+                'Expression detail type': 'ExpressionDetailType',
+                'Measure Name': 'MeasureName',
+                'Measure Result Attribute': 'MeasureResultAttribute',
+                'Basic Attributes Group': 'BasicAttributesGroup',
+                'Basic Attribute Name': 'BasicAttributeName',
+                'Plan Component Name': 'PlanComponentName',
+                'Plan Component Result Attribute': 'PlanComponentResultAttribute',
+                'Constant Value': 'ConstantValue',
+                'Expression Operator': 'ExpressionOperator',
+                'Expression Detail ID': 'ExpressionDetailId',
+            }
+            df.rename(columns={k: v for k, v in col_mapping.items() if k in df.columns}, inplace=True)
+            self.logger.debug(f"Normalized columns: {df.columns.tolist()}")
+
             required_cols = ['Expression Name', 'ExpressionDetailType', 'Sequence']
             missing_cols = [col for col in required_cols if col not in df.columns]
             if missing_cols:
@@ -109,149 +128,147 @@ class ExpressionManager:
                 if pd.isna(sequence):
                     sequence = 0
 
-                # Build ExpressionDetails child row for the Oracle API
+                # Build ExpressionDetails child row for the Oracle API.
+                #
+                # Oracle REST API ExpressionDetailType uses DISPLAY values, NOT internal codes:
+                #   "Primary object attribute"   (NOT "PRIMOBJATTR")
+                #   "Measure result"             (NOT "MEASURERESULT")
+                #   "Plan component result"      (NOT "PLANCOMPRESULT")
+                #   "Mathematical operator"      (NOT "MATHOPERATOR")
+                #   "Constant"                   (NOT "CONSTANT")
+                #   "Rate table rate"            (for RTR lookups)
+                #   "SQL expression function"    (for SQL functions)
+                #
+                # Oracle ExpressionOperator uses symbols, NOT words:
+                #   *  (NOT "MULTIPLY")
+                #   +  (NOT "ADD")
+                #   -  (NOT "SUBTRACT")
+                #   /  (NOT "DIVIDE")
+                #   (  )  ,  (grouping/function args)
+
+                # Mapping from internal codes / AI labels → Oracle display values
+                _DETAIL_TYPE_MAP = {
+                    'PRIMOBJATTR': 'Primary object attribute',
+                    'MEASURERESULT': 'Measure result',
+                    'PLANCOMPRESULT': 'Plan component result',
+                    'MATHOPERATOR': 'Mathematical operator',
+                    'CONSTANT': 'Constant',
+                    'RATETABLERATE': 'Rate table rate',
+                    'SQLFUNC': 'SQL expression function',
+                    # Also accept Oracle display values as-is
+                    'Primary object attribute': 'Primary object attribute',
+                    'Measure result': 'Measure result',
+                    'Plan component result': 'Plan component result',
+                    'Mathematical operator': 'Mathematical operator',
+                    'Constant': 'Constant',
+                    'Rate table rate': 'Rate table rate',
+                    'SQL expression function': 'SQL expression function',
+                }
+                # Operator word → symbol mapping
+                _OPERATOR_MAP = {
+                    'MULTIPLY': '*', 'MUL': '*', 'TIMES': '*',
+                    'ADD': '+', 'PLUS': '+', 'SUM': '+',
+                    'SUBTRACT': '-', 'MINUS': '-',
+                    'DIVIDE': '/', 'DIV': '/',
+                    # Already-correct symbols pass through
+                    '*': '*', '+': '+', '-': '-', '/': '/',
+                    '(': '(', ')': ')', ',': ',',
+                }
+
                 detail_row = {}
-                if detail_type == 'Primary object attribute':
-                    attr_group = row.get('BasicAttributesGroup', '')
-                    attr_name = row.get('BasicAttributeName', '')
-                    if attr_group and attr_name:
-                        expressions[expr_name]['Expression'] = f"{attr_group}.{attr_name}"
-                        detail_row = {
-                            "ExpressionDetailType": "PRIMOBJATTR",
-                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
-                            "BasicAttributesGroup": attr_group,
-                            "BasicAttributeName": attr_name,
-                        }
-                elif detail_type == 'Measure result':
-                    measure_name = row.get('MeasureName', '')
-                    result_attr = row.get('MeasureResultAttribute', '')
+
+                # Read all possible fields (cleaned of NaN)
+                measure_name = row.get('MeasureName', '')
+                result_attr = row.get('MeasureResultAttribute', '')
+                attr_group = row.get('BasicAttributesGroup', '')
+                attr_name = row.get('BasicAttributeName', '')
+                pc_name = row.get('PlanComponentName', '')
+                pc_attr = row.get('PlanComponentResultAttribute', '')
+                operator = row.get('ExpressionOperator', '')
+                constant = row.get('ConstantValue', '')
+                measure_name = '' if pd.isna(measure_name) else str(measure_name).strip()
+                result_attr = '' if pd.isna(result_attr) else str(result_attr).strip()
+                attr_group = '' if pd.isna(attr_group) else str(attr_group).strip()
+                attr_name = '' if pd.isna(attr_name) else str(attr_name).strip()
+                pc_name = '' if pd.isna(pc_name) else str(pc_name).strip()
+                pc_attr = '' if pd.isna(pc_attr) else str(pc_attr).strip()
+                operator = '' if pd.isna(operator) else str(operator).strip()
+                constant = '' if pd.isna(constant) else str(constant).strip()
+
+                # Normalize operator words → symbols
+                if operator:
+                    operator = _OPERATOR_MAP.get(operator.upper(), _OPERATOR_MAP.get(operator, operator))
+
+                # Resolve the Oracle display-value for ExpressionDetailType
+                oracle_type = _DETAIL_TYPE_MAP.get(detail_type, None)
+
+                # If detail_type is a generic AI label (Calculation, Formula, etc.),
+                # infer the correct Oracle type from the available column data.
+                if not oracle_type:
                     if measure_name and result_attr:
-                        expressions[expr_name]['Expression'] = f"{measure_name}.{result_attr}"
-                        detail_row = {
-                            "ExpressionDetailType": "MEASURERESULT",
-                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
-                            "MeasureName": measure_name,
-                            "MeasureResultAttribute": result_attr,
-                        }
-                elif detail_type == 'Plan component result':
-                    pc_name = row.get('PlanComponentName', '')
-                    pc_attr = row.get('PlanComponentResultAttribute', '')
-                    if pc_name and pc_attr:
-                        expressions[expr_name]['Expression'] = f"{pc_name}.{pc_attr}"
-                        detail_row = {
-                            "ExpressionDetailType": "PLANCOMPRESULT",
-                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
-                            "PlanComponentName": pc_name,
-                            "PlanComponentResultAttribute": pc_attr,
-                        }
-                    elif pc_name:
-                        expressions[expr_name]['Expression'] = pc_name
-                elif detail_type == 'Math operator':
-                    operator = row.get('ExpressionOperator', '')
-                    if operator:
-                        expressions[expr_name]['Expression'] += f" {operator} "
-                        detail_row = {
-                            "ExpressionDetailType": "MATHOPERATOR",
-                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
-                            "ExpressionOperator": operator,
-                        }
-                elif detail_type == 'Constant':
-                    constant = row.get('ConstantValue', '')
-                    if constant and constant.strip():
-                        expressions[expr_name]['Expression'] += constant.strip()
-                        detail_row = {
-                            "ExpressionDetailType": "CONSTANT",
-                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
-                            "ConstantValue": constant.strip(),
-                        }
-                elif detail_type in ('Calculation', 'Formula', 'Target', 'Lookup', 'PRIMOBJATTR', 'MEASURERESULT', 'PLANCOMPRESULT', 'MATHOPERATOR', 'CONSTANT'):
-                    # Generic expression types from AI/LLM analysis — infer Oracle
-                    # ExpressionDetailType from the available column data.
-                    # Also handles already-correct Oracle codes passed through.
-                    inferred_type = detail_type if detail_type in ('PRIMOBJATTR', 'MEASURERESULT', 'PLANCOMPRESULT', 'MATHOPERATOR', 'CONSTANT') else None
+                        oracle_type = 'Measure result'
+                    elif attr_group and attr_name:
+                        oracle_type = 'Primary object attribute'
+                    elif pc_name and pc_attr:
+                        oracle_type = 'Plan component result'
+                    elif operator:
+                        oracle_type = 'Mathematical operator'
+                    elif constant:
+                        oracle_type = 'Constant'
 
-                    measure_name = row.get('MeasureName', '')
-                    result_attr = row.get('MeasureResultAttribute', '')
-                    attr_group = row.get('BasicAttributesGroup', '')
-                    attr_name = row.get('BasicAttributeName', '')
-                    pc_name = row.get('PlanComponentName', '')
-                    pc_attr = row.get('PlanComponentResultAttribute', '')
-                    operator = row.get('ExpressionOperator', '')
-                    constant = row.get('ConstantValue', '')
+                seq = int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1
 
-                    # Clean NaN values
-                    for _v in ('measure_name', 'result_attr', 'attr_group', 'attr_name', 'pc_name', 'pc_attr', 'operator', 'constant'):
-                        if pd.isna(locals()[_v]) or locals()[_v] is None:
-                            locals()[_v] = ''
-                    measure_name = '' if pd.isna(measure_name) else str(measure_name).strip()
-                    result_attr = '' if pd.isna(result_attr) else str(result_attr).strip()
-                    attr_group = '' if pd.isna(attr_group) else str(attr_group).strip()
-                    attr_name = '' if pd.isna(attr_name) else str(attr_name).strip()
-                    pc_name = '' if pd.isna(pc_name) else str(pc_name).strip()
-                    pc_attr = '' if pd.isna(pc_attr) else str(pc_attr).strip()
-                    operator = '' if pd.isna(operator) else str(operator).strip()
-                    constant = '' if pd.isna(constant) else str(constant).strip()
-
-                    # Infer detail type from available data
-                    if not inferred_type:
-                        if measure_name and result_attr:
-                            inferred_type = 'MEASURERESULT'
-                        elif attr_group and attr_name:
-                            inferred_type = 'PRIMOBJATTR'
-                        elif pc_name and pc_attr:
-                            inferred_type = 'PLANCOMPRESULT'
-                        elif operator:
-                            inferred_type = 'MATHOPERATOR'
-                        elif constant:
-                            inferred_type = 'CONSTANT'
-
-                    seq = int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1
-
-                    if inferred_type == 'MEASURERESULT' and measure_name and result_attr:
-                        expressions[expr_name]['Expression'] = f"{measure_name}.{result_attr}"
-                        detail_row = {
-                            "ExpressionDetailType": "MEASURERESULT",
-                            "Sequence": seq,
-                            "MeasureName": measure_name,
-                            "MeasureResultAttribute": result_attr,
-                        }
-                    elif inferred_type == 'PRIMOBJATTR' and attr_group and attr_name:
-                        expressions[expr_name]['Expression'] = f"{attr_group}.{attr_name}"
-                        detail_row = {
-                            "ExpressionDetailType": "PRIMOBJATTR",
-                            "Sequence": seq,
-                            "BasicAttributesGroup": attr_group,
-                            "BasicAttributeName": attr_name,
-                        }
-                    elif inferred_type == 'PLANCOMPRESULT' and pc_name and pc_attr:
-                        expressions[expr_name]['Expression'] = f"{pc_name}.{pc_attr}"
-                        detail_row = {
-                            "ExpressionDetailType": "PLANCOMPRESULT",
-                            "Sequence": seq,
-                            "PlanComponentName": pc_name,
-                            "PlanComponentResultAttribute": pc_attr,
-                        }
-                    elif inferred_type == 'MATHOPERATOR' and operator:
-                        expressions[expr_name]['Expression'] += f" {operator} "
-                        detail_row = {
-                            "ExpressionDetailType": "MATHOPERATOR",
-                            "Sequence": seq,
-                            "ExpressionOperator": operator,
-                        }
-                    elif inferred_type == 'CONSTANT' and constant:
-                        expressions[expr_name]['Expression'] += constant
-                        detail_row = {
-                            "ExpressionDetailType": "CONSTANT",
-                            "Sequence": seq,
-                            "ConstantValue": constant,
-                        }
+                if oracle_type == 'Measure result' and measure_name and result_attr:
+                    expressions[expr_name]['Expression'] = f"{measure_name}.{result_attr}"
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                        "MeasureName": measure_name,
+                        "MeasureResultAttribute": result_attr,
+                    }
+                elif oracle_type == 'Primary object attribute' and attr_group and attr_name:
+                    expressions[expr_name]['Expression'] = f"{attr_group}.{attr_name}"
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                        "BasicAttributesGroup": attr_group,
+                        "BasicAttributeName": attr_name,
+                    }
+                elif oracle_type == 'Plan component result' and pc_name and pc_attr:
+                    expressions[expr_name]['Expression'] = f"{pc_name}.{pc_attr}"
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                        "PlanComponentName": pc_name,
+                        "PlanComponentResultAttribute": pc_attr,
+                    }
+                elif oracle_type == 'Mathematical operator' and operator:
+                    expressions[expr_name]['Expression'] += f" {operator} "
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                        "ExpressionOperator": operator,
+                    }
+                elif oracle_type == 'Constant' and constant:
+                    expressions[expr_name]['Expression'] += constant
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                        "ConstantValue": constant,
+                    }
+                elif oracle_type == 'Rate table rate':
+                    expressions[expr_name]['Expression'] += 'RTR'
+                    detail_row = {
+                        "ExpressionDetailType": oracle_type,
+                        "Sequence": seq,
+                    }
+                else:
+                    # Fallback: no structured detail rows — set expression text from description
+                    desc = row.get('Description', '')
+                    if desc and not pd.isna(desc) and str(desc).strip():
+                        expressions[expr_name]['Expression'] = str(desc).strip()
                     else:
-                        # Fallback: no structured detail rows — set expression text from description
-                        desc = row.get('Description', '')
-                        if desc and not pd.isna(desc) and str(desc).strip():
-                            expressions[expr_name]['Expression'] = str(desc).strip()
-                        else:
-                            expressions[expr_name]['Expression'] = expr_name
+                        expressions[expr_name]['Expression'] = expr_name
 
                 if detail_row:
                     detail_rows_map[expr_name].append(detail_row)
@@ -392,7 +409,6 @@ class ExpressionManager:
             self.logger.info(f"✅ ExpressionDetails already exist for '{expression_name}' ({len(existing_items)} rows). Skipping.")
             return True
 
-        # ── Primary approach: Inline ExpressionDetails in a single PATCH ──
         # Clean detail rows (remove None/empty values)
         clean_details = []
         for detail in detail_rows:
@@ -400,29 +416,25 @@ class ExpressionManager:
             if clean_detail:
                 clean_details.append(clean_detail)
 
-        if clean_details:
-            patch_payload = {"ExpressionDetails": clean_details}
-            if description:
-                patch_payload["Description"] = description
-
-            self.logger.info(f"🔧 Setting {len(clean_details)} ExpressionDetails for '{expression_name}' via inline PATCH.")
-            if self._patch_expression(uniq_id, expression_name, patch_payload):
-                return True
-
-            # ── Fallback: individual POST/PATCH on child endpoint ──
-            self.logger.info(f"⚠ Inline PATCH failed for '{expression_name}'. Falling back to individual detail calls.")
+        # Update description via PATCH if provided (description-only PATCH works)
+        if description:
+            self._patch_expression(uniq_id, expression_name, {"Description": description})
 
         if existing_items and force_replace:
             # PATCH existing detail rows by ExpressionDetailId
             self.logger.info(f"🔄 Updating {len(existing_items)} existing ExpressionDetails for '{expression_name}' via individual PATCH.")
             success = True
+            # Oracle treats 'Sequence' as read-only on PATCH updates
+            # (400 "Sequence: Attribute Sequence cannot be set").
+            # Exclude it from PATCH payloads — it was set when the detail was created.
+            _PATCH_READONLY_FIELDS = {"Sequence"}
             for idx, existing_detail in enumerate(existing_items):
                 detail_id = existing_detail.get("ExpressionDetailId")
                 if not detail_id:
                     continue
                 if idx < len(detail_rows):
                     patch_payload = {k: v for k, v in detail_rows[idx].items()
-                                     if v is not None and v != ''}
+                                     if v is not None and v != '' and k not in _PATCH_READONLY_FIELDS}
                     patch_endpoint = f"{child_endpoint}/{detail_id}"
                     response, status_code = self.api_client.patch(patch_endpoint, patch_payload)
                     log_api_response(f"PATCH ExpressionDetail #{idx+1} (ID:{detail_id}) for '{expression_name}'",
@@ -580,8 +592,27 @@ class ExpressionManager:
             uniq_id = existing_expression.get("_uniq_id")
             current_expression_value = existing_expression.get("Expression", "")
 
-            if current_expression_value == expected_expression_value:
-                self.logger.info(f"✅ Expression '{expression_name}' already matches. Skipping.")
+            status = existing_expression.get("Status", "INVALID")
+            if current_expression_value == expected_expression_value and status == "VALID":
+                self.logger.info(f"✅ Expression '{expression_name}' already matches and Status=VALID. Skipping.")
+                return expression_id
+
+            if current_expression_value == expected_expression_value and status != "VALID":
+                # Formula text matches but expression is INVALID — ExpressionDetails
+                # were likely not set correctly.  Force re-set them.
+                self.logger.warning(
+                    f"⚠ Expression '{expression_name}' text matches but Status={status}. "
+                    "Re-setting ExpressionDetails to fix validation."
+                )
+                if uniq_id:
+                    detail_rows = self._build_expression_detail_rows(expression)
+                    if detail_rows:
+                        self._set_expression_details(
+                            uniq_id, expression_name, detail_rows,
+                            description=description, force_replace=True,
+                        )
+                    else:
+                        self.logger.warning(f"⚠ No detail rows available for '{expression_name}'. Cannot fix INVALID status.")
                 return expression_id
 
             # Expression exists but formula differs — update via single PATCH
