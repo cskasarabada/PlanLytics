@@ -91,15 +91,72 @@ def _call_stub(_: str) -> str:
             "Provide clawback/return rules?",
         ],
         "oracle_mapping": {
-            "participants": [{"fields": ["EmployeeId", "Name", "Role", "Territory", "StartDate", "EndDate"]}],
-            "transactions": [{
-                "name": "InvoiceTxn", "source": "Invoice",
-                "keys": ["InvoiceNumber", "InvoiceDate", "Customer", "Item", "Amount"]
+            "compensation_plans": [{
+                "name": "Sales Commission Plan 2025", "start_date": "2025-01-01",
+                "end_date": "2025-12-31", "status": "Active",
+                "description": "Annual Sales Commission Plan",
+                "display_name": "Sales Commission Plan 2025",
+                "target_incentive": 100000, "org_id": 300000046987012
             }],
-            "credit_rules": [{"basis": "line", "allocation": "full", "holdback_days": 0}],
-            "rate_tables": [{"dimensions": ["ProductClass", "AttainmentBand"], "outputs": ["Rate%"]}],
-            "plan_elements": [{"type": "Commission", "frequency": "Monthly"}],
-            "roles": [{"name": "SalesRep"}, {"name": "Manager"}]
+            "plan_components": [{
+                "plan_name": "Sales Commission Plan 2025",
+                "plan_component_name": "Sales Volume Component",
+                "incentive_type": "Sales", "start_date": "2025-01-01",
+                "end_date": "2025-12-31", "calculation_method": "Tiered",
+                "org_id": 300000046987012,
+                "performance_measure_name": "Sales Volume Metric",
+                "rate_table_name": "Sales Volume Rate",
+                "rt_start_date": "2025-01-01", "rt_end_date": "2025-12-31",
+                "incentive_formula_expression": "Sales Volume Calculation",
+                "performance_measure_weight": 1.0,
+                "calculation_sequence": 1, "earning_basis": "Amount"
+            }],
+            "rate_dimensions": [
+                {"rate_dimension_name": "Sales Volume Dimension", "rate_dimension_type": "AMOUNT",
+                 "org_id": 300000046987012, "tier_sequence": 1, "minimum_amount": 0, "maximum_amount": 50000},
+                {"rate_dimension_name": "Sales Volume Dimension", "rate_dimension_type": "AMOUNT",
+                 "org_id": 300000046987012, "tier_sequence": 2, "minimum_amount": 50000, "maximum_amount": 100000},
+                {"rate_dimension_name": "Sales Volume Dimension", "rate_dimension_type": "AMOUNT",
+                 "org_id": 300000046987012, "tier_sequence": 3, "minimum_amount": 100000, "maximum_amount": 999999}
+            ],
+            "rate_tables": [{
+                "rate_table_name": "Sales Volume Rate", "rate_table_type": "Sales",
+                "org_id": 300000046987012, "display_name": "Sales Volume Commission Rate"
+            }],
+            "rate_table_rates": [
+                {"rate_table_name": "Sales Volume Rate", "minimum_amount": 0, "maximum_amount": 50000, "rate_value": 0.03, "tier_sequence": 1},
+                {"rate_table_name": "Sales Volume Rate", "minimum_amount": 50000, "maximum_amount": 100000, "rate_value": 0.05, "tier_sequence": 2},
+                {"rate_table_name": "Sales Volume Rate", "minimum_amount": 100000, "maximum_amount": 999999, "rate_value": 0.08, "tier_sequence": 3}
+            ],
+            "expressions": [{
+                "expression_name": "Sales Volume Calculation", "expression_id": 1,
+                "expression_detail_type": "Calculation",
+                "description": "Sales Volume Incentive Calculation",
+                "expression_type": "Calculation", "sequence": 1,
+                "measure_name": "Sales Volume Measure",
+                "basic_attributes_group": "Sales",
+                "basic_attribute_name": "Sales Volume",
+                "measure_result_attribute": "Sales Volume Amount",
+                "plan_component_name": "Sales Volume Component",
+                "plan_component_result_attribute": "Sales Volume",
+                "constant_value": None, "expression_operator": None,
+                "expression_detail_id": 1
+            }],
+            "performance_measures": [{
+                "name": "Sales Volume Metric",
+                "description": "Tracks Sales Volume for incentive calculation",
+                "unit_of_measure": "AMOUNT", "org_id": 300000046987012,
+                "start_date": "2025-01-01", "end_date": "2025-12-31",
+                "measure_formula_expression_name": "Sales Volume Calculation",
+                "process_transactions": "Yes", "performance_interval": "Quarterly",
+                "active_flag": "Y", "use_external_formula_flag": "N",
+                "running_total_flag": "N", "f_year": 2025,
+                "credit_category_name": "Sales Credit"
+            }],
+            "performance_goals": [{
+                "performance_measure_name": "Sales Volume Metric",
+                "goal_interval": "Quarterly", "goal_target": 250000
+            }]
         },
         "reports_recommendations": ["Rep statements with drill-through"],
         "governance_controls": ["Versioned plan docs"],
@@ -145,7 +202,7 @@ Return JSON with the following fields:
 - plan_structure[] (name, description, raw_excerpt)
 - risks[] (title, severity, detail, raw_excerpt)
 - stakeholder_questions[]
-- oracle_mapping {{ participants[], transactions[], credit_rules[], rate_tables[], plan_elements[], roles[] }}
+- oracle_mapping {{ compensation_plans[], plan_components[], rate_dimensions[], rate_tables[], rate_table_rates[], expressions[], performance_measures[], performance_goals[] }}
 - reports_recommendations[], governance_controls[], operational_flexibility[], data_integrations[]
 - side_by_side_rows[]
 - vendor_compare_rows[] (only when template = side_by_side_vendor_compare)

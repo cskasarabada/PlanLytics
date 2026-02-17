@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy to Oracle ICM - ICM PlanLytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; color: #0f172a; background: #f8fafc; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        .step-badge { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .step-badge.active { background: #3b82f6; color: white; }
+        .step-badge.done { background: #22c55e; color: white; }
+        .step-badge.pending { background: #e2e8f0; color: #94a3b8; }
+        .log-line { font-family: 'Courier New', monospace; font-size: 13px; padding: 4px 0; }
+        .log-line.success { color: #16a34a; }
+        .log-line.error { color: #dc2626; }
+        .log-line.info { color: #2563eb; }
+    </style>
+</head>
+<body>
+    <nav class="bg-white/90 backdrop-blur shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">ICM</span>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full ml-2">DEPLOY</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-5 text-sm">
+                    <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600">AI Plan Analytics</a>
+                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600">Plan Studio</a>
+                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600">Sales 360 AI</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-16 px-4">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-slate-900 mb-2">Deploy to Oracle Fusion ICM</h1>
+                <p class="text-slate-600" id="analysis-info">Upload your Oracle config and deploy the ICM workbook.</p>
+            </div>
+
+            <!-- Step indicators -->
+            <div class="flex items-center justify-center gap-4 mb-10">
+                <div class="flex items-center gap-2">
+                    <span id="step1-badge" class="step-badge active">1</span>
+                    <span class="text-sm text-slate-700">Upload Config</span>
+                </div>
+                <div class="w-8 h-px bg-slate-300"></div>
+                <div class="flex items-center gap-2">
+                    <span id="step2-badge" class="step-badge pending">2</span>
+                    <span class="text-sm text-slate-400">Validate</span>
+                </div>
+                <div class="w-8 h-px bg-slate-300"></div>
+                <div class="flex items-center gap-2">
+                    <span id="step3-badge" class="step-badge pending">3</span>
+                    <span class="text-sm text-slate-400">Deploy</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Upload Config -->
+            <div id="step1-panel" class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+                <h2 class="text-xl font-semibold text-slate-900 mb-4">Step 1: Upload Oracle Configuration</h2>
+                <p class="text-slate-600 mb-6">Upload the <code class="bg-slate-100 px-2 py-0.5 rounded text-sm">config.txt</code> file with your Oracle ICM API credentials.</p>
+
+                <div id="config-upload-area" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-4">
+                    <svg class="mx-auto h-10 w-10 text-slate-400 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <div class="text-slate-900 font-medium mb-1">Drop config.txt here or click to browse</div>
+                    <div class="text-xs text-slate-400">INI format with [api] section (base_url, username, password)</div>
+                    <input type="file" id="config-file-input" class="hidden" accept=".txt,.ini,.cfg,.yaml,.yml">
+                </div>
+
+                <div id="config-info" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-lg mb-4">
+                    <div class="text-emerald-700 font-medium" id="config-file-name"></div>
+                    <div class="text-sm text-emerald-600 mt-1" id="config-details"></div>
+                </div>
+
+                <div id="step1-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-4"></div>
+            </div>
+
+            <!-- Step 2: Validate Settings -->
+            <div id="step2-panel" class="hidden bg-white rounded-2xl shadow-lg p-8 mb-6">
+                <h2 class="text-xl font-semibold text-slate-900 mb-4">Step 2: Validate Settings</h2>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                    <input type="password" id="api-password" placeholder="Enter Oracle API password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                    <div class="text-xs text-slate-500 mt-1">Password is not stored from the config file for security.</div>
+                </div>
+
+                <table class="w-full text-sm mb-6">
+                    <tbody>
+                        <tr class="border-b border-slate-100"><td class="py-2 text-slate-500 w-36">Base URL</td><td id="val-base-url" class="py-2 text-slate-900 font-medium"></td></tr>
+                        <tr class="border-b border-slate-100"><td class="py-2 text-slate-500">Username</td><td id="val-username" class="py-2 text-slate-900 font-medium"></td></tr>
+                        <tr class="border-b border-slate-100"><td class="py-2 text-slate-500">Excel Path</td><td id="val-excel-path" class="py-2 text-slate-900 font-medium text-xs break-all"></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="flex gap-3 mb-4">
+                    <button onclick="validateApi()" class="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm">
+                        Validate API Connection
+                    </button>
+                    <button onclick="validateExcel()" class="flex-1 bg-slate-700 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-slate-600 transition-colors text-sm">
+                        Validate Excel File
+                    </button>
+                </div>
+
+                <div id="validation-result" class="hidden p-3 rounded-lg text-sm mb-4"></div>
+
+                <button id="proceed-deploy-btn" onclick="proceedToDeploy()" disabled class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
+                    Proceed to Deploy
+                </button>
+            </div>
+
+            <!-- Step 3: Deploy -->
+            <div id="step3-panel" class="hidden bg-white rounded-2xl shadow-lg p-8 mb-6">
+                <h2 class="text-xl font-semibold text-slate-900 mb-4">Step 3: Deploy to Oracle ICM</h2>
+                <p class="text-slate-600 mb-4">This will create the following objects in Oracle Fusion ICM:</p>
+
+                <div class="grid grid-cols-3 gap-3 text-sm text-slate-700 mb-6">
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Rate Dimensions</div>
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Rate Tables</div>
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Expressions</div>
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Perf Measures</div>
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Plan Components</div>
+                    <div class="bg-slate-50 rounded-lg p-3 text-center">Comp Plans</div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-800 text-sm mb-6">
+                    <strong>Note:</strong> This process may take several minutes. Do not close this page during execution.
+                </div>
+
+                <button id="run-deploy-btn" onclick="runDeployment()" class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">
+                    Run Deployment
+                </button>
+
+                <div id="deploy-log" class="hidden mt-6 bg-slate-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+                    <div id="deploy-log-content"></div>
+                </div>
+
+                <div id="deploy-result" class="hidden mt-4 p-4 rounded-lg text-center font-semibold"></div>
+            </div>
+
+            <!-- Back to Analytics link -->
+            <div class="text-center mt-8">
+                <a href="ai-plan-analytics.html" class="text-blue-600 hover:text-blue-700 text-sm font-medium">&larr; Back to AI Plan Analytics</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const params = new URLSearchParams(window.location.search);
+        const analysisId = params.get('analysis_id') || '';
+        let configId = null;
+        let baseUrl = '';
+        let username = '';
+        let apiValidated = false;
+        let excelValidated = false;
+
+        // Show analysis info
+        if (analysisId) {
+            document.getElementById('analysis-info').textContent = `Deploying workbook from analysis: ${analysisId}`;
+            document.getElementById('val-excel-path').textContent = `/tmp/outputs/icm_${analysisId}.xlsx`;
+        }
+
+        // Step 1: Config upload
+        const configUploadArea = document.getElementById('config-upload-area');
+        const configFileInput = document.getElementById('config-file-input');
+
+        configUploadArea.addEventListener('click', () => configFileInput.click());
+        configUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); configUploadArea.classList.add('border-blue-500'); });
+        configUploadArea.addEventListener('dragleave', () => configUploadArea.classList.remove('border-blue-500'));
+        configUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            configUploadArea.classList.remove('border-blue-500');
+            if (e.dataTransfer.files.length) {
+                configFileInput.files = e.dataTransfer.files;
+                uploadConfig(e.dataTransfer.files[0]);
+            }
+        });
+
+        configFileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) uploadConfig(e.target.files[0]);
+        });
+
+        async function uploadConfig(file) {
+            const errEl = document.getElementById('step1-error');
+            errEl.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/icm-deploy/upload-config`, { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (data.config_id) {
+                    configId = data.config_id;
+                    baseUrl = data.base_url || '';
+                    username = data.username || '';
+
+                    document.getElementById('config-file-name').textContent = file.name + ' uploaded';
+                    document.getElementById('config-details').textContent = `Config ID: ${configId} | Sections: ${(data.sections || []).join(', ')}`;
+                    document.getElementById('config-info').classList.remove('hidden');
+
+                    // Advance to step 2
+                    document.getElementById('step1-badge').className = 'step-badge done';
+                    document.getElementById('step2-badge').className = 'step-badge active';
+                    document.getElementById('step2-panel').classList.remove('hidden');
+                    document.getElementById('val-base-url').textContent = baseUrl;
+                    document.getElementById('val-username').textContent = username;
+                } else {
+                    errEl.textContent = data.message || data.error || 'Upload failed';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (e) {
+                errEl.textContent = 'Upload failed: ' + e.message;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Step 2: Validation
+        async function validateApi() {
+            const resultEl = document.getElementById('validation-result');
+            const password = document.getElementById('api-password').value;
+            if (!password) { showValidation(resultEl, false, 'Please enter the API password'); return; }
+
+            showValidation(resultEl, null, 'Validating API connection...');
+            try {
+                const res = await fetch(`${API_BASE}/api/icm-deploy/validate-api`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ base_url: baseUrl, username, password }),
+                });
+                const data = await res.json();
+                apiValidated = data.success;
+                showValidation(resultEl, data.success, data.message);
+                checkProceed();
+            } catch (e) {
+                showValidation(resultEl, false, 'Validation failed: ' + e.message);
+            }
+        }
+
+        async function validateExcel() {
+            const resultEl = document.getElementById('validation-result');
+            const excelPath = `/tmp/outputs/icm_${analysisId}.xlsx`;
+
+            showValidation(resultEl, null, 'Validating Excel file...');
+            try {
+                const res = await fetch(`${API_BASE}/api/icm-deploy/validate-excel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ excel_path: excelPath }),
+                });
+                const data = await res.json();
+                excelValidated = data.success;
+                const msg = data.success ? `${data.message} | Sheets: ${(data.sheets || []).join(', ')}` : data.message;
+                showValidation(resultEl, data.success, msg);
+                checkProceed();
+            } catch (e) {
+                showValidation(resultEl, false, 'Validation failed: ' + e.message);
+            }
+        }
+
+        function showValidation(el, success, msg) {
+            el.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700', 'bg-blue-50', 'text-blue-700');
+            if (success === null) { el.classList.add('bg-blue-50', 'text-blue-700'); }
+            else if (success) { el.classList.add('bg-emerald-50', 'text-emerald-700'); }
+            else { el.classList.add('bg-red-50', 'text-red-700'); }
+            el.textContent = msg;
+        }
+
+        function checkProceed() {
+            document.getElementById('proceed-deploy-btn').disabled = !(apiValidated && excelValidated);
+        }
+
+        function proceedToDeploy() {
+            document.getElementById('step2-badge').className = 'step-badge done';
+            document.getElementById('step3-badge').className = 'step-badge active';
+            document.getElementById('step3-panel').classList.remove('hidden');
+        }
+
+        // Step 3: Deploy
+        async function runDeployment() {
+            const btn = document.getElementById('run-deploy-btn');
+            const logEl = document.getElementById('deploy-log');
+            const logContent = document.getElementById('deploy-log-content');
+            const resultEl = document.getElementById('deploy-result');
+
+            btn.disabled = true;
+            btn.textContent = 'Deploying...';
+            logEl.classList.remove('hidden');
+            resultEl.classList.add('hidden');
+            logContent.innerHTML = '<div class="log-line info">Starting deployment...</div>';
+
+            const password = document.getElementById('api-password').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/icm-deploy/run`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ analysis_id: analysisId, config_id: configId, password }),
+                });
+                const data = await res.json();
+                const deployment = data.deployment || {};
+                const steps = deployment.steps || [];
+
+                logContent.innerHTML = '';
+                steps.forEach(step => {
+                    const cls = step.success ? 'success' : 'error';
+                    const icon = step.success ? 'OK' : 'FAIL';
+                    logContent.innerHTML += `<div class="log-line ${cls}">[${icon}] ${step.name}${step.error ? ' - ' + step.error : ''}</div>`;
+                });
+
+                resultEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-red-50', 'text-red-800');
+                if (deployment.success) {
+                    resultEl.classList.add('bg-emerald-50', 'text-emerald-800');
+                    resultEl.textContent = 'Deployment completed successfully!';
+                    document.getElementById('step3-badge').className = 'step-badge done';
+                } else {
+                    resultEl.classList.add('bg-red-50', 'text-red-800');
+                    resultEl.textContent = deployment.error || 'Deployment failed. Check log above.';
+                }
+            } catch (e) {
+                logContent.innerHTML += `<div class="log-line error">Error: ${e.message}</div>`;
+                resultEl.classList.remove('hidden');
+                resultEl.classList.add('bg-red-50', 'text-red-800');
+                resultEl.textContent = 'Deployment request failed: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Run Deployment';
+            }
+        }
+    </script>
+</body>
+</html>

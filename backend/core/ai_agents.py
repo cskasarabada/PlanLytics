@@ -456,118 +456,168 @@ class OracleMappingAgent(BaseAgent):
     
     def _build_oracle_prompt(self, plan_structure: Dict, existing_system: str) -> str:
         return f"""
-        You are an Oracle ICM Implementation Specialist.
-        
-        Map the compensation plan requirements to Oracle ICM objects and configuration.
-        
+        You are an Oracle Fusion ICM Implementation Specialist.
+
+        Given the compensation plan requirements below, produce a COMPLETE Oracle ICM
+        configuration that can be loaded into Oracle Fusion ICM via REST APIs.
+
         Plan Requirements: {json.dumps(plan_structure, indent=2)}
         Existing System: {existing_system or "Greenfield implementation"}
-        
-        Provide detailed Oracle ICM mapping:
+
+        You MUST produce the following JSON. Every field is required.
+        Use "2025-01-01" to "2025-12-31" as default dates if not specified.
+        Use 300000046987012 as default org_id if not specified.
+
         {{
-            "participants": [
+            "compensation_plans": [
                 {{
-                    "object_name": "Participant",
-                    "attributes": [],
-                    "classification_rules": [],
-                    "effective_dating": {{}},
-                    "data_sources": []
+                    "name": "string - plan name",
+                    "start_date": "YYYY-MM-DD",
+                    "end_date": "YYYY-MM-DD",
+                    "status": "Active",
+                    "description": "string",
+                    "display_name": "string",
+                    "target_incentive": 0.0,
+                    "org_id": 300000046987012
                 }}
             ],
-            "transactions": [
+            "plan_components": [
                 {{
-                    "object_name": "",
-                    "source_system": "",
-                    "transaction_type": "",
-                    "key_attributes": [],
-                    "validation_rules": [],
-                    "credit_timing": "",
-                    "rollback_handling": {{}}
+                    "plan_name": "string - must match a compensation_plans.name",
+                    "plan_component_name": "string",
+                    "incentive_type": "Sales",
+                    "start_date": "YYYY-MM-DD",
+                    "end_date": "YYYY-MM-DD",
+                    "calculation_method": "Tiered|Flat|Percentage",
+                    "org_id": 300000046987012,
+                    "performance_measure_name": "string - must match a performance_measures.name",
+                    "rate_table_name": "string - must match a rate_tables.rate_table_name",
+                    "rt_start_date": "YYYY-MM-DD",
+                    "rt_end_date": "YYYY-MM-DD",
+                    "incentive_formula_expression": "string - must match an expressions.expression_name",
+                    "performance_measure_weight": 1.0,
+                    "calculation_sequence": 1,
+                    "earning_basis": "Amount|Count|Percentage|Volume"
                 }}
             ],
-            "credit_rules": [
+            "rate_dimensions": [
                 {{
-                    "rule_name": "",
-                    "credit_basis": "transaction|summary|event",
-                    "allocation_method": "",
-                    "conditions": [],
-                    "effective_periods": [],
-                    "dependencies": []
+                    "rate_dimension_name": "string",
+                    "rate_dimension_type": "AMOUNT",
+                    "org_id": 300000046987012,
+                    "tier_sequence": 1,
+                    "minimum_amount": 0.0,
+                    "maximum_amount": 100000.0
                 }}
             ],
             "rate_tables": [
                 {{
-                    "table_name": "",
-                    "dimensions": [],
-                    "outputs": [],
-                    "lookup_logic": "",
-                    "versioning": {{}},
-                    "validation_rules": []
+                    "rate_table_name": "string",
+                    "rate_table_type": "Sales",
+                    "org_id": 300000046987012,
+                    "display_name": "string"
                 }}
             ],
-            "plan_elements": [
+            "rate_table_rates": [
                 {{
-                    "element_name": "",
-                    "element_type": "commission|bonus|draw|other",
-                    "calculation_frequency": "",
-                    "payment_frequency": "",
-                    "dependencies": [],
-                    "formulas": []
+                    "rate_table_name": "string - must match rate_tables.rate_table_name",
+                    "minimum_amount": 0.0,
+                    "maximum_amount": 100000.0,
+                    "rate_value": 0.05,
+                    "tier_sequence": 1
                 }}
             ],
-            "measurements": [
+            "expressions": [
                 {{
-                    "measurement_name": "",
-                    "measurement_type": "",
-                    "aggregation_method": "",
-                    "performance_period": "",
-                    "data_sources": []
+                    "expression_name": "string",
+                    "expression_id": 1,
+                    "expression_detail_type": "Calculation|Target|Formula",
+                    "description": "string",
+                    "expression_type": "Calculation|Target|Formula",
+                    "sequence": 1,
+                    "measure_name": "string or null",
+                    "basic_attributes_group": "string or null",
+                    "basic_attribute_name": "string or null",
+                    "measure_result_attribute": "string or null",
+                    "plan_component_name": "string or null",
+                    "plan_component_result_attribute": "string or null",
+                    "constant_value": null,
+                    "expression_operator": "+ or * or null",
+                    "expression_detail_id": 1
                 }}
             ],
-            "roles_and_positions": [
+            "performance_measures": [
                 {{
-                    "role_name": "",
-                    "position_assignments": [],
-                    "territory_management": {{}},
-                    "hierarchy_rules": []
+                    "name": "string",
+                    "description": "string",
+                    "unit_of_measure": "AMOUNT|COUNT|Percentage",
+                    "org_id": 300000046987012,
+                    "start_date": "YYYY-MM-DD",
+                    "end_date": "YYYY-MM-DD",
+                    "measure_formula_expression_name": "string - must match expressions.expression_name",
+                    "process_transactions": "Yes",
+                    "performance_interval": "Quarterly|Monthly|Annual",
+                    "credit_category_name": "Sales Credit"
                 }}
             ],
-            "reports_and_statements": [
+            "performance_goals": [
                 {{
-                    "report_name": "",
-                    "report_type": "statement|analytics|management",
-                    "frequency": "",
-                    "recipients": [],
-                    "data_elements": []
+                    "performance_measure_name": "string - must match performance_measures.name",
+                    "goal_interval": "Quarterly|Monthly|Annual",
+                    "goal_target": 0.0
                 }}
-            ],
-            "implementation_considerations": {{
-                "complexity_assessment": "",
-                "estimated_effort": "",
-                "key_risks": [],
-                "testing_strategy": [],
-                "rollout_approach": ""
-            }}
+            ]
         }}
+
+        RULES:
+        1. All name references MUST be cross-consistent (plan_component references must match actual plan/measure/table names).
+        2. Rate dimension tiers must cover the full range with no gaps.
+        3. Each rate table must have at least 2-3 tiers with increasing rate_values.
+        4. Expression sequences must start at 1 and increment.
+        5. If the plan mentions tiered commissions, create corresponding rate dimension tiers and rate table rates.
+        6. If the plan mentions quotas/targets, create performance goals.
+        7. Derive calculation_method from the plan language (Tiered if tiers exist, Flat if single rate).
+        8. Create one expression per plan component at minimum.
+        9. Return ONLY valid JSON. No prose or explanation.
         """
     
     def _enhance_oracle_mapping(self, parsed_result: Dict) -> Dict[str, Any]:
-        """Enhance Oracle mapping with implementation details"""
+        """Validate and enrich Oracle ICM mapping with defaults."""
         enhanced = parsed_result.copy()
-        
-        # Add implementation roadmap
+
+        # Ensure all 8 ICM sections exist
+        for key in (
+            "compensation_plans", "plan_components", "rate_dimensions",
+            "rate_tables", "rate_table_rates", "expressions",
+            "performance_measures", "performance_goals",
+        ):
+            enhanced.setdefault(key, [])
+
+        # Auto-number expressions if missing sequence
+        for i, expr in enumerate(enhanced.get("expressions", []), start=1):
+            expr.setdefault("sequence", i)
+            expr.setdefault("expression_id", i)
+            expr.setdefault("expression_detail_id", i)
+
+        # Auto-number plan component calculation sequences
+        for i, pc in enumerate(enhanced.get("plan_components", []), start=1):
+            pc.setdefault("calculation_sequence", i)
+
+        # Backfill org_id
+        for section in ("compensation_plans", "plan_components", "rate_dimensions",
+                        "rate_tables", "performance_measures"):
+            for obj in enhanced.get(section, []):
+                obj.setdefault("org_id", 300000046987012)
+
+        # Add implementation metadata
         enhanced["implementation_roadmap"] = self._generate_implementation_roadmap(parsed_result)
-        
-        # Add data model recommendations
         enhanced["data_model"] = self._recommend_data_model(parsed_result)
-        
-        # Add integration points
         enhanced["integration_points"] = self._identify_integration_points(parsed_result)
-        
+
         return enhanced
-    
+
     def _get_required_fields(self) -> List[str]:
-        return ["participants", "transactions", "credit_rules", "plan_elements"]
+        return ["compensation_plans", "plan_components", "rate_tables", "performance_measures"]
 
 class PlanningAdvisorAgent(BaseAgent):
     """Specialized agent for strategic planning recommendations"""

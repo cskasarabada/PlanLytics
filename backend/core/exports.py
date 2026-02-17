@@ -17,6 +17,13 @@ def simple_html_summary(analysis: dict) -> str:
     <h3>Risks</h3><ul>{risks}</ul>
     """
 
+def to_icm_excel(analysis: dict, outpath: Path, org_id: int = 300000046987012):
+    """Export analysis as ICM Optimizer-compatible Excel workbook."""
+    from .icm_transformer import transform_analysis_to_icm_workbook, write_icm_workbook
+    sheets = transform_analysis_to_icm_workbook(analysis, org_id=org_id)
+    write_icm_workbook(sheets, output_path=outpath)
+
+
 def to_pdf(html_str: str, outpath: Path):
     # Skip real PDF for now to avoid system deps; write HTML as .html alongside
     Path(outpath.with_suffix(".html")).write_text(html_str, encoding="utf-8")
