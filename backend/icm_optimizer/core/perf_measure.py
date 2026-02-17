@@ -81,18 +81,28 @@ class PerformanceMeasureManager:
             self.logger.exception(f"❌ Error loading Performance Measures from Excel: {e}")
             return []
 
-    def get_performance_measure_id(self, name: str) -> Optional[int]:
-        self.logger.info(f"🔍 Retrieving Performance Measure ID for: {name}")
+    def get_performance_measure(self, name: str) -> Optional[Dict[str, Any]]:
+        """Retrieve full Performance Measure details by name and OrgId.
+
+        Returns the complete Oracle PM object (dict) or None if not found.
+        Use this when you need to inspect immutable attributes like
+        ProcessTransactions before deciding whether to delete/re-create.
+        """
+        self.logger.info(f"🔍 Retrieving Performance Measure for: {name}")
         endpoint = f"{self.performance_measure_endpoint}?q=Name='{quote(name)}';OrgId={self.org_id}"
         response, status_code = self.api_client.get(endpoint)
         log_api_response(f"Get Performance Measure by Name: {name}", {"status_code": status_code, "response": response}, self.log_file)
         if status_code == 200 and response.get("items"):
-            performance_measure = response["items"][0]
-            performance_measure_id = performance_measure.get("PerformanceMeasureId")
-            self.logger.info(f"✅ Found Performance Measure '{name}' with ID: {performance_measure_id}")
-            return performance_measure_id
+            pm = response["items"][0]
+            self.logger.info(f"✅ Found Performance Measure '{name}' with ID: {pm.get('PerformanceMeasureId')}")
+            return pm
         self.logger.warning(f"⚠ Performance Measure '{name}' not found.")
         return None
+
+    def get_performance_measure_id(self, name: str) -> Optional[int]:
+        """Convenience wrapper — returns just the PerformanceMeasureId."""
+        pm = self.get_performance_measure(name)
+        return pm.get("PerformanceMeasureId") if pm else None
 
     def assign_measure_formula_expression(self, performance_measure_name: str,
                                            expression_name: str) -> bool:
@@ -444,16 +454,33 @@ class PerformanceMeasureManager:
             try:
                 name = pm["Name"]
                 self.logger.info(f"🔧 Processing Performance Measure: {name}")
-                performance_measure_id = self.get_performance_measure_id(name)
-                if performance_measure_id and force:
-                    # Delete existing PM so we can re-create with correct settings.
-                    # ProcessTransactions is IMMUTABLE after creation — only way to
-                    # change it is delete + re-create.
-                    self.logger.info(f"🗑 force=True — deleting existing PM '{name}' for re-creation")
-                    self.delete_performance_measure(name)
-                    performance_measure_id = None
-                elif performance_measure_id:
-                    self.logger.info(f"✅ Performance Measure '{name}' already exists with ID: {performance_measure_id}. Skipping creation.")
+
+                # Resolve the desired ProcessTransactions code from the workbook
+                desired_proc_txn = self._PROCESS_TRANSACTIONS_MAP.get(
+                    (pm.get("ProcessTransactions") or "GROUP").strip().upper(), "GROUP"
+                )
+
+                existing_pm = self.get_performance_measure(name)
+                performance_measure_id = existing_pm.get("PerformanceMeasureId") if existing_pm else None
+
+                if performance_measure_id and existing_pm:
+                    # Check for immutable-field conflicts.
+                    # ProcessTransactions CANNOT be updated after creation —
+                    # the only fix is to delete and re-create the PM.
+                    existing_proc_txn = existing_pm.get("ProcessTransactions", "")
+                    if existing_proc_txn != desired_proc_txn:
+                        self.logger.warning(
+                            f"⚠ PM '{name}' has ProcessTransactions='{existing_proc_txn}' "
+                            f"but workbook requires '{desired_proc_txn}' (immutable field). "
+                            f"Deleting and re-creating."
+                        )
+                        self.delete_performance_measure(name)
+                        performance_measure_id = None
+                    else:
+                        self.logger.info(
+                            f"✅ Performance Measure '{name}' already exists with ID: "
+                            f"{performance_measure_id} and correct settings. Skipping creation."
+                        )
 
                 if not performance_measure_id:
                     self.logger.info(f"Creating new Performance Measure: {name}")
