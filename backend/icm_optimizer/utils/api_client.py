@@ -115,6 +115,34 @@ class APIClient:
                     error_body["detail"] = e.response.text
             return error_body, status
 
+    def delete(self, endpoint: str) -> Tuple[Any, int]:
+        """Perform a DELETE request to the specified endpoint."""
+        url = self._build_url(endpoint)
+        self.logger.debug(f"DELETE request to: {url}")
+        try:
+            response = requests.delete(url, auth=(self.username, self.password), timeout=30)
+            response.raise_for_status()
+            self.logger.debug(f"DELETE response status: {response.status_code}")
+            # DELETE may return 204 No Content (empty body)
+            if response.status_code == 204 or not response.text:
+                return {}, response.status_code
+            try:
+                return response.json(), response.status_code
+            except ValueError:
+                self.logger.warning(f"Response is not JSON: {response.text}")
+                return response.text, response.status_code
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Request Error in DELETE request to {url}: {str(e)}")
+            self.logger.error(f"{e.response.status_code if e.response else 'No response'} Error Details: {e.response.text if e.response else ''}")
+            status = e.response.status_code if e.response else 400
+            error_body = {"error": str(e), "message": str(e)}
+            if e.response is not None:
+                try:
+                    error_body = e.response.json()
+                except Exception:
+                    error_body["detail"] = e.response.text
+            return error_body, status
+
     def create_api_client_from_config(config):
         """
         Create an APIClient instance from a configuration.

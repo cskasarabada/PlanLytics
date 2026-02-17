@@ -277,18 +277,20 @@ class PerformanceMeasureManager:
         return None
 
     # Oracle API code mappings for Performance Measure fields
+    # Lookup: CN_PROCESS_TXN — only "GROUP" and "INDIVIDUAL" are valid.
+    # ProcessTransactions is IMMUTABLE after PM creation.
     _PROCESS_TRANSACTIONS_MAP = {
         # Workbook display values → Oracle API codes
-        # "INDIVIDUAL" = process each transaction separately
-        # "GROUPED"    = group by interval (required for attainment-based measures)
+        # "INDIVIDUAL" = evaluate each transaction independently
+        # "GROUP"      = group transactions by interval (required for attainment-based measures)
         "INDIVIDUAL": "INDIVIDUAL",
         "INDIVIDUALLY": "INDIVIDUAL",
         "NO": "INDIVIDUAL",
-        "GROUPED": "GROUPED",
-        "GROUPED BY INTERVAL": "GROUPED",
-        "GROUP": "GROUPED",
-        "INTERVAL": "GROUPED",
-        "YES": "GROUPED",  # Workbook "Yes" means "process transactions" = grouped by interval
+        "GROUP": "GROUP",
+        "GROUPED": "GROUP",
+        "GROUPED BY INTERVAL": "GROUP",
+        "INTERVAL": "GROUP",
+        "YES": "GROUP",  # Workbook "Yes" = group by interval
     }
     _PERFORMANCE_INTERVAL_MAP = {
         # Workbook display values → Oracle API codes
@@ -309,15 +311,24 @@ class PerformanceMeasureManager:
         "-1003": "-1003",
     }
 
+    @staticmethod
+    def _to_bool(value: str) -> bool:
+        """Convert workbook string to boolean for Oracle API flags."""
+        if not value:
+            return False
+        return value.strip().upper() in ("Y", "YES", "TRUE", "1")
+
     def create_performance_measure(self, name: str, start_date: str, end_date: str,
                                     process_transactions: str = "",
                                     performance_interval: str = "",
-                                    unit_of_measure: str = "AMOUNT") -> Optional[int]:
+                                    unit_of_measure: str = "AMOUNT",
+                                    running_total_flag: str = "",
+                                    use_external_formula_flag: str = "") -> Optional[int]:
         self.logger.info(f"🔧 Creating new Performance Measure: {name}")
 
         # Map display values to Oracle API codes
         proc_txn = self._PROCESS_TRANSACTIONS_MAP.get(
-            (process_transactions or "GROUPED").strip().upper(), "GROUPED"
+            (process_transactions or "GROUP").strip().upper(), "GROUP"
         )
         perf_int = self._PERFORMANCE_INTERVAL_MAP.get(
             (performance_interval or "PERIOD").strip().upper(), "-1000"
@@ -334,8 +345,14 @@ class PerformanceMeasureManager:
             "IncludeInParticipantReportsFlag": True,
             "ProcessTransactions": proc_txn,
             "PerformanceInterval": perf_int,
+            "RunningTotalFlag": self._to_bool(running_total_flag),
+            "UseExternalFormulaFlag": self._to_bool(use_external_formula_flag),
+            "SplitOption": "NONE",
             "DisplayName": name
         }
+        # Oracle docs: "when selecting GROUP, pass Accumulation Flag as Y"
+        if proc_txn == "GROUP":
+            payload["AccumulationFlag"] = True
         response, status_code = self.api_client.post(self.performance_measure_endpoint, payload)
         log_api_response(f"Create Performance Measure: {name}", {"status_code": status_code, "response": response}, self.log_file)
         if status_code in [200, 201]:
@@ -351,6 +368,36 @@ class PerformanceMeasureManager:
                 return existing_id
         self.logger.error(f"❌ Failed to create Performance Measure '{name}'. Status: {status_code}, Response: {response}")
         return None
+
+    def delete_performance_measure(self, name: str) -> bool:
+        """Delete an existing Performance Measure by name.
+
+        Used when re-deploying and the PM needs to be recreated with different
+        immutable settings (e.g. ProcessTransactions cannot be updated after
+        creation — must delete and re-create).
+
+        Returns True if deleted or already absent, False on error.
+        """
+        pm_id = self.get_performance_measure_id(name)
+        if not pm_id:
+            self.logger.info(f"ℹ Performance Measure '{name}' not found — nothing to delete.")
+            return True
+
+        self.logger.info(f"🗑 Deleting Performance Measure '{name}' (ID: {pm_id})")
+        endpoint = f"{self.performance_measure_endpoint}/{pm_id}"
+        response, status_code = self.api_client.delete(endpoint)
+        log_api_response(
+            f"DELETE Performance Measure '{name}'",
+            {"status_code": status_code, "response": response}, self.log_file,
+        )
+        if status_code in [200, 204]:
+            self.logger.info(f"✅ Deleted Performance Measure '{name}' (ID: {pm_id})")
+            return True
+        self.logger.error(
+            f"❌ Failed to delete Performance Measure '{name}'. "
+            f"Status: {status_code}, Response: {response}"
+        )
+        return False
 
     def assign_credit_category(self, performance_measure_id: int, credit_category_name: str) -> bool:
         self.logger.info(f"🔧 Assigning Credit Category '{credit_category_name}' to Performance Measure ID {performance_measure_id}")
@@ -398,9 +445,17 @@ class PerformanceMeasureManager:
                 name = pm["Name"]
                 self.logger.info(f"🔧 Processing Performance Measure: {name}")
                 performance_measure_id = self.get_performance_measure_id(name)
-                if performance_measure_id:
+                if performance_measure_id and force:
+                    # Delete existing PM so we can re-create with correct settings.
+                    # ProcessTransactions is IMMUTABLE after creation — only way to
+                    # change it is delete + re-create.
+                    self.logger.info(f"🗑 force=True — deleting existing PM '{name}' for re-creation")
+                    self.delete_performance_measure(name)
+                    performance_measure_id = None
+                elif performance_measure_id:
                     self.logger.info(f"✅ Performance Measure '{name}' already exists with ID: {performance_measure_id}. Skipping creation.")
-                else:
+
+                if not performance_measure_id:
                     self.logger.info(f"Creating new Performance Measure: {name}")
                     performance_measure_id = self.create_performance_measure(
                         name,
@@ -409,6 +464,8 @@ class PerformanceMeasureManager:
                         process_transactions=pm.get("ProcessTransactions", ""),
                         performance_interval=pm.get("PerformanceInterval", ""),
                         unit_of_measure=pm.get("UnitOfMeasure", "AMOUNT"),
+                        running_total_flag=pm.get("RunningTotalFlag", ""),
+                        use_external_formula_flag=pm.get("UseExternalFormulaFlag", ""),
                     )
                     if not performance_measure_id:
                         self.logger.error(f"❌ Failed to create Performance Measure '{name}'.")
