@@ -94,15 +94,27 @@ class PerformanceMeasureManager:
             return credit_category_id
 
         # Fallback 1: name only (shared categories may not be scoped to OrgId)
+        # IMPORTANT: Only use cross-org matches if the OrgId matches the target org.
+        # Oracle rejects credit category assignments where the category belongs to a
+        # different OrgId ("LOV_Name with given set of values leads to no matching row").
         self.logger.info(f"⚠ Credit Category '{credit_category_name}' not found with OrgId {self.org_id}. Trying name-only lookup.")
         endpoint = f"{credit_category_endpoint}?q=Name='{quote(credit_category_name)}'"
         response, status_code = self.api_client.get(endpoint)
         log_api_response(f"Get Credit Category by Name only: {credit_category_name}", {"status_code": status_code, "response": response}, self.log_file)
         if status_code == 200 and response.get("items"):
-            credit_category = response["items"][0]
-            credit_category_id = credit_category.get("CreditCategoryId")
-            self.logger.info(f"✅ Found Credit Category ID: {credit_category_id} (name-only match, OrgId: {credit_category.get('OrgId')})")
-            return credit_category_id
+            # Check all matches — prefer one from the same OrgId
+            for item in response["items"]:
+                item_org = item.get("OrgId")
+                if item_org == self.org_id or str(item_org) == str(self.org_id):
+                    credit_category_id = item.get("CreditCategoryId")
+                    self.logger.info(f"✅ Found Credit Category ID: {credit_category_id} (name-only match, same OrgId: {item_org})")
+                    return credit_category_id
+            # All matches are from different orgs — skip them, they'll fail on assignment
+            found_orgs = [item.get("OrgId") for item in response["items"]]
+            self.logger.warning(
+                f"⚠ Credit Category '{credit_category_name}' found but only in other OrgIds: {found_orgs}. "
+                f"Cross-org categories cannot be assigned. Will try to create in OrgId {self.org_id}."
+            )
 
         # Fallback 2: list all credit categories for this org and log available names
         self.logger.info(f"⚠ Credit Category '{credit_category_name}' not found by name. Listing available categories for OrgId {self.org_id}.")
@@ -209,9 +221,11 @@ class PerformanceMeasureManager:
             self.logger.info(f"✅ Credit Category '{credit_category_name}' already assigned to Performance Measure ID {performance_measure_id}. Skipping.")
             return True
 
+        # Only send CreditCategoryId — CreditCategoryName triggers Oracle's
+        # LOV_Name validation which can fail for newly-created categories.
+        # Oracle derives the display name from the ID automatically.
         payload = {
             "CreditCategoryId": credit_category_id,
-            "CreditCategoryName": credit_category_name
         }
         endpoint = f"{self.performance_measure_endpoint}/{performance_measure_id}/child/performanceMeasureCreditCategories"
         response, status_code = self.api_client.post(endpoint, payload)
