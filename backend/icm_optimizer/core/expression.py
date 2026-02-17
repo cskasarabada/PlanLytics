@@ -375,6 +375,41 @@ class ExpressionManager:
                 success = False
         return success
 
+    def validate_expression(self, expression_name: str) -> bool:
+        """Check if an expression has Status=VALID and is ready for assignment.
+
+        Oracle auto-validates expressions when their ExpressionDetails are
+        syntactically correct.  An expression with Status=INVALID cannot be
+        assigned to an Incentive Formula (the PATCH will return 400
+        "The value of the attribute OutputExpId isn't valid").
+
+        Returns True if the expression is VALID, False otherwise.
+        """
+        details = self.get_expression_details(expression_name)
+        if not details:
+            self.logger.warning(f"⚠ Cannot validate expression '{expression_name}': not found.")
+            return False
+
+        status = details.get("Status", "INVALID")
+        expr_id = details.get("ExpressionId")
+        if status == "VALID":
+            self.logger.info(f"✅ Expression '{expression_name}' (ID:{expr_id}) Status=VALID — ready for assignment.")
+            return True
+
+        self.logger.warning(
+            f"⚠ Expression '{expression_name}' (ID:{expr_id}) Status={status}. "
+            "It must be VALID before it can be assigned to an Incentive Formula. "
+            "Ensure ExpressionDetails are correctly set."
+        )
+        return False
+
+    def get_expression_status(self, expression_name: str) -> str:
+        """Return the Status field of an expression ('VALID', 'INVALID', or empty)."""
+        details = self.get_expression_details(expression_name)
+        if not details:
+            return ""
+        return details.get("Status", "INVALID")
+
     def _check_expression_usages(self, uniq_id: str, expression_name: str) -> bool:
         """Check Expression Usages to verify an expression is valid.
 

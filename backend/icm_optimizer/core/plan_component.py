@@ -155,6 +155,23 @@ class PlanComponentManager:
         self.logger.error(f"❌ Failed to create Plan Component '{name}'. Status: {status_code}, Response: {response}")
         return None, None, None
 
+    def _check_expression_status(self, expression_name: str) -> Optional[str]:
+        """Check expression Status by fetching it from Oracle.
+
+        Returns the Status string ('VALID', 'INVALID', etc.) or None if not found.
+        """
+        try:
+            endpoint = f"{self.plan_component_endpoint.replace('planComponents', 'incentiveCompensationExpressions')}?q=Name='{quote(expression_name)}'&fields=ExpressionId,Name,Status"
+            response, status_code = self.api_client.get(endpoint)
+            if status_code == 200 and response.get("items"):
+                status = response["items"][0].get("Status", "INVALID")
+                self.logger.info(f"🔍 Expression '{expression_name}' Status: {status}")
+                return status
+            return None
+        except Exception as e:
+            self.logger.warning(f"⚠ Could not check expression status: {e}")
+            return None
+
     def get_expression_id(self, expression_name: str) -> Optional[Tuple[int, int]]:
         self.logger.info(f"🔍 Retrieving Expression ID for: {expression_name}")
         try:
@@ -178,9 +195,15 @@ class PlanComponentManager:
             return None
 
     def assign_expression_to_incentive_formula(self, plan_component_id: int, incentive_formula_id: int, expression_id: int, plan_components_uniq_id: str) -> Tuple[Any, int]:
+        """Assign an expression to a Plan Component's Incentive Formula via PATCH.
+
+        Oracle PATCH field: IncentiveFormulaExpressionId (maps internally to OutputExpId).
+        The expression MUST have Status=VALID before assignment — otherwise Oracle
+        returns 400 "The value of the attribute OutputExpId isn't valid".
+        """
         endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}"
         payload = {
-            "OutputExpId": expression_id
+            "IncentiveFormulaExpressionId": expression_id
         }
         return self.api_client.patch(endpoint, payload)
 
@@ -303,6 +326,16 @@ class PlanComponentManager:
             return None
 
     def assign_performance_measure_to_plan_component(self, plan_component_id: int, performance_measure_id: int, start_date: str, end_date: str, plan_components_uniq_id: str) -> Tuple[Any, int]:
+        """Assign a Performance Measure to a Plan Component.
+
+        Oracle POST payload for planComponentPerformanceMeasures (per API schema):
+          - PerformanceMeasureId (int64, required)
+          - PlanComponentId (int64, required — but auto-derived from URL path)
+          - CalculationSequence (int32, default 1)
+          - EarningBasis (string Y/N, default Y)
+          - PerformanceMeasureWeight (int64, default 100)
+        Note: StartDate/EndDate are NOT valid fields on this endpoint.
+        """
         self.logger.info(f"🔧 Assigning Performance Measure ID {performance_measure_id} to Plan Component ID {plan_component_id}")
         endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentPerformanceMeasures"
 
@@ -315,8 +348,9 @@ class PlanComponentManager:
 
         payload = {
             "PerformanceMeasureId": performance_measure_id,
-            "StartDate": start_date,
-            "EndDate": end_date
+            "CalculationSequence": 1,
+            "EarningBasis": "Y",
+            "PerformanceMeasureWeight": 100,
         }
         response, status_code = self.api_client.post(endpoint, payload)
         log_api_response(f"Assign Performance Measure to Plan Component ID {plan_component_id}", {"status_code": status_code, "response": response}, self.log_file)
@@ -407,6 +441,16 @@ class PlanComponentManager:
                         expression_id_org = self.get_expression_id(expression_name)
                         if expression_id_org:
                             expression_id, _ = expression_id_org
+
+                            # Verify expression Status=VALID before assignment
+                            # Oracle rejects assignment with 400 if expression is INVALID
+                            expr_status = self._check_expression_status(expression_name)
+                            if expr_status and expr_status != "VALID":
+                                self.logger.warning(
+                                    f"⚠ Expression '{expression_name}' has Status={expr_status}. "
+                                    "Attempting assignment anyway (Oracle may reject with 400)."
+                                )
+
                             response, status_code = self.assign_expression_to_incentive_formula(plan_component_id, incentive_formula_id, expression_id, plan_components_uniq_id)
                             log_api_response(f"Assign Expression '{expression_name}' to Incentive Formula ID {incentive_formula_id}",
                                             {"status_code": status_code, "response": response}, self.log_file)
@@ -414,6 +458,12 @@ class PlanComponentManager:
                                 self.logger.info(f"✅ Successfully assigned Expression '{expression_name}' to Incentive Formula ID {incentive_formula_id}")
                             else:
                                 self.logger.error(f"❌ Failed to assign Expression '{expression_name}' to Incentive Formula ID {incentive_formula_id}. Status: {status_code}")
+                                if status_code == 400:
+                                    self.logger.error(
+                                        "💡 This usually means the expression has Status=INVALID. "
+                                        "Ensure ExpressionDetails are correctly configured so "
+                                        "Oracle can validate the expression formula."
+                                    )
                                 error_count += 1
                                 if not force:
                                     return False
@@ -492,6 +542,36 @@ class PlanComponentManager:
                                             break
 
                                 if not already_assigned:
+                                    # If existing items exist but with different expression,
+                                    # PATCH the first one instead of POST (Oracle may reject
+                                    # duplicate dimension assignments)
+                                    if check_status == 200 and check_response.get("items"):
+                                        existing_rdi = check_response["items"][0]
+                                        rdi_id = existing_rdi.get("PlanComponentInputExpressionId")
+                                        if rdi_id:
+                                            self.logger.info(f"🔧 Updating existing Rate Dimensional Input {rdi_id} with new expression '{expression_name}'")
+                                            patch_payload = {
+                                                "InputExpressionId": expression_id,
+                                                "InputExpressionName": expression_name
+                                            }
+                                            response, status_code = self.api_client.patch(
+                                                f"{rate_dimensional_inputs_endpoint}/{rdi_id}", patch_payload
+                                            )
+                                            log_api_response(
+                                                f"PATCH Rate Dimensional Input {rdi_id} with Expression '{expression_name}'",
+                                                {"status_code": status_code, "response": response, "payload": patch_payload}, self.log_file
+                                            )
+                                            if status_code in [200, 201]:
+                                                self.logger.info(f"✅ Successfully updated Rate Dimensional Input with Expression '{expression_name}'")
+                                            elif status_code == 400:
+                                                self.logger.warning(f"⚠ PATCH returned 400 for Rate Dimensional Input. Continuing.")
+                                            else:
+                                                self.logger.error(f"❌ Failed to update Rate Dimensional Input. Status: {status_code}")
+                                                error_count += 1
+                                                if not force:
+                                                    return False
+                                            continue
+
                                     payload = {
                                         "InputExpressionId": expression_id,
                                         "InputExpressionName": expression_name
