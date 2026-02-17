@@ -161,7 +161,7 @@ class PlanComponentManager:
         Returns the Status string ('VALID', 'INVALID', etc.) or None if not found.
         """
         try:
-            endpoint = f"{self.plan_component_endpoint.replace('planComponents', 'incentiveCompensationExpressions')}?q=Name='{quote(expression_name)}'&fields=ExpressionId,Name,Status"
+            endpoint = f"{self.plan_component_endpoint.replace('planComponents', 'incentiveCompensationExpressions')}?q=Name='{quote(expression_name)}'"
             response, status_code = self.api_client.get(endpoint)
             if status_code == 200 and response.get("items"):
                 status = response["items"][0].get("Status", "INVALID")
