@@ -2,16 +2,24 @@
 """
 Bridge module that invokes ICM Optimizer managers to deploy the generated
 Excel workbook to Oracle Fusion ICM via REST APIs.
+
+The manager classes are bundled under backend/icm_optimizer/ — no external
+sys.path manipulation is needed.
 """
-import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any
 
-logger = logging.getLogger(__name__)
+from ..icm_optimizer.utils.api_client import APIClient
+from ..icm_optimizer.config.config_manager import ConfigManager
+from ..icm_optimizer.core.rate_dimension import RateDimensionManager
+from ..icm_optimizer.core.rate_table import RateTableManager
+from ..icm_optimizer.core.expression import ExpressionManager
+from ..icm_optimizer.core.perf_measure import PerformanceMeasureManager
+from ..icm_optimizer.core.plan_component import PlanComponentManager
+from ..icm_optimizer.core.comp_plan import CompensationPlanManager
 
-# Path to the ICM Optimizer repository
-ICM_OPTIMIZER_PATH = "/Users/chandrak/ICM Optimizer"
+logger = logging.getLogger(__name__)
 
 
 def deploy_to_oracle_icm(
@@ -36,25 +44,6 @@ def deploy_to_oracle_icm(
         results["mode"] = "dry_run"
         results["message"] = "Validation only — no objects created in Oracle ICM"
         logger.info("Dry run: skipping actual deployment")
-        return results
-
-    # Add ICM Optimizer to Python path
-    if ICM_OPTIMIZER_PATH not in sys.path:
-        sys.path.insert(0, ICM_OPTIMIZER_PATH)
-
-    try:
-        from app.utils.api_client import APIClient
-        from app.config.config_manager import ConfigManager
-        from app.core.rate_dimension import RateDimensionManager
-        from app.core.rate_table import RateTableManager
-        from app.core.expression import ExpressionManager
-        from app.core.performance_measure import PerformanceMeasureManager
-        from app.core.plan_component import PlanComponentManager
-        from app.core.compensation_plan import CompensationPlanManager
-    except ImportError as e:
-        results["success"] = False
-        results["error"] = f"ICM Optimizer not found at {ICM_OPTIMIZER_PATH}: {e}"
-        logger.error(results["error"])
         return results
 
     # Load config and initialize API client

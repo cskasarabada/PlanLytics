@@ -452,6 +452,120 @@ def list_icm_reviews():
     return {"reviews": list_reviews()}
 
 
+# ---------- ICM Deployment Wizard Endpoints ----------
+_deploy_sessions: dict = {}
+
+
+@app.post("/api/icm-deploy/upload-config")
+async def icm_deploy_upload_config(file: UploadFile = File(...)):
+    """Upload an ICM Optimizer config.txt and return a config_id."""
+    import configparser, yaml, uuid
+    config_id = str(uuid.uuid4())[:8]
+
+    config_dir = OUTPUT_DIR / "icm_configs"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_path = config_dir / f"config_{config_id}.txt"
+    with config_path.open("wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    cp = configparser.ConfigParser()
+    cp.read(str(config_path))
+    yaml_config = {section: dict(cp[section]) for section in cp.sections()}
+    yaml_path = config_dir / f"config_{config_id}.yaml"
+    with yaml_path.open("w") as f:
+        yaml.dump(yaml_config, f, default_flow_style=False)
+
+    api_section = yaml_config.get("api", {})
+    _deploy_sessions[config_id] = {
+        "config_path": str(config_path),
+        "yaml_path": str(yaml_path),
+        "base_url": api_section.get("base_url", ""),
+        "username": api_section.get("username", ""),
+    }
+
+    return {
+        "config_id": config_id,
+        "message": "Config uploaded",
+        "base_url": api_section.get("base_url", ""),
+        "username": api_section.get("username", ""),
+        "sections": list(yaml_config.keys()),
+    }
+
+
+@app.post("/api/icm-deploy/validate-api")
+async def icm_deploy_validate_api(payload: dict):
+    """Test Oracle API credentials."""
+    from ..icm_optimizer.utils.api_client import APIClient
+
+    base_url = payload.get("base_url", "")
+    username = payload.get("username", "")
+    password = payload.get("password", "")
+    if not all([base_url, username, password]):
+        return JSONResponse({"success": False, "message": "base_url, username, and password required"}, status_code=400)
+
+    try:
+        client = APIClient(base_url=base_url, username=username, password=password)
+        response, status_code = client.get("/incentiveCompensationPerformanceMeasures?limit=1")
+        if status_code == 200:
+            return {"success": True, "message": "API credentials validated"}
+        return {"success": False, "message": f"API returned status {status_code}"}
+    except Exception as e:
+        return {"success": False, "message": f"Connection failed: {e}"}
+
+
+@app.post("/api/icm-deploy/validate-excel")
+async def icm_deploy_validate_excel(payload: dict):
+    """Validate that an Excel file exists and list its sheets."""
+    excel_path = payload.get("excel_path", "")
+    if not excel_path or not Path(excel_path).exists():
+        return {"success": False, "message": f"File not found: {excel_path}"}
+    try:
+        xls = pd.ExcelFile(excel_path)
+        return {"success": True, "message": "Excel validated", "sheets": xls.sheet_names}
+    except Exception as e:
+        return {"success": False, "message": f"Cannot read Excel: {e}"}
+
+
+@app.post("/api/icm-deploy/run")
+async def icm_deploy_run(payload: dict):
+    """Run the 6-step ICM deployment."""
+    from ..core.icm_deployer import deploy_to_oracle_icm
+
+    analysis_id = payload.get("analysis_id", "")
+    config_id = payload.get("config_id", "")
+    password = payload.get("password", "")
+
+    session = _deploy_sessions.get(config_id)
+    if not session:
+        return JSONResponse({"success": False, "message": "Config not found. Upload config first."}, status_code=400)
+
+    yaml_path = session["yaml_path"]
+
+    if password:
+        import yaml
+        with open(yaml_path) as f:
+            cfg = yaml.safe_load(f)
+        cfg.setdefault("api", {})["password"] = password
+        with open(yaml_path, "w") as f:
+            yaml.dump(cfg, f, default_flow_style=False)
+
+    excel_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
+    if not excel_path.exists():
+        from ..core.icm_review import get_review
+        review = get_review(analysis_id)
+        if review and review.get("workbook_bytes"):
+            excel_path.write_bytes(review["workbook_bytes"])
+        else:
+            return JSONResponse({"success": False, "message": f"Workbook not found for analysis {analysis_id}"}, status_code=404)
+
+    result = deploy_to_oracle_icm(
+        excel_path=excel_path,
+        config_path=Path(yaml_path),
+        dry_run=False,
+    )
+    return {"analysis_id": analysis_id, "deployment": result}
+
+
 # SPA fallback so client-side routes work (non-API/Static paths → index.html)
 @app.middleware("http")
 async def spa_fallback(request: Request, call_next):

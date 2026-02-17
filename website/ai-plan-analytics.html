@@ -375,7 +375,7 @@
                         </div>
 
                         <button id="analyze-btn" onclick="startAnalysis()" disabled class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
-                            Analyze Document (Free Preview)
+                            Analyze Document
                         </button>
                     </div>
 
@@ -394,56 +394,7 @@
 
                             <div class="bg-slate-900 text-emerald-300 p-4 rounded-lg demo-output text-sm mb-6" id="analysis-console">
                                 <div id="analysis-output">
-                                    <div data-role="demo">
-                                        <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
-                                        <div class="mb-2">═══════════════════════════════════════</div>
-                                        <div>Document Type: Sales Commission Plan</div>
-                                        <div>Plan Complexity: High (Score: 8.2/10)</div>
-                                        <div>Key Components: 7 identified</div>
-                                        <div>Risk Level: Medium (3 issues found)</div>
-                                        <div>ICM Objects: 12 required</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
-                                        <div>PLAN STRUCTURE:</div>
-                                        <div>• Base Commission: 2% on all sales</div>
-                                        <div>• Tier 1 Accelerator: 0.5% above $50K</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
-                                        <div>RISK CHECKS:</div>
-                                        <div>• Overpayment risk flagged at 140%+</div>
-                                        <div>• Clawback policy missing on cancellations</div>
-                                        <div>• Territory overlap risk detected</div>
-                                        <div class="mt-4 p-3 bg-amber-900 text-amber-200 rounded">
-                                            ⚠️ PREVIEW MODE - Upgrade for full analysis
-                                        </div>
-                                    </div>
-                                    <div class="hidden" data-role="paid">
-                                        <div class="mb-2">📊 ICM PLANLYTICS FULL ANALYSIS</div>
-                                        <div class="mb-2">═══════════════════════════════════════</div>
-                                        <div>Document Type: Sales Commission Plan</div>
-                                        <div>Plan Complexity: High (Score: 8.2/10)</div>
-                                        <div>Key Components: 7 identified</div>
-                                        <div>Risk Level: Medium (3 issues found)</div>
-                                        <div>ICM Objects: 12 required</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
-                                        <div>ICM OUTPUTS:</div>
-                                        <div>• Crediting Rules: 4 (Direct, Overlay, Split, House)</div>
-                                        <div>• Rates: 6 with step-up tiers + accelerators</div>
-                                        <div>• Deposits: 3 schedule types (Monthly/Quarterly/Annual)</div>
-                                        <div>• Eligibility: 5 rules + territory overrides</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
-                                        <div>COMP PLAN OUTPUTS:</div>
-                                        <div>• Quota Policy: 3 segments with attainment thresholds</div>
-                                        <div>• Payout Curves: 5 tiers with caps and clawbacks</div>
-                                        <div>• Exceptions: 2 approvals with audit notes</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
-                                        <div>RISK CHECKS:</div>
-                                        <div>• Overpayment risk flagged at 140%+</div>
-                                        <div>• Clawback policy missing on cancellations</div>
-                                        <div>• Territory overlap risk detected</div>
-                                        <div>• SPIFF conflicts with margin guardrail</div>
-                                        <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
-                                            ✅ FULL MODE - Exportable ICM package ready
-                                        </div>
-                                    </div>
+                                    <div class="text-slate-400">Analysis results will appear here...</div>
                                 </div>
                             </div>
 
@@ -470,13 +421,27 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-3">
-                                <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors" data-role="demo">
-                                    Get Full Analysis - Start Pro Trial
-                                </button>
-                                <button onclick="showUpgradeModal()" class="w-full bg-slate-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-slate-800 transition-colors hidden" data-role="paid">
-                                    Download Full Report
-                                </button>
+                            <div id="icm-review-panel" class="hidden mt-6 border-t border-slate-200 pt-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-lg font-semibold text-slate-900">ICM Configuration Review</h4>
+                                    <span id="icm-status-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Pending Review</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <button onclick="downloadWorkbook()" class="w-full bg-slate-700 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-slate-600 transition-colors text-sm">
+                                        Download ICM Workbook (.xlsx)
+                                    </button>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button onclick="approveConfig()" class="bg-emerald-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
+                                            Approve Config
+                                        </button>
+                                        <button onclick="rejectConfig()" class="bg-red-500 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm">
+                                            Reject & Re-analyze
+                                        </button>
+                                    </div>
+                                    <button id="icm-deploy-btn" onclick="deployToICMOptimizer()" class="hidden w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                        Deploy via ICM Optimizer &rarr;
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -638,9 +603,12 @@
 
     <script>
         const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-        const API_BASE_URL = 'https://icm-planlytics.onrender.com';
+        const API_BASE_URL = window.location.origin;
+        // Deploy wizard is now served locally at /static/icm-deploy.html
         let selectedFile = null;
         let activeRole = 'demo';
+        let currentAnalysisId = null;
+        let currentWorkbookPath = null;
         const ROLE_CREDENTIALS = {
             demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
             paid: { username: 'ChandraK', password: 'ICMPlan6631' }
@@ -661,10 +629,8 @@
             });
 
             const analyzeBtn = document.getElementById('analyze-btn');
-            if (analyzeBtn) {
-                analyzeBtn.textContent = role === 'paid'
-                    ? 'Analyze Document (Full Analysis)'
-                    : 'Analyze Document (Free Preview)';
+            if (analyzeBtn && !analyzeBtn.disabled) {
+                analyzeBtn.textContent = 'Analyze Document';
             }
         }
 
@@ -783,55 +749,126 @@
             }
 
             const btn = document.getElementById('analyze-btn');
-            if (!btn) {
-                return;
-            }
+            if (!btn) return;
 
             btn.disabled = true;
-            btn.textContent = 'Analyzing...';
+            btn.textContent = 'Analyzing with AI...';
+
+            const placeholder = document.getElementById('demo-placeholder');
+            const results = document.getElementById('demo-results');
+            const analysisOutput = document.getElementById('analysis-output');
 
             try {
-                await simulateAnalysis();
-                const placeholder = document.getElementById('demo-placeholder');
-                const results = document.getElementById('demo-results');
-                if (placeholder) {
-                    placeholder.classList.add('hidden');
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch(`${API_BASE_URL}/api/analyze-for-icm`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || `HTTP ${response.status}`);
                 }
-                if (results) {
-                    results.classList.remove('hidden');
+
+                const data = await response.json();
+                currentAnalysisId = data.analysis_id;
+                currentWorkbookPath = `/tmp/outputs/icm_${data.analysis_id}.xlsx`;
+
+                // Build results display
+                const summary = data.oracle_mapping_summary || {};
+                const warnings = data.validation_warnings || [];
+
+                let html = `<div class="mb-2">ICM PLANLYTICS AI ANALYSIS</div>`;
+                html += `<div class="mb-2">===================================</div>`;
+                html += `<div>Analysis ID: ${data.analysis_id}</div>`;
+                html += `<div class="my-2">-----------------------------------</div>`;
+                html += `<div>ORACLE ICM OBJECTS GENERATED:</div>`;
+                for (const [key, val] of Object.entries(summary)) {
+                    html += `<div>  ${key}: ${val}</div>`;
                 }
+
+                if (warnings.length > 0) {
+                    html += `<div class="my-2">-----------------------------------</div>`;
+                    html += `<div>VALIDATION WARNINGS:</div>`;
+                    warnings.forEach(w => { html += `<div class="text-amber-300">  ! ${w}</div>`; });
+                } else {
+                    html += `<div class="my-2">-----------------------------------</div>`;
+                    html += `<div class="text-emerald-300">No validation warnings</div>`;
+                }
+
+                html += `<div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">ICM Config workbook ready for review</div>`;
+                analysisOutput.innerHTML = html;
+
+                if (placeholder) placeholder.classList.add('hidden');
+                if (results) results.classList.remove('hidden');
+
+                // Show ICM review panel
+                const reviewPanel = document.getElementById('icm-review-panel');
+                if (reviewPanel) {
+                    reviewPanel.classList.remove('hidden');
+                    document.getElementById('icm-status-badge').textContent = 'Pending Review';
+                    document.getElementById('icm-status-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
+                    document.getElementById('icm-deploy-btn').classList.add('hidden');
+                }
+
             } catch (error) {
                 console.error('Analysis failed:', error);
-                alert('Analysis failed. Please try again.');
+                if (analysisOutput) {
+                    analysisOutput.innerHTML = `<div class="text-red-400">Analysis failed: ${error.message}</div><div class="text-slate-400 mt-2">Make sure the PlanLytics server is running on ${API_BASE_URL}</div>`;
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (results) results.classList.remove('hidden');
             } finally {
                 btn.disabled = false;
-                btn.textContent = activeRole === 'paid'
-                    ? 'Analyze Document (Full Analysis)'
-                    : 'Analyze Document (Free Preview)';
+                btn.textContent = 'Analyze Document';
             }
         }
 
-        async function simulateAnalysis() {
-            return new Promise((resolve) => {
-                setTimeout(resolve, 3000);
-            });
+        async function downloadWorkbook() {
+            if (!currentAnalysisId) return;
+            window.open(`${API_BASE_URL}/api/icm-workbook/${currentAnalysisId}`, '_blank');
         }
 
-        async function callRenderAPI(file, analysisType) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('template', analysisType || 'quick');
-
-            const response = await fetch(`${API_BASE_URL}/analyze/enhanced`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        async function approveConfig() {
+            if (!currentAnalysisId) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/icm-workbook/${currentAnalysisId}/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ approved: true }),
+                });
+                const data = await response.json();
+                if (data.status === 'approved') {
+                    document.getElementById('icm-status-badge').textContent = 'Approved';
+                    document.getElementById('icm-status-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
+                    document.getElementById('icm-deploy-btn').classList.remove('hidden');
+                }
+            } catch (error) {
+                alert('Failed to approve: ' + error.message);
             }
+        }
 
-            return response.json();
+        async function rejectConfig() {
+            if (!currentAnalysisId) return;
+            try {
+                await fetch(`${API_BASE_URL}/api/icm-workbook/${currentAnalysisId}/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ approved: false }),
+                });
+                document.getElementById('icm-status-badge').textContent = 'Rejected';
+                document.getElementById('icm-status-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800';
+                document.getElementById('icm-deploy-btn').classList.add('hidden');
+            } catch (error) {
+                alert('Failed to reject: ' + error.message);
+            }
+        }
+
+        function deployToICMOptimizer() {
+            if (!currentAnalysisId) return;
+            window.open(`/static/icm-deploy.html?analysis_id=${currentAnalysisId}`, '_blank');
         }
 
         function initAnalyticsTabs() {
