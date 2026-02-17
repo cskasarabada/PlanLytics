@@ -17,6 +17,8 @@ def save_review(
     analysis: dict,
     workbook_bytes: bytes,
     warnings: list,
+    design_doc_bytes: bytes = None,
+    config_doc_bytes: bytes = None,
 ) -> None:
     """Store analysis results for later review/download."""
     _store[analysis_id] = {
@@ -24,6 +26,8 @@ def save_review(
         "workbook_bytes": workbook_bytes,
         "warnings": warnings,
         "status": "pending_review",
+        "design_doc_bytes": design_doc_bytes,
+        "config_doc_bytes": config_doc_bytes,
     }
     logger.info("Saved review state for %s", analysis_id)
 

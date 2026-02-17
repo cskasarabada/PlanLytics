@@ -14,13 +14,6 @@ from ..utils.api_client import APIClient
 from ..config.config_manager import ConfigManager
 from ..utils.logging_utils import log_api_response
 
-# app/core/comp_plan.py
-import os
-import logging
-from typing import Optional
-from ..utils.api_client import APIClient
-from ..config.config_manager import ConfigManager
-
 class CompensationPlanManager:
     def __init__(self, api_client: APIClient, config_manager: ConfigManager, log_file: str, excel_path: Optional[str] = None):
         self.api_client = api_client
@@ -57,46 +50,6 @@ class CompensationPlanManager:
             self.logger.error(f"Excel file not readable: {self.excel_path}")
             return False
         return True
-
-    def create_compensation_plans_with_components(self, force: bool = False) -> bool:
-        """Create compensation plans based on the Excel file."""
-        if not self.excel_path:
-            self.logger.error("No Excel file provided for compensation plans")
-            return False
-        self.logger.info(f"Creating compensation plans from {self.excel_path} for org_id: {self.org_id}")
-        # Add your logic here to process the Excel file and create compensation plans
-        try:
-            compensation_plans = [
-                {"name": "Compensation Plan 2025", "description": "Plan for 2025"}
-            ]
-            created_plans = 0
-            for cp in compensation_plans:
-                name = cp["name"]
-                description = cp["description"]
-                # Check if the compensation plan already exists
-                query = f"{self.compensation_plan_endpoint}?q=Name='{name}';OrgId={self.org_id}"
-                response, status_code = self.api_client.get(query)
-                if status_code == 200 and response.get('items'):
-                    self.logger.info(f"Skipping duplicate Compensation Plan: {name}")
-                    continue
-                # Create a new compensation plan
-                payload = {
-                    "Name": name,
-                    "Description": description,
-                    "OrgId": self.org_id
-                }
-                response, status_code = self.api_client.post(self.compensation_plan_endpoint, data=payload)
-                if status_code == 201:
-                    created_plans += 1
-                    self.logger.info(f"Successfully created Compensation Plan: {name}")
-                else:
-                    self.logger.error(f"Failed to create Compensation Plan: {name}, Status Code: {status_code}, Response: {response}")
-                    return False
-            self.logger.info(f"Created {created_plans} Compensation Plans")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error in create_compensation_plans_with_components: {str(e)}")
-            return False
 
     def load_compensation_plans(self) -> pd.DataFrame:
         """
@@ -347,20 +300,37 @@ class CompensationPlanManager:
         try:
             # Endpoint for adding Plan Component to Compensation Plan
             endpoint = f"{self.compensation_plan_endpoint}/{compensation_plan_id}/child/CompensationPlanComponents"
-            
+
+            # Check if Plan Component is already linked to this Compensation Plan
+            check_endpoint = f"{endpoint}?q=PlanComponentId={plan_component_id}"
+            check_response, check_status = self.api_client.get(check_endpoint)
+            if check_status == 200 and check_response.get("items"):
+                self.logger.info(f"Plan Component '{plan_component_name}' already linked to Compensation Plan ID: {compensation_plan_id}. Skipping.")
+                return True
+
             start_time = time.time()
             response, status_code = self.api_client.post(endpoint, payload)
-            
+
             # Log API response
             log_api_response(
                 f"Add Plan Component '{plan_component_name}' to Compensation Plan ID: {compensation_plan_id}",
                 {"status_code": status_code, "text": str(response)},
                 self.log_file  # Removed start_time parameter as per logging_utils.py
             )
-            
+
             if status_code in [200, 201]:
                 self.logger.info(f"Successfully added Plan Component '{plan_component_name}' to Compensation Plan ID: {compensation_plan_id}")
                 return True
+            elif status_code == 400:
+                # 400 often means "already linked" — re-check and treat as success
+                self.logger.warning(f"POST returned 400 adding Plan Component '{plan_component_name}'. It may already be linked.")
+                check_response, check_status = self.api_client.get(check_endpoint)
+                if check_status == 200 and check_response.get("items"):
+                    self.logger.info(f"Confirmed Plan Component '{plan_component_name}' is already linked. Continuing.")
+                    return True
+                self.logger.error(f"Failed to add Plan Component '{plan_component_name}' to Compensation Plan ID: {compensation_plan_id}")
+                self.logger.error(f"Response details: {response}")
+                return False
             else:
                 self.logger.error(f"Failed to add Plan Component '{plan_component_name}' to Compensation Plan ID: {compensation_plan_id}")
                 self.logger.error(f"Response details: {response}")
@@ -392,6 +362,9 @@ class CompensationPlanManager:
             for _, row in df.iterrows():
                 plan_name = row["Name"].strip()
                 org_id = int(row["OrgId"])
+                # Fall back to config org_id if workbook has 0 or missing OrgId
+                if org_id == 0:
+                    org_id = self.org_id
                 start_date = row["StartDate"]
                 end_date = row["EndDate"]
                 target_incentive = float(row["TargetIncentive"])

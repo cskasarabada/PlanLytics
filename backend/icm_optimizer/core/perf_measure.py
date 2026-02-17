@@ -1,8 +1,12 @@
 import os
 import logging
+import pandas as pd
 from typing import List, Dict, Any, Optional
+from urllib.parse import quote
+
 from ..utils.api_client import APIClient
 from ..config.config_manager import ConfigManager
+from ..utils.logging_utils import log_api_response
 
 class PerformanceMeasureManager:
     def __init__(self, api_client: APIClient, config_manager: ConfigManager, log_file: str, excel_path: Optional[str] = None):
@@ -41,48 +45,6 @@ class PerformanceMeasureManager:
             return False
         return True
 
-    def create_performance_measures(self, force: bool = False) -> bool:
-        """Create performance measures based on the Excel file."""
-        if not self.excel_path:
-            self.logger.error("No Excel file provided for performance measures")
-            return False
-        self.logger.info(f"Creating performance measures from {self.excel_path} for org_id: {self.org_id}")
-        # Add your logic here to process the Excel file and create performance measures
-        # Example: Simulate creating performance measures
-        try:
-            performance_measures = [
-                {"name": "Arg Credit Amount 2025", "type": "AMOUNT"},
-                {"name": "Performance Measure 2", "type": "PERCENT"}
-            ]
-            created_measures = 0
-            for pm in performance_measures:
-                name = pm["name"]
-                pm_type = pm["type"]
-                # Check if the performance measure already exists
-                query = f"{self.performance_measure_endpoint}?q=Name='{name}';OrgId={self.org_id}"
-                response, status_code = self.api_client.get(query)
-                if status_code == 200 and response.get('items'):
-                    self.logger.info(f"Skipping duplicate Performance Measure: {name}")
-                    continue
-                # Create a new performance measure
-                payload = {
-                    "Name": name,
-                    "Type": pm_type,
-                    "OrgId": self.org_id
-                }
-                response, status_code = self.api_client.post(self.performance_measure_endpoint, data=payload)
-                if status_code == 201:
-                    created_measures += 1
-                    self.logger.info(f"Successfully created Performance Measure: {name}")
-                else:
-                    self.logger.error(f"Failed to create Performance Measure: {name}, Status Code: {status_code}, Response: {response}")
-                    return False
-            self.logger.info(f"Created {created_measures} Performance Measures")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error in create_performance_measures: {str(e)}")
-            return False
-
     def load_performance_measures(self) -> List[Dict[str, Any]]:
         try:
             df = pd.read_excel(self.excel_path, sheet_name='Performance Measures', dtype=str)
@@ -112,8 +74,17 @@ class PerformanceMeasureManager:
         return None
 
     def get_credit_category_id(self, credit_category_name: str) -> Optional[int]:
+        """Look up Credit Category by name and OrgId.
+
+        If exact name+OrgId match fails, falls back to:
+        1. Name-only search (OrgId may differ for shared categories)
+        2. Partial name match (e.g. "Sales Credit" → "Sales Credit Category")
+        """
         self.logger.info(f"🔍 Retrieving Credit Category ID for: {credit_category_name} with OrgId: {self.org_id}")
-        endpoint = f"{self.performance_measure_endpoint.replace('PerformanceMeasures', 'creditCategories')}?q=Name='{quote(credit_category_name)}';OrgId={self.org_id}"
+        credit_category_endpoint = "/fscmRestApi/resources/11.13.18.05/creditCategories"
+
+        # Primary: exact name + OrgId
+        endpoint = f"{credit_category_endpoint}?q=Name='{quote(credit_category_name)}';OrgId={self.org_id}"
         response, status_code = self.api_client.get(endpoint)
         log_api_response(f"Get Credit Category by Name: {credit_category_name}, OrgId: {self.org_id}", {"status_code": status_code, "response": response}, self.log_file)
         if status_code == 200 and response.get("items"):
@@ -121,18 +92,87 @@ class PerformanceMeasureManager:
             credit_category_id = credit_category.get("CreditCategoryId")
             self.logger.info(f"✅ Found Credit Category ID: {credit_category_id}")
             return credit_category_id
-        self.logger.error(f"❌ Credit Category '{credit_category_name}' not found.")
+
+        # Fallback 1: name only (shared categories may not be scoped to OrgId)
+        self.logger.info(f"⚠ Credit Category '{credit_category_name}' not found with OrgId {self.org_id}. Trying name-only lookup.")
+        endpoint = f"{credit_category_endpoint}?q=Name='{quote(credit_category_name)}'"
+        response, status_code = self.api_client.get(endpoint)
+        log_api_response(f"Get Credit Category by Name only: {credit_category_name}", {"status_code": status_code, "response": response}, self.log_file)
+        if status_code == 200 and response.get("items"):
+            credit_category = response["items"][0]
+            credit_category_id = credit_category.get("CreditCategoryId")
+            self.logger.info(f"✅ Found Credit Category ID: {credit_category_id} (name-only match, OrgId: {credit_category.get('OrgId')})")
+            return credit_category_id
+
+        # Fallback 2: list all credit categories for this org and log available names
+        self.logger.info(f"⚠ Credit Category '{credit_category_name}' not found by name. Listing available categories for OrgId {self.org_id}.")
+        endpoint = f"{credit_category_endpoint}?q=OrgId={self.org_id}&limit=50"
+        response, status_code = self.api_client.get(endpoint)
+        if status_code == 200 and response.get("items"):
+            available_names = [item.get("Name", "?") for item in response["items"]]
+            self.logger.info(f"📋 Available Credit Categories for OrgId {self.org_id}: {available_names}")
+            # Try case-insensitive partial match
+            for item in response["items"]:
+                if credit_category_name.lower() in item.get("Name", "").lower():
+                    credit_category_id = item.get("CreditCategoryId")
+                    self.logger.info(f"✅ Found partial match: '{item['Name']}' (ID: {credit_category_id})")
+                    return credit_category_id
+
+        # Fallback 3: create the credit category if it doesn't exist
+        self.logger.info(f"🔧 Credit Category '{credit_category_name}' not found anywhere. Attempting to create it.")
+        created_id = self.create_credit_category(credit_category_name)
+        if created_id:
+            return created_id
+
+        self.logger.error(f"❌ Credit Category '{credit_category_name}' could not be found or created in Oracle instance.")
+        return None
+
+    def create_credit_category(self, name: str) -> Optional[int]:
+        """Create a new Credit Category in Oracle ICM.
+
+        Posts to /creditCategories with the given name and current OrgId.
+        If creation fails with 400 (already exists), attempts to look it up.
+        Returns the CreditCategoryId on success, None on failure.
+        """
+        self.logger.info(f"🔧 Creating new Credit Category: {name}")
+        credit_category_endpoint = "/fscmRestApi/resources/11.13.18.05/creditCategories"
+
+        payload = {
+            "Name": name,
+            "OrgId": self.org_id,
+            "Description": f"Credit Category for {name}"
+        }
+        response, status_code = self.api_client.post(credit_category_endpoint, payload)
+        log_api_response(f"Create Credit Category: {name}", {"status_code": status_code, "response": response}, self.log_file)
+
+        if status_code in [200, 201]:
+            credit_category_id = response.get("CreditCategoryId")
+            self.logger.info(f"✅ Successfully created Credit Category '{name}' with ID: {credit_category_id}")
+            return credit_category_id
+
+        # If creation failed (e.g., 400 "already exists"), try to fetch the existing one
+        if status_code == 400:
+            self.logger.warning(f"⚠ POST returned 400 for Credit Category '{name}'. It may already exist — attempting lookup.")
+            # Try exact name search (without OrgId constraint in case it's shared)
+            endpoint = f"{credit_category_endpoint}?q=Name='{quote(name)}'"
+            resp, sc = self.api_client.get(endpoint)
+            if sc == 200 and resp.get("items"):
+                credit_category_id = resp["items"][0].get("CreditCategoryId")
+                self.logger.info(f"✅ Found existing Credit Category '{name}' with ID: {credit_category_id}")
+                return credit_category_id
+
+        self.logger.error(f"❌ Failed to create Credit Category '{name}'. Status: {status_code}, Response: {response}")
         return None
 
     def create_performance_measure(self, name: str, start_date: str, end_date: str) -> Optional[int]:
         self.logger.info(f"🔧 Creating new Performance Measure: {name}")
+        # Note: ValidForCalculation is read-only — Oracle sets it automatically.
         payload = {
             "Name": name,
             "OrgId": self.org_id,
             "StartDate": start_date,
             "EndDate": end_date,
             "UnitOfMeasure": "AMOUNT",
-            "ValidForCalculation": "COMPLETE",
             "IncludeInParticipantReportsFlag": True,
             "ProcessTransactions": "INDIVIDUAL",
             "PerformanceInterval": "-1000",
@@ -144,6 +184,13 @@ class PerformanceMeasureManager:
             performance_measure_id = response.get("PerformanceMeasureId")
             self.logger.info(f"✅ Successfully created Performance Measure '{name}' with ID: {performance_measure_id}")
             return performance_measure_id
+        # If creation failed (e.g., 400 "already exists"), try to fetch the existing one
+        if status_code == 400:
+            self.logger.warning(f"⚠ POST returned 400 for Performance Measure '{name}'. Checking if it already exists.")
+            existing_id = self.get_performance_measure_id(name)
+            if existing_id:
+                self.logger.info(f"✅ Found existing Performance Measure '{name}' with ID: {existing_id}")
+                return existing_id
         self.logger.error(f"❌ Failed to create Performance Measure '{name}'. Status: {status_code}, Response: {response}")
         return None
 

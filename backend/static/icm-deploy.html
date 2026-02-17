@@ -13,10 +13,14 @@
         .step-badge.active { background: #3b82f6; color: white; }
         .step-badge.done { background: #22c55e; color: white; }
         .step-badge.pending { background: #e2e8f0; color: #94a3b8; }
-        .log-line { font-family: 'Courier New', monospace; font-size: 13px; padding: 4px 0; }
+        .log-line { font-family: 'Courier New', monospace; font-size: 13px; padding: 4px 0; position: relative; display: flex; align-items: flex-start; gap: 6px; }
         .log-line.success { color: #16a34a; }
         .log-line.error { color: #dc2626; }
         .log-line.info { color: #2563eb; }
+        .log-line .log-text { flex: 1; word-break: break-all; }
+        .copy-btn { flex-shrink: 0; background: #334155; color: #94a3b8; border: none; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; font-family: 'DM Sans', sans-serif; }
+        .copy-btn:hover { opacity: 1; color: #e2e8f0; }
+        .copy-btn.copied { color: #4ade80; opacity: 1; }
     </style>
 </head>
 <body>
@@ -34,6 +38,7 @@
                 </div>
                 <div class="hidden md:flex items-center space-x-5 text-sm">
                     <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600">AI Plan Analytics</a>
+                    <a href="icm-e2e.html" class="text-gray-600 hover:text-blue-600">ICM E2E</a>
                     <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600">Plan Studio</a>
                     <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600">Sales 360 AI</a>
                 </div>
@@ -86,6 +91,32 @@
                 </div>
 
                 <div id="step1-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-4"></div>
+
+                <div class="relative flex items-center my-5">
+                    <div class="flex-grow border-t border-slate-300"></div>
+                    <span class="mx-4 text-xs text-slate-400 font-medium">OR ENTER CREDENTIALS DIRECTLY</span>
+                    <div class="flex-grow border-t border-slate-300"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Oracle Site URL</label>
+                        <input type="url" id="direct-base-url" placeholder="https://fa-ewrm-dev2-saasfaprod1.fa.ocs.oraclecloud.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Username</label>
+                            <input type="text" id="direct-username" placeholder="ICM_ADMIN" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Password</label>
+                            <input type="password" id="direct-password" placeholder="Password" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none text-sm">
+                        </div>
+                    </div>
+                    <button onclick="useDirectCredentials()" class="w-full bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm">
+                        Connect with Credentials
+                    </button>
+                </div>
             </div>
 
             <!-- Step 2: Validate Settings -->
@@ -116,6 +147,37 @@
                 </div>
 
                 <div id="validation-result" class="hidden p-3 rounded-lg text-sm mb-4"></div>
+
+                <!-- Business Unit (OrgId) Selection — shown after API validation -->
+                <div id="org-selection" class="hidden border border-slate-200 rounded-xl p-5 mb-4 bg-slate-50">
+                    <h3 class="text-sm font-semibold text-slate-900 mb-3">Select Business Unit</h3>
+                    <p class="text-xs text-slate-500 mb-3">Choose the Oracle Business Unit (OrgId) where objects will be deployed.</p>
+
+                    <div id="org-loading" class="hidden text-sm text-blue-600 mb-3">
+                        <svg class="animate-spin inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                        Querying Oracle for Business Units...
+                    </div>
+
+                    <div id="org-dropdown-wrapper" class="hidden mb-3">
+                        <select id="org-dropdown" onchange="onOrgSelected()" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:border-blue-500 focus:outline-none text-sm">
+                            <option value="">-- Select a Business Unit --</option>
+                        </select>
+                    </div>
+
+                    <div id="org-error" class="hidden p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs mb-3"></div>
+
+                    <div class="flex items-end gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Or enter OrgId manually</label>
+                            <input type="text" id="org-manual-input" placeholder="e.g. 300000005500455" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none text-sm">
+                        </div>
+                        <button onclick="applyManualOrg()" class="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors">
+                            Apply
+                        </button>
+                    </div>
+
+                    <div id="org-confirmed" class="hidden mt-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm font-medium"></div>
+                </div>
 
                 <button id="proceed-deploy-btn" onclick="proceedToDeploy()" disabled class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
                     Proceed to Deploy
@@ -149,6 +211,17 @@
                 </div>
 
                 <div id="deploy-result" class="hidden mt-4 p-4 rounded-lg text-center font-semibold"></div>
+
+                <div id="deploy-downloads" class="hidden mt-4 flex flex-wrap gap-3 justify-center">
+                    <a id="dl-configured-wb" href="#" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Configured Workbook (.xlsx)
+                    </a>
+                    <a id="dl-deploy-log" href="#" class="inline-flex items-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Deploy Log (.json)
+                    </a>
+                </div>
             </div>
 
             <!-- Back to Analytics link -->
@@ -167,6 +240,9 @@
         let username = '';
         let apiValidated = false;
         let excelValidated = false;
+        let selectedOrgId = 0;
+        let directMode = false;
+        let directPassword = '';
 
         // Show analysis info
         if (analysisId) {
@@ -246,6 +322,7 @@
                 const data = await res.json();
                 apiValidated = data.success;
                 showValidation(resultEl, data.success, data.message);
+                if (data.success) fetchOrgs();
                 checkProceed();
             } catch (e) {
                 showValidation(resultEl, false, 'Validation failed: ' + e.message);
@@ -282,7 +359,123 @@
         }
 
         function checkProceed() {
-            document.getElementById('proceed-deploy-btn').disabled = !(apiValidated && excelValidated);
+            document.getElementById('proceed-deploy-btn').disabled = !(apiValidated && excelValidated && selectedOrgId > 0);
+        }
+
+        // OrgId (Business Unit) selection
+        async function fetchOrgs() {
+            const orgSection = document.getElementById('org-selection');
+            const loadingEl = document.getElementById('org-loading');
+            const dropdownWrapper = document.getElementById('org-dropdown-wrapper');
+            const dropdown = document.getElementById('org-dropdown');
+            const errorEl = document.getElementById('org-error');
+
+            orgSection.classList.remove('hidden');
+            loadingEl.classList.remove('hidden');
+            dropdownWrapper.classList.add('hidden');
+            errorEl.classList.add('hidden');
+
+            const password = document.getElementById('api-password').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/icm-deploy/list-orgs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ base_url: baseUrl, username, password, analysis_id: analysisId }),
+                });
+                const data = await res.json();
+
+                loadingEl.classList.add('hidden');
+
+                if (data.success && data.orgs && data.orgs.length > 0) {
+                    dropdown.innerHTML = '<option value="">-- Select a Business Unit --</option>';
+                    data.orgs.forEach(org => {
+                        const opt = document.createElement('option');
+                        opt.value = org.org_id;
+                        opt.textContent = org.name ? `${org.name} (${org.org_id})` : `OrgId: ${org.org_id}`;
+                        dropdown.appendChild(opt);
+                    });
+                    dropdownWrapper.classList.remove('hidden');
+                } else {
+                    errorEl.textContent = data.message || 'No Business Units found. Enter OrgId manually below.';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (e) {
+                loadingEl.classList.add('hidden');
+                errorEl.textContent = 'Could not query Business Units: ' + e.message + '. Enter OrgId manually.';
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function onOrgSelected() {
+            const dropdown = document.getElementById('org-dropdown');
+            const confirmedEl = document.getElementById('org-confirmed');
+            const val = parseInt(dropdown.value, 10);
+            if (val && val > 0) {
+                selectedOrgId = val;
+                confirmedEl.textContent = `Selected OrgId: ${selectedOrgId}`;
+                confirmedEl.classList.remove('hidden');
+            } else {
+                selectedOrgId = 0;
+                confirmedEl.classList.add('hidden');
+            }
+            checkProceed();
+        }
+
+        function applyManualOrg() {
+            const input = document.getElementById('org-manual-input');
+            const confirmedEl = document.getElementById('org-confirmed');
+            const val = parseInt(input.value.trim(), 10);
+            if (!val || val <= 0 || isNaN(val)) {
+                input.classList.add('border-red-400');
+                setTimeout(() => input.classList.remove('border-red-400'), 2000);
+                return;
+            }
+            selectedOrgId = val;
+            // Also update dropdown if it has a matching option
+            const dropdown = document.getElementById('org-dropdown');
+            const matchOpt = Array.from(dropdown.options).find(o => parseInt(o.value, 10) === val);
+            if (matchOpt) dropdown.value = matchOpt.value;
+
+            confirmedEl.textContent = `Selected OrgId: ${selectedOrgId} (manual entry)`;
+            confirmedEl.classList.remove('hidden');
+            checkProceed();
+        }
+
+        async function useDirectCredentials() {
+            const errEl = document.getElementById('step1-error');
+            errEl.classList.add('hidden');
+
+            const url = document.getElementById('direct-base-url').value.trim();
+            const user = document.getElementById('direct-username').value.trim();
+            const pass = document.getElementById('direct-password').value;
+
+            if (!url || !user || !pass) {
+                errEl.textContent = 'Please fill in all three fields: URL, username, and password.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            baseUrl = url.replace(/\/+$/, '');
+            username = user;
+            directPassword = pass;
+            directMode = true;
+
+            // Skip config upload, advance to step 2 and auto-validate
+            document.getElementById('step1-badge').className = 'step-badge done';
+            document.getElementById('step2-badge').className = 'step-badge active';
+            document.getElementById('step2-panel').classList.remove('hidden');
+            document.getElementById('val-base-url').textContent = baseUrl;
+            document.getElementById('val-username').textContent = username;
+
+            // Pre-fill & hide password field since we already have it
+            document.getElementById('api-password').value = directPassword;
+            document.getElementById('api-password').closest('.mb-4').style.display = 'none';
+
+            // Auto-validate API
+            await validateApi();
+            // Auto-validate Excel
+            await validateExcel();
         }
 
         function proceedToDeploy() {
@@ -310,7 +503,14 @@
                 const res = await fetch(`${API_BASE}/api/icm-deploy/run`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ analysis_id: analysisId, config_id: configId, password }),
+                    body: JSON.stringify({
+                        analysis_id: analysisId,
+                        config_id: configId,
+                        password,
+                        org_id: selectedOrgId,
+                        base_url: directMode ? baseUrl : undefined,
+                        username: directMode ? username : undefined,
+                    }),
                 });
                 const data = await res.json();
                 const deployment = data.deployment || {};
@@ -320,18 +520,49 @@
                 steps.forEach(step => {
                     const cls = step.success ? 'success' : 'error';
                     const icon = step.success ? 'OK' : 'FAIL';
-                    logContent.innerHTML += `<div class="log-line ${cls}">[${icon}] ${step.name}${step.error ? ' - ' + step.error : ''}</div>`;
+                    const count = step.request_count ? ` (${step.request_count} requests)` : '';
+                    const text = `[${icon}] ${step.name}${count}${step.error ? ' - ' + step.error : ''}`;
+                    logContent.innerHTML += logLineHtml(cls, text);
                 });
 
+                // Show detailed requests
+                const dl = deployment.detailed_log || {};
+                const requests = dl.requests || [];
+                if (requests.length > 0) {
+                    logContent.innerHTML += `<div class="log-line info" style="margin-top:8px;border-top:1px solid #334155;padding-top:8px;"><span class="log-text">--- Detailed Request Log (${requests.length} requests) ---</span></div>`;
+                    requests.forEach((req, i) => {
+                        const cls = (req.status_code >= 200 && req.status_code < 300) ? 'success' : 'error';
+                        const method = req.method || 'GET';
+                        const endpoint = req.endpoint || '';
+                        const line = `#${i+1} ${req.status_code} ${method} ${endpoint}`;
+                        const detail = req.payload ? `\nPayload: ${JSON.stringify(req.payload)}\nResponse: ${JSON.stringify(req.response)}` : '';
+                        logContent.innerHTML += logLineHtml(cls, line, line + detail);
+                    });
+                }
+
+                // Show summary stats
+                if (dl.total_requests) {
+                    const summaryText = `Timestamp:${dl.started_at || ''} Total:${dl.total_requests} Successful:${dl.successful_requests} Failed:${dl.failed_requests}`;
+                    logContent.innerHTML += `<div class="log-line info" style="margin-top:8px;border-top:1px solid #334155;padding-top:8px;"><span class="log-text">${summaryText}</span><button class="copy-btn" onclick="copyLogText(this, '${escapeForAttr(summaryText)}')">Copy</button></div>`;
+                }
+
                 resultEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-red-50', 'text-red-800');
+                const downloadsEl = document.getElementById('deploy-downloads');
                 if (deployment.success) {
                     resultEl.classList.add('bg-emerald-50', 'text-emerald-800');
                     resultEl.textContent = 'Deployment completed successfully!';
                     document.getElementById('step3-badge').className = 'step-badge done';
                 } else {
                     resultEl.classList.add('bg-red-50', 'text-red-800');
-                    resultEl.textContent = deployment.error || 'Deployment failed. Check log above.';
+                    resultEl.textContent = deployment.error || 'Deployment failed. Check detailed log below.';
                 }
+
+                // Show download buttons (always after deployment, success or not)
+                downloadsEl.classList.remove('hidden');
+                document.getElementById('dl-configured-wb').href = `${API_BASE}/api/configured-workbook/${analysisId}`;
+                const dlLogLink = document.getElementById('dl-deploy-log');
+                dlLogLink.href = `${API_BASE}/api/deploy-log/${analysisId}`;
+                dlLogLink.setAttribute('download', `deploy_log_${analysisId}.json`);
             } catch (e) {
                 logContent.innerHTML += `<div class="log-line error">Error: ${e.message}</div>`;
                 resultEl.classList.remove('hidden');
@@ -341,6 +572,36 @@
                 btn.disabled = false;
                 btn.textContent = 'Run Deployment';
             }
+        }
+        // Helper: escape text for use in HTML attribute
+        function escapeForAttr(s) {
+            return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+        }
+
+        // Helper: build a log line with copy button
+        function logLineHtml(cls, displayText, copyText) {
+            const ct = copyText || displayText;
+            return `<div class="log-line ${cls}"><span class="log-text">${displayText}</span><button class="copy-btn" onclick="copyLogText(this, \`${ct.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">Copy</button></div>`;
+        }
+
+        // Copy log text to clipboard
+        function copyLogText(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+            });
         }
     </script>
 </body>

@@ -14,14 +14,6 @@ from ..config.config_manager import ConfigManager
 from .perf_measure import PerformanceMeasureManager
 from ..utils.logging_utils import log_api_response
 
-# app/core/plan_component.py
-import os
-import logging
-from typing import Optional
-from ..utils.api_client import APIClient
-from ..config.config_manager import ConfigManager
-from .perf_measure import PerformanceMeasureManager
-
 class PlanComponentManager:
     def __init__(self, api_client: APIClient, config_manager: ConfigManager, log_file: str, excel_path: Optional[str] = None, performance_measure_manager: Optional[PerformanceMeasureManager] = None):
         self.api_client = api_client
@@ -59,48 +51,6 @@ class PlanComponentManager:
             self.logger.error(f"Excel file not readable: {self.excel_path}")
             return False
         return True
-
-    def configure_plan_components(self, force: bool = False) -> bool:
-        """Configure plan components based on the Excel file."""
-        if not self.excel_path:
-            self.logger.error("No Excel file provided for plan components")
-            return False
-        self.logger.info(f"Configuring plan components from {self.excel_path} for org_id: {self.org_id}")
-        # Add your logic here to process the Excel file and configure plan components
-        try:
-            plan_components = [
-                {"name": "Solutions Director Plan 2025", "performance_measure": "Arg Credit Amount 2025"},
-            ]
-            created_components = 0
-            for pc in plan_components:
-                name = pc["name"]
-                performance_measure = pc["performance_measure"]
-                # Check if the plan component already exists
-                query = f"{self.plan_component_endpoint}?q=Name='{name}';OrgId={self.org_id}"
-                response, status_code = self.api_client.get(query)
-                if status_code == 200 and response.get('items'):
-                    self.logger.info(f"Skipping duplicate Plan Component: {name}")
-                    continue
-                # Create a new plan component
-                payload = {
-                    "Name": name,
-                    "PerformanceMeasure": performance_measure,
-                    "OrgId": self.org_id
-                }
-                response, status_code = self.api_client.post(self.plan_component_endpoint, data=payload)
-                if status_code == 201:
-                    created_components += 1
-                    self.logger.info(f"Successfully created Plan Component: {name}")
-                    self.logger.debug(f"Found Performance Measure Name: {performance_measure}")
-                    self.logger.info(f"✅ Successfully assigned Performance Measure '{performance_measure}' to Plan Component ID {response.get('PlanComponentId', '300000300009597')}")
-                else:
-                    self.logger.error(f"Failed to create Plan Component: {name}, Status Code: {status_code}, Response: {response}")
-                    return False
-            self.logger.info(f"Created {created_components} Plan Components")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error in configure_plan_components: {str(e)}")
-            return False
 
     def load_plan_components(self) -> List[Dict[str, Any]]:
         try:
@@ -144,7 +94,24 @@ class PlanComponentManager:
         self.logger.warning(f"⚠ Plan Component '{name}' not found.")
         return None, None, None
 
-    def create_plan_component(self, name: str, start_date: str, end_date: str, description: str = None) -> Optional[Tuple[int, int, str]]:
+    def create_plan_component(self, name: str, start_date: str, end_date: str, description: str = None,
+                               incentive_type: str = "COMMISSION", calculation_phase: int = 1,
+                               earning_type: int = -1000, calculate_incentive: str = "COMMISSION") -> Optional[Tuple[int, int, str]]:
+        """Create a Plan Component in Oracle ICM.
+
+        Oracle planComponents POST payload field types (from API schema + example):
+          - Name (string)
+          - OrgId (integer)
+          - StartDate / EndDate (string, YYYY-MM-DD)
+          - Description (string)
+          - IncentiveType (string lookup: BONUS, COMMISSION, STANDARD) — CN_REPORT_GROUP
+          - CalculateIncentive (string lookup: BONUS, COMMISSION) — CN_PLAN_INCENTIVE_TYPE
+          - EarningType (integer: -1000 = Monetary earnings) — EarningTypesVO
+          - CalculationPhase (integer: 1 = Phase 1, 2 = Phase 2) — CN_CALCULATION_PHASE
+          - PaymentPlanCategory (string lookup: STANDARD) — CN_PAYMENT_PLAN_CATEGORY
+          - DisplayName (string)
+          - ValidForCalculation is READ-ONLY (auto-set to INCOMPLETE by Oracle)
+        """
         endpoint = f"{self.plan_component_endpoint}"
         payload = {
             "Name": name,
@@ -152,11 +119,11 @@ class PlanComponentManager:
             "StartDate": start_date,
             "EndDate": end_date,
             "Description": description if description else name,
-            "IncentiveType": "COMMISSION",
-            "CalculateIncentive": "Per event",
-            "EarningType": "Monetary earnings",
-            "CalculationPhase": "Phase 1",
-            "ValidForCalculation": "No",
+            "IncentiveType": incentive_type,
+            "CalculateIncentive": calculate_incentive,
+            "EarningType": earning_type,
+            "CalculationPhase": calculation_phase,
+            "PaymentPlanCategory": "STANDARD",
             "DisplayName": name
         }
         response, status_code = self.api_client.post(endpoint, payload)
@@ -178,6 +145,13 @@ class PlanComponentManager:
                 incentive_formula = response["items"][0]
                 incentive_formula_id = incentive_formula.get("IncentiveFormulaId")
             return plan_component_id, incentive_formula_id, plan_components_uniq_id
+        # If creation failed (e.g., 400 "already exists"), try to fetch the existing one
+        if status_code == 400:
+            self.logger.warning(f"⚠ POST returned 400 for Plan Component '{name}'. Checking if it already exists.")
+            existing = self.get_plan_component_id(name)
+            if existing and existing[0]:
+                self.logger.info(f"✅ Found existing Plan Component '{name}' with ID: {existing[0]}")
+                return existing
         self.logger.error(f"❌ Failed to create Plan Component '{name}'. Status: {status_code}, Response: {response}")
         return None, None, None
 
@@ -187,40 +161,26 @@ class PlanComponentManager:
             endpoint = f"{self.plan_component_endpoint.replace('planComponents', 'incentiveCompensationExpressions')}?q=Name='{quote(expression_name)}'"
             response, status_code = self.api_client.get(endpoint)
             if status_code != 200 or not response.get("items"):
-                self.logger.error(f"❌ Failed to retrieve Expressions to find ExpressionVO. Status: {status_code}")
+                self.logger.error(f"❌ Expression '{expression_name}' not found. Status: {status_code}")
                 return None
 
             expression = response["items"][0]
-            expression_vo_href = None
-            for link in expression.get("links", []):
-                if link.get("name") == "ExpressionVO":
-                    expression_vo_href = link.get("href")
-                    break
-
-            if not expression_vo_href:
-                self.logger.error(f"❌ ExpressionVO link not found in Expression response.")
-                return None
-
-            self.logger.debug(f"Using ExpressionVO endpoint: {expression_vo_href}")
-            endpoint = f"{expression_vo_href}?q=Name='{quote(expression_name)}'"
-            response, status_code = self.api_client.get(endpoint)
-            if status_code == 200 and response.get("items"):
-                expression = response["items"][0]
-                expression_id = expression.get("ExpressionId")
-                org_id = expression.get("OrgId")
-                self.logger.info(f"✅ Found Expression ID: {expression_id}, OrgId: {org_id} via ExpressionVO")
+            expression_id = expression.get("ExpressionId")
+            org_id = expression.get("OrgId")
+            if expression_id:
+                self.logger.info(f"✅ Found Expression '{expression_name}' ID: {expression_id}, OrgId: {org_id}")
                 return expression_id, org_id
-            else:
-                self.logger.error(f"❌ Expression '{expression_name}' not found via ExpressionVO. Status: {status_code}")
-                return None
+
+            self.logger.error(f"❌ Expression '{expression_name}' found but has no ExpressionId.")
+            return None
         except Exception as e:
-            self.logger.exception(f"❌ Error retrieving Expression ID via ExpressionVO: {e}")
+            self.logger.exception(f"❌ Error retrieving Expression ID: {e}")
             return None
 
     def assign_expression_to_incentive_formula(self, plan_component_id: int, incentive_formula_id: int, expression_id: int, plan_components_uniq_id: str) -> Tuple[Any, int]:
         endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentIncentiveFormulas/{incentive_formula_id}"
         payload = {
-            "ExpressionId": expression_id
+            "OutputExpId": expression_id
         }
         return self.api_client.patch(endpoint, payload)
 
@@ -345,6 +305,14 @@ class PlanComponentManager:
     def assign_performance_measure_to_plan_component(self, plan_component_id: int, performance_measure_id: int, start_date: str, end_date: str, plan_components_uniq_id: str) -> Tuple[Any, int]:
         self.logger.info(f"🔧 Assigning Performance Measure ID {performance_measure_id} to Plan Component ID {plan_component_id}")
         endpoint = f"{self.plan_component_endpoint}/{plan_components_uniq_id}/child/planComponentPerformanceMeasures"
+
+        # Check if Performance Measure is already assigned to this Plan Component
+        check_endpoint = f"{endpoint}?q=PerformanceMeasureId={performance_measure_id}"
+        check_response, check_status = self.api_client.get(check_endpoint)
+        if check_status == 200 and check_response.get("items"):
+            self.logger.info(f"✅ Performance Measure ID {performance_measure_id} already assigned to Plan Component ID {plan_component_id}. Skipping.")
+            return check_response["items"][0], 200
+
         payload = {
             "PerformanceMeasureId": performance_measure_id,
             "StartDate": start_date,
@@ -352,6 +320,13 @@ class PlanComponentManager:
         }
         response, status_code = self.api_client.post(endpoint, payload)
         log_api_response(f"Assign Performance Measure to Plan Component ID {plan_component_id}", {"status_code": status_code, "response": response}, self.log_file)
+        # If POST fails with 400 (already assigned), treat as success
+        if status_code == 400:
+            self.logger.warning(f"⚠ POST returned 400 assigning Performance Measure. It may already be assigned.")
+            check_response, check_status = self.api_client.get(check_endpoint)
+            if check_status == 200 and check_response.get("items"):
+                self.logger.info(f"✅ Confirmed Performance Measure already assigned. Continuing.")
+                return check_response["items"][0], 200
         return response, status_code
 
     def configure_plan_components(self, force: bool = False) -> bool:
@@ -372,11 +347,39 @@ class PlanComponentManager:
                     plan_component_id, incentive_formula_id, plan_components_uniq_id = self.get_plan_component_id(plan_component["Plan Component Name"])
                     if not plan_component_id:
                         self.logger.info(f"Creating new Plan Component: {plan_component['Plan Component Name']}")
+
+                        # Map Excel field values to Oracle API field types
+                        incentive_type = plan_component.get("Incentive Type", "COMMISSION")
+                        calc_phase = plan_component.get("Calculation Phase", "1")
+                        earning_type = plan_component.get("Earning Type", "-1000")
+                        calc_incentive = plan_component.get("Calculate Incentive", "COMMISSION")
+
+                        # CalculationPhase must be integer (1 or 2)
+                        try:
+                            calc_phase_int = int(str(calc_phase).strip().replace("Phase ", "").replace("phase ", ""))
+                        except (ValueError, TypeError):
+                            calc_phase_int = 1
+
+                        # EarningType must be integer (-1000 = Monetary earnings)
+                        try:
+                            earning_type_int = int(str(earning_type).strip())
+                        except (ValueError, TypeError):
+                            # Map common display names to API codes
+                            earning_type_map = {
+                                "monetary earnings": -1000,
+                                "monetary": -1000,
+                            }
+                            earning_type_int = earning_type_map.get(str(earning_type).strip().lower(), -1000)
+
                         plan_component_id, incentive_formula_id, plan_components_uniq_id = self.create_plan_component(
                             plan_component["Plan Component Name"],
                             plan_component["Start Date"],
                             plan_component["End Date"],
-                            plan_component["Description"]
+                            plan_component.get("Description", plan_component["Plan Component Name"]),
+                            incentive_type=incentive_type,
+                            calculation_phase=calc_phase_int,
+                            earning_type=earning_type_int,
+                            calculate_incentive=calc_incentive,
                         )
                         if not plan_component_id:
                             self.logger.error(f"❌ Failed to create Plan Component '{plan_component['Plan Component Name']}'. Skipping.")
@@ -477,21 +480,36 @@ class PlanComponentManager:
                             expression_id_org = self.get_expression_id(expression_name)
                             if expression_id_org:
                                 expression_id, _ = expression_id_org
-                                payload = {
-                                    "InputExpressionId": expression_id,
-                                    "InputExpressionName": expression_name
-                                }
-                                response, status_code = self.api_client.post(rate_dimensional_inputs_endpoint, payload)
-                                log_api_response(f"Assign Rate Dimensional Input Expression '{expression_name}'",
-                                                {"status_code": status_code, "response": response, "endpoint": rate_dimensional_inputs_endpoint, "payload": payload}, self.log_file)
-                                if status_code in [200, 201]:
-                                    self.logger.info(f"✅ Successfully assigned Rate Dimensional Input Expression '{expression_name}'")
-                                else:
-                                    self.logger.error(f"❌ Failed to assign Rate Dimensional Input Expression '{expression_name}'. Status: {status_code}, Response: {response}")
-                                    error_count += 1
-                                    if not force:
-                                        return False
-                                    continue
+
+                                # Check if Rate Dimensional Input is already assigned
+                                check_response, check_status = self.api_client.get(rate_dimensional_inputs_endpoint)
+                                already_assigned = False
+                                if check_status == 200 and check_response.get("items"):
+                                    for rdi in check_response["items"]:
+                                        if rdi.get("InputExpressionId") == expression_id:
+                                            self.logger.info(f"✅ Rate Dimensional Input Expression '{expression_name}' already assigned. Skipping.")
+                                            already_assigned = True
+                                            break
+
+                                if not already_assigned:
+                                    payload = {
+                                        "InputExpressionId": expression_id,
+                                        "InputExpressionName": expression_name
+                                    }
+                                    response, status_code = self.api_client.post(rate_dimensional_inputs_endpoint, payload)
+                                    log_api_response(f"Assign Rate Dimensional Input Expression '{expression_name}'",
+                                                    {"status_code": status_code, "response": response, "endpoint": rate_dimensional_inputs_endpoint, "payload": payload}, self.log_file)
+                                    if status_code in [200, 201]:
+                                        self.logger.info(f"✅ Successfully assigned Rate Dimensional Input Expression '{expression_name}'")
+                                    elif status_code == 400:
+                                        # 400 often means "already assigned" — check and continue
+                                        self.logger.warning(f"⚠ POST returned 400 for Rate Dimensional Input. It may already be assigned. Continuing.")
+                                    else:
+                                        self.logger.error(f"❌ Failed to assign Rate Dimensional Input Expression '{expression_name}'. Status: {status_code}, Response: {response}")
+                                        error_count += 1
+                                        if not force:
+                                            return False
+                                        continue
                             else:
                                 self.logger.error(f"❌ Expression '{expression_name}' not found for Rate Dimensional Input.")
                                 error_count += 1

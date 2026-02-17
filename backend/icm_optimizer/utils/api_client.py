@@ -24,7 +24,11 @@ class APIClient:
         # Ensure endpoint is a relative path
         if endpoint.startswith('/'):
             endpoint = endpoint[1:]
-        # Construct the full URL, checking for API path duplication
+        # Strip the api_path prefix from endpoint if it's already there (Bug B fix)
+        api_prefix = self.api_path.lstrip('/')
+        if endpoint.startswith(api_prefix):
+            endpoint = endpoint[len(api_prefix):].lstrip('/')
+        # Construct the full URL
         full_url = self.base_url
         if not full_url.endswith(self.api_path):
             full_url += self.api_path
@@ -48,7 +52,14 @@ class APIClient:
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Request Error in GET request to {url}: {str(e)}")
             self.logger.error(f"{e.response.status_code if e.response else 'No response'} Error Details: {e.response.text if e.response else ''}")
-            return None, e.response.status_code if e.response else 400
+            status = e.response.status_code if e.response else 400
+            error_body = {"error": str(e), "message": str(e)}
+            if e.response is not None:
+                try:
+                    error_body = e.response.json()
+                except Exception:
+                    error_body["detail"] = e.response.text
+            return error_body, status
 
     def post(self, endpoint: str, data: dict) -> Tuple[Any, int]:
         """Perform a POST request to the specified endpoint with data."""
@@ -68,7 +79,14 @@ class APIClient:
             self.logger.error(f"Request Error in POST request to {url}: {str(e)}")
             self.logger.error(f"{e.response.status_code if e.response else 'No response'} Error Details: {e.response.text if e.response else ''}")
             self.logger.error(f"Payload: {data}")
-            return None, e.response.status_code if e.response else 400
+            status = e.response.status_code if e.response else 400
+            error_body = {"error": str(e), "message": str(e)}
+            if e.response is not None:
+                try:
+                    error_body = e.response.json()
+                except Exception:
+                    error_body["detail"] = e.response.text
+            return error_body, status
 
     def patch(self, endpoint: str, data: dict) -> Tuple[Any, int]:
         """Perform a PATCH request to the specified endpoint with data."""
@@ -88,7 +106,14 @@ class APIClient:
             self.logger.error(f"Request Error in PATCH request to {url}: {str(e)}")
             self.logger.error(f"{e.response.status_code if e.response else 'No response'} Error Details: {e.response.text if e.response else ''}")
             self.logger.error(f"Payload: {data}")
-            return None, e.response.status_code if e.response else 400
+            status = e.response.status_code if e.response else 400
+            error_body = {"error": str(e), "message": str(e)}
+            if e.response is not None:
+                try:
+                    error_body = e.response.json()
+                except Exception:
+                    error_body["detail"] = e.response.text
+            return error_body, status
 
     def create_api_client_from_config(config):
         """

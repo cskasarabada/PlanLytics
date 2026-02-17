@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICM End-to-End - ICM PlanLytics</title>
+    <meta name="description" content="Full lifecycle Oracle ICM configuration: analyze plans, generate documents, export XML, run efficiency analysis, and deploy via REST.">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --slate: #334155;
+            --mist: #f8fafc;
+        }
+        body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
+        h1, h2, h3, h4, .display-font { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Workflow rail */
+        .wf-step {
+            position: relative;
+            padding-left: 3rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .wf-step::before {
+            content: attr(data-step);
+            position: absolute; left: 0; top: .15rem;
+            width: 2rem; height: 2rem; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .75rem;
+            background: #e2e8f0; color: #94a3b8;
+            transition: all .2s;
+        }
+        .wf-step.active::before { background: #3b82f6; color: #fff; }
+        .wf-step.done::before  { background: #22c55e; color: #fff; }
+        .wf-step .wf-title { font-weight: 600; font-size: .875rem; color: #64748b; transition: color .2s; }
+        .wf-step.active .wf-title,
+        .wf-step.done .wf-title { color: var(--ink); }
+        .wf-step .wf-sub { font-size: .75rem; color: #94a3b8; }
+        .wf-step + .wf-step { margin-top: 1rem; }
+        .wf-step + .wf-step::after {
+            content: '';
+            position: absolute; left: .95rem; top: -1rem;
+            width: 2px; height: 1rem;
+            background: #e2e8f0;
+        }
+        .wf-step.done + .wf-step::after { background: #22c55e; }
+
+        /* Tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Console */
+        .console-box {
+            font-family: 'Courier New', monospace;
+            font-size: .8rem;
+            line-height: 1.5;
+            background: #0f172a;
+            color: #6ee7b7;
+            border-radius: .75rem;
+            padding: 1rem;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        /* Cards */
+        .glass {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(226,232,240,0.9);
+            box-shadow: 0 12px 32px rgba(15,23,42,0.07);
+        }
+        .artifact-btn {
+            display: flex; align-items: center; gap: .5rem;
+            padding: .625rem 1rem; border-radius: .5rem;
+            font-size: .8125rem; font-weight: 600;
+            transition: all .15s;
+            width: 100%;
+        }
+        .artifact-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+        .artifact-btn svg { flex-shrink: 0; width: 1rem; height: 1rem; }
+
+        /* Progress track */
+        .progress-track { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); transition: width .5s ease; }
+
+        /* Deploy step log */
+        .deploy-log-line { font-family: 'Courier New', monospace; font-size: .8rem; padding: .25rem 0; }
+        .deploy-log-line.ok { color: #22c55e; }
+        .deploy-log-line.fail { color: #ef4444; }
+        .deploy-log-line.info { color: #60a5fa; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-white to-blue-50 min-h-screen">
+
+    <!-- Nav -->
+    <nav class="bg-white/90 backdrop-blur shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">ICM</span>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full ml-2">E2E</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-5 whitespace-nowrap text-sm">
+                    <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
+                    <a href="icm-e2e.html" class="text-blue-600 font-medium">ICM E2E</a>
+                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
+                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
+                    <button id="nav-auth-btn" data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
+                        Sign in
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2" style="font-family:'Space Grotesk',sans-serif">Sign in to ICM PlanLytics</h3>
+            <p class="text-gray-600 mb-6">Access your workspace with demo or paid credentials.</p>
+            <form id="role-form" class="space-y-4">
+                <div>
+                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign in</button>
+            </form>
+            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <main class="pt-24 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-slate-500 mb-4">
+                    Oracle ICM &mdash; Full Lifecycle
+                </div>
+                <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-3">ICM End-to-End</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">
+                    From compensation plan document to live Oracle ICM deployment &mdash;
+                    five connected stages, one workspace.
+                </p>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="max-w-2xl mx-auto mb-10">
+                <div class="progress-track">
+                    <div id="global-progress" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 mt-1">
+                    <span>Analyze</span><span>Documents</span><span>XML</span><span>Efficiency</span><span>Deploy</span>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-[260px_1fr] gap-8">
+
+                <!-- Left rail: workflow steps -->
+                <aside class="space-y-0">
+                    <div class="wf-step active" data-step="1" data-tab="plan-agent" onclick="goTab('plan-agent',0)">
+                        <div class="wf-title">Plan Agent</div>
+                        <div class="wf-sub">Upload &amp; analyze with AI</div>
+                    </div>
+                    <div class="wf-step" data-step="2" data-tab="documents" onclick="goTab('documents',1)">
+                        <div class="wf-title">Documents &amp; Config</div>
+                        <div class="wf-sub">Excel, Design &amp; Config docs</div>
+                    </div>
+                    <div class="wf-step" data-step="3" data-tab="xml-export" onclick="goTab('xml-export',2)">
+                        <div class="wf-title">Generate XML</div>
+                        <div class="wf-sub">IcCnPlanCopy for Oracle upload</div>
+                    </div>
+                    <div class="wf-step" data-step="4" data-tab="efficiency" onclick="goTab('efficiency',3)">
+                        <div class="wf-title">Efficiency Report</div>
+                        <div class="wf-sub">Analyze current XML &amp; optimize</div>
+                    </div>
+                    <div class="wf-step" data-step="5" data-tab="deploy" onclick="goTab('deploy',4)">
+                        <div class="wf-title">Deploy via REST</div>
+                        <div class="wf-sub">Migrate configs to Oracle ICM</div>
+                    </div>
+                </aside>
+
+                <!-- Right: tab panels -->
+                <div>
+
+                    <!-- ═══════════════════ TAB 1 — PLAN AGENT ═══════════════════ -->
+                    <section id="panel-plan-agent" class="tab-panel active">
+                        <div class="glass rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Plan Agent</h2>
+                                    <p class="text-sm text-slate-500">Upload a compensation plan and let AI map it to Oracle ICM objects</p>
+                                </div>
+                            </div>
+
+                            <!-- Input method sub-tabs -->
+                            <div class="flex border-b border-slate-200 mb-6 text-sm">
+                                <button class="pa-tab px-4 py-2 font-medium border-b-2 border-blue-600 text-blue-600" data-pa="file" onclick="switchPA('file')">Upload File</button>
+                                <button class="pa-tab px-4 py-2 font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700" data-pa="url" onclick="switchPA('url')">Web URL</button>
+                                <button class="pa-tab px-4 py-2 font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700" data-pa="text" onclick="switchPA('text')">Paste Text</button>
+                                <button class="pa-tab px-4 py-2 font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700" data-pa="xml" onclick="switchPA('xml')">Import XML</button>
+                            </div>
+
+                            <!-- File -->
+                            <div data-pa-panel="file">
+                                <div id="pa-dropzone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-4">
+                                    <svg class="mx-auto h-10 w-10 text-slate-400 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <div class="text-slate-900 font-medium mb-1">Drop your compensation plan document</div>
+                                    <div class="text-xs text-slate-400">PDF, DOCX, XLSX, TXT up to 50 MB</div>
+                                    <input type="file" id="pa-file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt,.csv,.md">
+                                </div>
+                                <div id="pa-file-info" class="hidden mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 font-medium text-sm"></div>
+                                <button id="pa-file-btn" onclick="runPlanAgent('file')" disabled class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
+                                    Analyze Document
+                                </button>
+                            </div>
+
+                            <!-- URL -->
+                            <div data-pa-panel="url" class="hidden">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Plan document URL</label>
+                                    <input type="url" id="pa-url-input" placeholder="https://docs.google.com/document/d/..."
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                    <div class="text-xs text-slate-400 mt-1">Google Docs, PDF links, company wiki, any web page</div>
+                                </div>
+                                <button onclick="runPlanAgent('url')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Fetch &amp; Analyze
+                                </button>
+                            </div>
+
+                            <!-- Text -->
+                            <div data-pa-panel="text" class="hidden">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Paste plan text or ChatGPT output</label>
+                                    <textarea id="pa-text-input" rows="7" placeholder="Paste your compensation plan description here..."
+                                              class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-y"></textarea>
+                                </div>
+                                <button onclick="runPlanAgent('text')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Analyze Text
+                                </button>
+                            </div>
+
+                            <!-- XML Import -->
+                            <div data-pa-panel="xml" class="hidden">
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-4">
+                                    Direct import from Oracle ICM XML export &mdash; no AI needed. Extracts plan structure and generates the ICM workbook instantly.
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Oracle ICM Plan Export (.xml)</label>
+                                    <input type="file" id="pa-xml-input" accept=".xml"
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Target Plan Year (optional)</label>
+                                    <input type="number" id="pa-xml-year" placeholder="e.g. 2026"
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                </div>
+                                <button onclick="runPlanAgent('xml')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Import &amp; Generate
+                                </button>
+                            </div>
+
+                            <!-- Console output -->
+                            <div id="pa-console-wrap" class="hidden mt-6">
+                                <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Analysis Console</div>
+                                <div id="pa-console" class="console-box"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══════════════════ TAB 2 — DOCUMENTS & CONFIG ═══════════════════ -->
+                    <section id="panel-documents" class="tab-panel">
+                        <div class="glass rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Documents &amp; Config</h2>
+                                    <p class="text-sm text-slate-500">Download the generated Excel workbook and design/config documents</p>
+                                </div>
+                            </div>
+
+                            <div id="docs-empty" class="text-center py-12 text-slate-400">
+                                <svg class="mx-auto h-12 w-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                <p class="font-medium">Run the Plan Agent first</p>
+                                <p class="text-sm">Artifacts will appear here after analysis</p>
+                            </div>
+
+                            <div id="docs-content" class="hidden">
+                                <!-- Summary strip -->
+                                <div id="docs-summary" class="grid grid-cols-3 gap-3 mb-6 text-center"></div>
+
+                                <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Downloadable Artifacts</div>
+                                <div class="grid sm:grid-cols-2 gap-3">
+                                    <button onclick="dlArtifact('design-doc')" class="artifact-btn bg-indigo-600 text-white">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                        Design Document (.docx)
+                                    </button>
+                                    <button onclick="dlArtifact('config-doc')" class="artifact-btn bg-violet-600 text-white">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                        Configuration Document (.docx)
+                                    </button>
+                                    <button onclick="dlArtifact('icm-workbook')" class="artifact-btn bg-slate-800 text-white">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                        ICM Workbook &mdash; 12 sheets (.xlsx)
+                                    </button>
+                                    <button onclick="dlArtifact('efficiency-report')" class="artifact-btn bg-amber-600 text-white">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                        Efficiency Report (.docx)
+                                    </button>
+                                </div>
+
+                                <!-- Object map preview -->
+                                <div class="mt-6">
+                                    <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Oracle ICM Object Map</div>
+                                    <div id="docs-object-map" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm"></div>
+                                </div>
+
+                                <!-- Warnings -->
+                                <div id="docs-warnings" class="hidden mt-6">
+                                    <div class="text-xs uppercase tracking-wide text-amber-600 mb-2">Validation Warnings</div>
+                                    <div id="docs-warnings-list" class="space-y-1 text-sm text-amber-800"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══════════════════ TAB 3 — GENERATE XML ═══════════════════ -->
+                    <section id="panel-xml-export" class="tab-panel">
+                        <div class="glass rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Generate XML for Upload</h2>
+                                    <p class="text-sm text-slate-500">Export an IcCnPlanCopy XML compatible with Oracle Fusion ICM</p>
+                                </div>
+                            </div>
+
+                            <div id="xml-empty" class="text-center py-12 text-slate-400">
+                                <svg class="mx-auto h-12 w-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                <p class="font-medium">Run the Plan Agent first</p>
+                                <p class="text-sm">XML export will be available after analysis</p>
+                            </div>
+
+                            <div id="xml-content" class="hidden">
+                                <div class="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6">
+                                    <div class="flex items-center gap-2 text-teal-800 font-medium text-sm mb-1">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        XML export ready
+                                    </div>
+                                    <div class="text-sm text-teal-700" id="xml-info">Analysis ID: &mdash;</div>
+                                </div>
+
+                                <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Format</div>
+                                        <div class="text-sm text-slate-900 font-medium">IcCnPlanCopy XML</div>
+                                        <div class="text-xs text-slate-500 mt-1">Native Oracle Fusion import format</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-xl p-4">
+                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Usage</div>
+                                        <div class="text-sm text-slate-900 font-medium">Upload via Scheduled Process</div>
+                                        <div class="text-xs text-slate-500 mt-1">Run "Import Incentive Compensation Plans" in Fusion</div>
+                                    </div>
+                                </div>
+
+                                <button onclick="dlArtifact('export-xml')" class="w-full artifact-btn bg-teal-600 text-white justify-center py-3">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                    Download Oracle ICM XML (.xml)
+                                </button>
+
+                                <div class="mt-6 bg-slate-50 rounded-xl p-4">
+                                    <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">What's included</div>
+                                    <div id="xml-contents-list" class="grid grid-cols-2 gap-1 text-sm text-slate-700"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══════════════════ TAB 4 — EFFICIENCY ═══════════════════ -->
+                    <section id="panel-efficiency" class="tab-panel">
+                        <div class="glass rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Efficiency Report</h2>
+                                    <p class="text-sm text-slate-500">Analyze configuration quality and find optimization opportunities</p>
+                                </div>
+                            </div>
+
+                            <!-- Also allow importing a new XML here for standalone analysis -->
+                            <div id="eff-standalone" class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="text-sm font-medium text-slate-700 mb-2">Or analyze a different XML file</div>
+                                <div class="flex gap-2">
+                                    <input type="file" id="eff-xml-input" accept=".xml"
+                                           class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                                    <input type="number" id="eff-plan-year" placeholder="Year" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                                    <button onclick="runEfficiencyStandalone()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors whitespace-nowrap">
+                                        Analyze
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="eff-empty" class="text-center py-8 text-slate-400">
+                                <p class="font-medium">No efficiency data yet</p>
+                                <p class="text-sm">Run the Plan Agent or import an XML above</p>
+                            </div>
+
+                            <div id="eff-content" class="hidden">
+                                <!-- Score gauge -->
+                                <div class="flex items-center gap-6 mb-6">
+                                    <div class="text-center">
+                                        <div id="eff-score" class="text-5xl font-bold"></div>
+                                        <div class="text-sm text-slate-500">/100</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+                                            <div id="eff-bar" class="h-full rounded-full transition-all duration-700" style="width:0%"></div>
+                                        </div>
+                                        <div id="eff-summary-text" class="text-sm text-slate-600 mt-2"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Findings breakdown -->
+                                <div id="eff-findings" class="grid sm:grid-cols-4 gap-3 mb-6 text-center"></div>
+
+                                <button onclick="dlArtifact('efficiency-report')" class="w-full artifact-btn bg-amber-600 text-white justify-center py-3">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                    Download Efficiency Report (.docx)
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══════════════════ TAB 5 — DEPLOY VIA REST ═══════════════════ -->
+                    <section id="panel-deploy" class="tab-panel">
+                        <div class="glass rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Deploy via REST API</h2>
+                                    <p class="text-sm text-slate-500">Push ICM objects directly to your Oracle Fusion instance</p>
+                                </div>
+                            </div>
+
+                            <div id="deploy-empty" class="text-center py-8 text-slate-400">
+                                <p class="font-medium">Run the Plan Agent first, then approve the config</p>
+                                <p class="text-sm">Deployment requires an approved analysis</p>
+                            </div>
+
+                            <div id="deploy-main" class="hidden">
+                                <!-- Approval gate -->
+                                <div id="deploy-approval" class="mb-6 p-4 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="text-sm font-semibold text-amber-800">Approval Required</div>
+                                        <span id="deploy-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Pending</span>
+                                    </div>
+                                    <p class="text-sm text-amber-700 mb-3">Review the generated artifacts before deploying. Once approved, you can deploy via REST API.</p>
+                                    <div class="flex gap-2">
+                                        <button onclick="approveForDeploy()" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">Approve Config</button>
+                                        <button onclick="rejectForDeploy()" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">Reject</button>
+                                    </div>
+                                </div>
+
+                                <!-- Credentials -->
+                                <div id="deploy-creds" class="hidden">
+                                    <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Oracle Fusion ICM Credentials</div>
+                                    <div class="space-y-2 mb-4">
+                                        <input type="text" id="dep-base-url" placeholder="https://instance.fa.region.oraclecloud.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="text" id="dep-username" placeholder="Username" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                            <input type="password" id="dep-password" placeholder="Password" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                        </div>
+                                    </div>
+
+                                    <!-- Business Unit (OrgId) Selection -->
+                                    <div class="mb-4 p-4 border border-slate-200 rounded-xl bg-slate-50">
+                                        <div class="text-xs font-semibold uppercase tracking-wide text-slate-600 mb-2">Business Unit</div>
+                                        <p class="text-xs text-slate-500 mb-3">Select or enter the OrgId for the target Business Unit.</p>
+                                        <div class="flex gap-2 mb-2">
+                                            <button onclick="fetchDeployOrgs()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap">
+                                                Fetch from Oracle
+                                            </button>
+                                            <div id="dep-org-loading" class="hidden items-center text-sm text-blue-600">
+                                                <svg class="animate-spin inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                                                Querying...
+                                            </div>
+                                        </div>
+                                        <div id="dep-org-dropdown-wrap" class="hidden mb-2">
+                                            <select id="dep-org-dropdown" onchange="onDeployOrgSelected()" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:border-blue-500 focus:outline-none">
+                                                <option value="">-- Select a Business Unit --</option>
+                                            </select>
+                                        </div>
+                                        <div id="dep-org-error" class="hidden p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs mb-2"></div>
+                                        <div class="flex items-end gap-2">
+                                            <div class="flex-1">
+                                                <label class="block text-xs text-slate-500 mb-1">Or enter OrgId manually</label>
+                                                <input type="text" id="dep-org-manual" placeholder="e.g. 300000005500455" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                            </div>
+                                            <button onclick="applyDeployManualOrg()" class="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors">Apply</button>
+                                        </div>
+                                        <div id="dep-org-confirmed" class="hidden mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm font-medium"></div>
+                                    </div>
+
+                                    <!-- Preview -->
+                                    <div class="flex gap-2 mb-4">
+                                        <button onclick="previewDeploy()" class="flex-1 bg-slate-700 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors">Preview Objects</button>
+                                        <button id="dep-deploy-btn" onclick="runDeploy()" disabled class="flex-1 bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">Deploy to ICM</button>
+                                    </div>
+
+                                    <div id="dep-preview" class="hidden mb-4 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700"></div>
+
+                                    <!-- Deploy log (step summary) -->
+                                    <div id="dep-log-wrap" class="hidden">
+                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Deployment Log</div>
+                                        <div class="bg-slate-900 rounded-xl p-4 max-h-72 overflow-y-auto">
+                                            <div id="dep-log"></div>
+                                        </div>
+                                    </div>
+
+                                    <div id="dep-result" class="hidden mt-4 p-4 rounded-xl text-center font-semibold"></div>
+
+                                    <!-- Detailed Request/Response Log -->
+                                    <div id="dep-detail-wrap" class="hidden mt-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="text-xs uppercase tracking-wide text-slate-500">Detailed Request / Response Log</div>
+                                            <div class="flex gap-2">
+                                                <button onclick="toggleAllDetails()" class="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors">Expand/Collapse All</button>
+                                                <button onclick="downloadDetailLog()" class="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors">Download JSON</button>
+                                            </div>
+                                        </div>
+                                        <!-- Summary banner -->
+                                        <div id="dep-detail-summary" class="mb-3 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+                                        <!-- Filter -->
+                                        <div class="flex gap-2 mb-3">
+                                            <button onclick="filterDetailLog('all')" class="text-xs px-3 py-1 bg-slate-700 text-white rounded-lg dep-filter-btn active" data-filter="all">All</button>
+                                            <button onclick="filterDetailLog('errors')" class="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg dep-filter-btn" data-filter="errors">Errors Only</button>
+                                            <button onclick="filterDetailLog('POST')" class="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg dep-filter-btn" data-filter="POST">POST</button>
+                                            <button onclick="filterDetailLog('PATCH')" class="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg dep-filter-btn" data-filter="PATCH">PATCH</button>
+                                            <button onclick="filterDetailLog('GET')" class="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg dep-filter-btn" data-filter="GET">GET</button>
+                                        </div>
+                                        <!-- Log entries -->
+                                        <div id="dep-detail-log" class="space-y-1 max-h-[600px] overflow-y-auto"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div><!-- grid right -->
+            </div><!-- grid -->
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-white py-10 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-xs">ICM</span>
+                </div>
+                <span class="text-lg font-bold">ICM PlanLytics</span>
+            </div>
+            <p class="text-slate-400 text-sm">&copy; 2025 ICM PlanLytics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+    /* ── State ────────────────────────────────────────────── */
+    const API = window.location.origin;
+    let analysisId = null;
+    let analysisData = null;
+    let isApproved = false;
+    let selectedDeployOrgId = 0;
+    const TABS = ['plan-agent','documents','xml-export','efficiency','deploy'];
+
+    /* ── Auth / Role System ──────────────────────────────── */
+    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+    const USER_STORAGE_KEY = 'icm-planlytics-user';
+    let activeRole = 'demo';
+    const ROLE_CREDENTIALS = {
+        demo: { username: 'DemoPlan', password: 'ICMPlanDEMO', displayName: 'Demo User' },
+        paid: { username: 'ChandraK', password: 'ICMPlan6631', displayName: 'Chandra K' }
+    };
+
+    function applyRole(role, displayName) {
+        activeRole = role;
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+        if (displayName) localStorage.setItem(USER_STORAGE_KEY, displayName);
+        const btn = document.getElementById('nav-auth-btn');
+        if (btn) {
+            if (displayName && displayName !== 'Demo User') {
+                btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>' + displayName + '</span>';
+                btn.classList.remove('border-gray-300','text-gray-700');
+                btn.classList.add('border-emerald-300','text-emerald-700','bg-emerald-50');
+            } else if (role === 'demo') {
+                btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Demo</span>';
+                btn.classList.remove('border-gray-300','text-gray-700','border-emerald-300','text-emerald-700','bg-emerald-50');
+                btn.classList.add('border-blue-300','text-blue-700','bg-blue-50');
+            } else {
+                btn.textContent = 'Sign in';
+            }
+        }
+    }
+
+    function initAuth() {
+        const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+        const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+        if (savedRole) applyRole(savedRole, savedUser);
+
+        const modal = document.getElementById('role-modal');
+        const form = document.getElementById('role-form');
+        const errEl = document.getElementById('role-error');
+
+        document.getElementById('nav-auth-btn').addEventListener('click', () => {
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            errEl.classList.add('hidden'); form.reset();
+        });
+        document.getElementById('role-close').addEventListener('click', () => {
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+        });
+        modal.addEventListener('click', e => {
+            if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        });
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const u = document.getElementById('role-username').value.trim();
+            const p = document.getElementById('role-password').value.trim();
+            const isDemo = u === ROLE_CREDENTIALS.demo.username && p === ROLE_CREDENTIALS.demo.password;
+            const isPaid = u === ROLE_CREDENTIALS.paid.username && p === ROLE_CREDENTIALS.paid.password;
+            if (isDemo || isPaid) {
+                const cred = isPaid ? ROLE_CREDENTIALS.paid : ROLE_CREDENTIALS.demo;
+                applyRole(isPaid ? 'paid' : 'demo', cred.displayName);
+                modal.classList.add('hidden'); modal.classList.remove('flex');
+            } else {
+                errEl.classList.remove('hidden');
+            }
+        });
+    }
+
+    /* ── Tab switching ───────────────────────────────────── */
+    function goTab(tab, stepIndex) {
+        // Panels
+        TABS.forEach(t => {
+            document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+        });
+        // Rail
+        document.querySelectorAll('.wf-step').forEach((el, i) => {
+            el.classList.remove('active');
+            if (i === stepIndex) el.classList.add('active');
+        });
+        // Progress
+        document.getElementById('global-progress').style.width = ((stepIndex + 1) / TABS.length * 100) + '%';
+    }
+
+    function markStepDone(idx) {
+        const steps = document.querySelectorAll('.wf-step');
+        if (steps[idx]) steps[idx].classList.add('done');
+    }
+
+    /* ── Plan Agent sub-tabs ─────────────────────────────── */
+    function switchPA(method) {
+        document.querySelectorAll('.pa-tab').forEach(t => {
+            const on = t.getAttribute('data-pa') === method;
+            t.classList.toggle('border-blue-600', on);
+            t.classList.toggle('text-blue-600', on);
+            t.classList.toggle('border-transparent', !on);
+            t.classList.toggle('text-slate-500', !on);
+        });
+        document.querySelectorAll('[data-pa-panel]').forEach(p => {
+            p.classList.toggle('hidden', p.getAttribute('data-pa-panel') !== method);
+        });
+    }
+
+    /* ── File upload ─────────────────────────────────────── */
+    let selectedFile = null;
+    const dropzone = document.getElementById('pa-dropzone');
+    const fileInput = document.getElementById('pa-file-input');
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('border-blue-500'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-blue-500'));
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault(); dropzone.classList.remove('border-blue-500');
+        if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; handleFile(e.dataTransfer.files[0]); }
+    });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+    function handleFile(f) {
+        selectedFile = f;
+        const info = document.getElementById('pa-file-info');
+        info.textContent = f.name + ' (' + (f.size / 1024).toFixed(1) + ' KB)';
+        info.classList.remove('hidden');
+        document.getElementById('pa-file-btn').disabled = false;
+    }
+
+    /* ── Run Plan Agent ──────────────────────────────────── */
+    async function runPlanAgent(mode) {
+        const con = document.getElementById('pa-console');
+        const wrap = document.getElementById('pa-console-wrap');
+        wrap.classList.remove('hidden');
+        con.innerHTML = '<span class="text-blue-400">Starting analysis...</span>';
+
+        let response;
+        try {
+            if (mode === 'file') {
+                if (!selectedFile) { alert('Select a file first'); return; }
+                const fd = new FormData();
+                fd.append('file', selectedFile);
+                response = await fetch(API + '/api/analyze-for-icm', { method: 'POST', body: fd });
+            } else if (mode === 'url') {
+                const url = document.getElementById('pa-url-input').value.trim();
+                if (!url) { alert('Enter a URL'); return; }
+                response = await fetch(API + '/api/analyze-url', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ url })
+                });
+            } else if (mode === 'text') {
+                const text = document.getElementById('pa-text-input').value.trim();
+                if (!text) { alert('Paste some text'); return; }
+                response = await fetch(API + '/api/analyze-text', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ text })
+                });
+            } else if (mode === 'xml') {
+                const xmlInput = document.getElementById('pa-xml-input');
+                if (!xmlInput.files.length) { alert('Select an XML file'); return; }
+                const fd = new FormData();
+                fd.append('file', xmlInput.files[0]);
+                let qs = '';
+                const yr = document.getElementById('pa-xml-year').value.trim();
+                if (yr) qs = '?plan_year=' + encodeURIComponent(yr);
+                response = await fetch(API + '/api/import-xml' + qs, { method: 'POST', body: fd });
+            }
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error || 'HTTP ' + response.status);
+            }
+
+            const data = await response.json();
+            analysisId = data.analysis_id;
+            analysisData = data;
+            isApproved = false;
+
+            // Render console
+            renderConsole(data, con);
+
+            // Mark step 1 done, unlock other panels
+            markStepDone(0);
+            populateDocuments(data);
+            populateXmlExport(data);
+            populateEfficiency(data);
+            populateDeploy(data);
+
+        } catch (err) {
+            con.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+        }
+    }
+
+    function renderConsole(data, el) {
+        const summary = data.oracle_mapping_summary || {};
+        let h = '<div class="text-white font-bold mb-1">ICM PLANLYTICS — ANALYSIS COMPLETE</div>';
+        h += '<div class="text-slate-500">Analysis ID: ' + data.analysis_id + '</div>';
+        if (data.source_type) h += '<div class="text-slate-500">Source: ' + data.source_type + '</div>';
+        h += '<div class="text-slate-600 my-1">─────────────────────────</div>';
+        h += '<div class="text-cyan-300 font-bold">ORACLE ICM OBJECTS:</div>';
+        for (const [k,v] of Object.entries(summary)) {
+            h += '<div>  ' + k + ': <span class="text-white font-bold">' + v + '</span></div>';
+        }
+        if (data.efficiency_score != null) {
+            h += '<div class="text-slate-600 my-1">─────────────────────────</div>';
+            const sc = data.efficiency_score;
+            const col = sc >= 80 ? 'text-emerald-300' : sc >= 60 ? 'text-amber-300' : 'text-red-300';
+            h += `<div class="${col} text-lg font-bold">Efficiency: ${sc}/100</div>`;
+        }
+        const w = data.validation_warnings || [];
+        if (w.length) {
+            h += '<div class="text-slate-600 my-1">─────────────────────────</div>';
+            w.forEach(x => { h += '<div class="text-amber-300">! ' + x + '</div>'; });
+        }
+        h += '<div class="mt-2 text-emerald-400 font-bold">All 5 stages unlocked. Use the sidebar to navigate.</div>';
+        el.innerHTML = h;
+    }
+
+    /* ── Populate Tabs ───────────────────────────────────── */
+    function populateDocuments(data) {
+        document.getElementById('docs-empty').classList.add('hidden');
+        document.getElementById('docs-content').classList.remove('hidden');
+
+        const summary = data.oracle_mapping_summary || {};
+        let statsHtml = '';
+        const highlight = ['compensation_plans','plan_components','performance_measures','expressions','rate_tables','credit_categories'];
+        highlight.forEach(k => {
+            if (summary[k] !== undefined) {
+                const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                statsHtml += `<div class="bg-slate-50 rounded-xl p-3"><div class="text-2xl font-bold text-slate-900">${summary[k]}</div><div class="text-xs text-slate-500">${label}</div></div>`;
+            }
+        });
+        document.getElementById('docs-summary').innerHTML = statsHtml;
+
+        // Object map
+        let mapHtml = '';
+        for (const [k,v] of Object.entries(summary)) {
+            mapHtml += `<div class="bg-white border border-slate-200 rounded-lg px-3 py-2 flex justify-between"><span class="text-slate-600">${k.replace(/_/g,' ')}</span><span class="font-bold">${v}</span></div>`;
+        }
+        document.getElementById('docs-object-map').innerHTML = mapHtml;
+
+        // Warnings
+        const warnings = data.validation_warnings || [];
+        const wEl = document.getElementById('docs-warnings');
+        if (warnings.length) {
+            wEl.classList.remove('hidden');
+            document.getElementById('docs-warnings-list').innerHTML = warnings.map(w => `<div class="bg-amber-50 rounded px-3 py-1">! ${w}</div>`).join('');
+        } else {
+            wEl.classList.add('hidden');
+        }
+    }
+
+    function populateXmlExport(data) {
+        document.getElementById('xml-empty').classList.add('hidden');
+        document.getElementById('xml-content').classList.remove('hidden');
+        document.getElementById('xml-info').textContent = 'Analysis ID: ' + data.analysis_id + (data.source_plan_name ? ' | Plan: ' + data.source_plan_name : '');
+
+        const summary = data.oracle_mapping_summary || {};
+        let listHtml = '';
+        for (const [k,v] of Object.entries(summary)) {
+            if (typeof v === 'number' && v > 0) {
+                listHtml += `<div class="flex justify-between"><span>${k.replace(/_/g,' ')}</span><span class="font-medium">${v}</span></div>`;
+            }
+        }
+        document.getElementById('xml-contents-list').innerHTML = listHtml;
+    }
+
+    function populateEfficiency(data) {
+        if (data.efficiency_score == null) return;
+        document.getElementById('eff-empty').classList.add('hidden');
+        document.getElementById('eff-content').classList.remove('hidden');
+
+        const sc = data.efficiency_score;
+        const scoreEl = document.getElementById('eff-score');
+        scoreEl.textContent = sc;
+        scoreEl.className = 'text-5xl font-bold ' + (sc >= 80 ? 'text-emerald-600' : sc >= 60 ? 'text-amber-600' : 'text-red-600');
+
+        const bar = document.getElementById('eff-bar');
+        bar.style.width = sc + '%';
+        bar.className = 'h-full rounded-full transition-all duration-700 ' + (sc >= 80 ? 'bg-emerald-500' : sc >= 60 ? 'bg-amber-500' : 'bg-red-500');
+
+        const ef = data.efficiency_findings;
+        if (ef) {
+            document.getElementById('eff-summary-text').textContent = `${ef.total_findings} finding(s) across ${ef.categories_checked || '12'} categories`;
+            const colors = { high: 'red', medium: 'amber', low: 'blue', info: 'slate' };
+            let fHtml = '';
+            for (const sev of ['high','medium','low','info']) {
+                const count = ef[sev + '_severity'] || 0;
+                const c = colors[sev];
+                fHtml += `<div class="bg-${c}-50 border border-${c}-200 rounded-xl p-3"><div class="text-2xl font-bold text-${c}-700">${count}</div><div class="text-xs text-${c}-600 capitalize">${sev}</div></div>`;
+            }
+            document.getElementById('eff-findings').innerHTML = fHtml;
+        }
+    }
+
+    function populateDeploy(data) {
+        document.getElementById('deploy-empty').classList.add('hidden');
+        document.getElementById('deploy-main').classList.remove('hidden');
+    }
+
+    /* ── Artifact download ───────────────────────────────── */
+    function dlArtifact(type) {
+        if (!analysisId) return;
+        window.open(API + '/api/' + type + '/' + analysisId, '_blank');
+    }
+
+    /* ── Efficiency standalone ───────────────────────────── */
+    async function runEfficiencyStandalone() {
+        const xmlInput = document.getElementById('eff-xml-input');
+        if (!xmlInput.files.length) { alert('Select an XML file'); return; }
+        const fd = new FormData();
+        fd.append('file', xmlInput.files[0]);
+        let qs = '';
+        const yr = document.getElementById('eff-plan-year').value.trim();
+        if (yr) qs = '?plan_year=' + encodeURIComponent(yr);
+
+        try {
+            const res = await fetch(API + '/api/import-xml' + qs, { method: 'POST', body: fd });
+            if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'HTTP ' + res.status); }
+            const data = await res.json();
+            analysisId = data.analysis_id;
+            analysisData = data;
+            isApproved = false;
+            populateEfficiency(data);
+            populateDocuments(data);
+            populateXmlExport(data);
+            populateDeploy(data);
+            markStepDone(0);
+        } catch (err) {
+            alert('Import failed: ' + err.message);
+        }
+    }
+
+    /* ── Approve / Reject ────────────────────────────────── */
+    async function approveForDeploy() {
+        if (!analysisId) return;
+        try {
+            const res = await fetch(API + '/api/icm-workbook/' + analysisId + '/review', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ approved: true })
+            });
+            const d = await res.json();
+            if (d.status === 'approved') {
+                isApproved = true;
+                document.getElementById('deploy-badge').textContent = 'Approved';
+                document.getElementById('deploy-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
+                document.getElementById('deploy-approval').className = 'mb-6 p-4 rounded-xl border-2 border-emerald-300 bg-emerald-50';
+                document.getElementById('deploy-creds').classList.remove('hidden');
+                markStepDone(3);
+            }
+        } catch (e) { alert('Approve failed: ' + e.message); }
+    }
+
+    async function rejectForDeploy() {
+        if (!analysisId) return;
+        try {
+            await fetch(API + '/api/icm-workbook/' + analysisId + '/review', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ approved: false })
+            });
+            isApproved = false;
+            document.getElementById('deploy-badge').textContent = 'Rejected';
+            document.getElementById('deploy-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800';
+            document.getElementById('deploy-creds').classList.add('hidden');
+        } catch (e) { alert('Reject failed: ' + e.message); }
+    }
+
+    /* ── Deploy preview ──────────────────────────────────── */
+    async function previewDeploy() {
+        if (!analysisId) return;
+        const el = document.getElementById('dep-preview');
+        el.classList.remove('hidden');
+        el.innerHTML = '<span class="text-blue-600">Loading preview...</span>';
+        try {
+            const res = await fetch(API + '/api/deploy-preview/' + analysisId);
+            const data = await res.json();
+            if (data.success) {
+                let h = '<div class="font-semibold text-slate-800 mb-2">' + data.total_objects + ' objects to deploy</div>';
+                for (const [key, info] of Object.entries(data.objects || {})) {
+                    if (info.count > 0) {
+                        const label = key.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+                        h += `<div class="mb-1"><span class="font-medium">${label}</span> (${info.count}): <span class="text-slate-500">${info.names.slice(0,5).join(', ')}${info.names.length > 5 ? '...' : ''}</span></div>`;
+                    }
+                }
+                el.innerHTML = h;
+            } else {
+                el.innerHTML = '<span class="text-red-600">' + (data.error || 'Preview failed') + '</span>';
+            }
+        } catch (e) {
+            el.innerHTML = '<span class="text-red-600">Error: ' + e.message + '</span>';
+        }
+    }
+
+    /* ── Init ────────────────────────────────────────────── */
+    window.addEventListener('load', () => { initAuth(); });
+
+    /* ── OrgId (Business Unit) selection for deploy ─────── */
+    async function fetchDeployOrgs() {
+        const baseUrl = document.getElementById('dep-base-url').value.trim();
+        const username = document.getElementById('dep-username').value.trim();
+        const password = document.getElementById('dep-password').value.trim();
+        if (!baseUrl || !username || !password) { alert('Fill in credentials first'); return; }
+
+        const loadingEl = document.getElementById('dep-org-loading');
+        const dropdownWrap = document.getElementById('dep-org-dropdown-wrap');
+        const dropdown = document.getElementById('dep-org-dropdown');
+        const errorEl = document.getElementById('dep-org-error');
+
+        loadingEl.classList.remove('hidden'); loadingEl.classList.add('flex');
+        dropdownWrap.classList.add('hidden');
+        errorEl.classList.add('hidden');
+
+        try {
+            const res = await fetch(API + '/api/icm-deploy/list-orgs', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ base_url: baseUrl, username, password, analysis_id: analysisId || '' })
+            });
+            const data = await res.json();
+            loadingEl.classList.add('hidden'); loadingEl.classList.remove('flex');
+
+            if (data.success && data.orgs && data.orgs.length > 0) {
+                dropdown.innerHTML = '<option value="">-- Select a Business Unit --</option>';
+                data.orgs.forEach(org => {
+                    const opt = document.createElement('option');
+                    opt.value = org.org_id;
+                    opt.textContent = org.name ? `${org.name} (${org.org_id})` : `OrgId: ${org.org_id}`;
+                    dropdown.appendChild(opt);
+                });
+                dropdownWrap.classList.remove('hidden');
+            } else {
+                errorEl.textContent = data.message || 'No Business Units found. Enter OrgId manually below.';
+                errorEl.classList.remove('hidden');
+            }
+        } catch (e) {
+            loadingEl.classList.add('hidden'); loadingEl.classList.remove('flex');
+            errorEl.textContent = 'Could not query Business Units: ' + e.message;
+            errorEl.classList.remove('hidden');
+        }
+    }
+
+    function onDeployOrgSelected() {
+        const val = parseInt(document.getElementById('dep-org-dropdown').value, 10);
+        const confirmedEl = document.getElementById('dep-org-confirmed');
+        if (val && val > 0) {
+            selectedDeployOrgId = val;
+            confirmedEl.textContent = 'Selected OrgId: ' + selectedDeployOrgId;
+            confirmedEl.classList.remove('hidden');
+        } else {
+            selectedDeployOrgId = 0;
+            confirmedEl.classList.add('hidden');
+        }
+        checkDeployReady();
+    }
+
+    function applyDeployManualOrg() {
+        const input = document.getElementById('dep-org-manual');
+        const confirmedEl = document.getElementById('dep-org-confirmed');
+        const val = parseInt(input.value.trim(), 10);
+        if (!val || val <= 0 || isNaN(val)) {
+            input.classList.add('border-red-400');
+            setTimeout(() => input.classList.remove('border-red-400'), 2000);
+            return;
+        }
+        selectedDeployOrgId = val;
+        const dropdown = document.getElementById('dep-org-dropdown');
+        const matchOpt = Array.from(dropdown.options).find(o => parseInt(o.value, 10) === val);
+        if (matchOpt) dropdown.value = matchOpt.value;
+        confirmedEl.textContent = 'Selected OrgId: ' + selectedDeployOrgId + ' (manual entry)';
+        confirmedEl.classList.remove('hidden');
+        checkDeployReady();
+    }
+
+    function checkDeployReady() {
+        const btn = document.getElementById('dep-deploy-btn');
+        if (btn) btn.disabled = !(selectedDeployOrgId > 0);
+    }
+
+    /* ── Run deploy ──────────────────────────────────────── */
+    let lastDetailedLog = null;
+
+    async function runDeploy() {
+        if (!analysisId || !isApproved) { alert('Approve the config first'); return; }
+        if (!selectedDeployOrgId || selectedDeployOrgId <= 0) { alert('Select a Business Unit (OrgId) first'); return; }
+        const baseUrl = document.getElementById('dep-base-url').value.trim();
+        const username = document.getElementById('dep-username').value.trim();
+        const password = document.getElementById('dep-password').value.trim();
+        if (!baseUrl || !username || !password) { alert('Fill in all credential fields'); return; }
+
+        const logWrap = document.getElementById('dep-log-wrap');
+        const logEl = document.getElementById('dep-log');
+        const resultEl = document.getElementById('dep-result');
+        const detailWrap = document.getElementById('dep-detail-wrap');
+        logWrap.classList.remove('hidden');
+        resultEl.classList.add('hidden');
+        detailWrap.classList.add('hidden');
+        logEl.innerHTML = '<div class="deploy-log-line info">Starting deployment to Oracle ICM...</div>';
+
+        try {
+            const res = await fetch(API + '/api/deploy-to-icm/' + analysisId, {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ base_url: baseUrl, username, password, org_id: selectedDeployOrgId })
+            });
+            const data = await res.json();
+            const deployment = data.deployment || {};
+            const steps = deployment.steps || [];
+
+            // Render step summary
+            logEl.innerHTML = '';
+            steps.forEach(s => {
+                const cls = s.success ? 'ok' : 'fail';
+                const icon = s.success ? 'OK' : 'FAIL';
+                const reqCount = s.request_count ? ` (${s.request_count} requests)` : '';
+                logEl.innerHTML += `<div class="deploy-log-line ${cls}">[${icon}] ${s.name}${reqCount}${s.error && typeof s.error === 'string' ? ' — ' + s.error : ''}</div>`;
+            });
+
+            resultEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-red-50', 'text-red-800');
+            if (deployment.success) {
+                resultEl.classList.add('bg-emerald-50', 'text-emerald-800');
+                resultEl.textContent = 'Deployment completed successfully!';
+                markStepDone(4);
+                document.getElementById('global-progress').style.width = '100%';
+            } else {
+                resultEl.classList.add('bg-red-50', 'text-red-800');
+                resultEl.textContent = deployment.error || 'Deployment failed. Check detailed log below.';
+            }
+
+            // Render detailed log
+            const detailedLog = deployment.detailed_log;
+            if (detailedLog) {
+                lastDetailedLog = detailedLog;
+                renderDetailedLog(detailedLog);
+                detailWrap.classList.remove('hidden');
+            }
+        } catch (e) {
+            logEl.innerHTML += `<div class="deploy-log-line fail">Error: ${e.message}</div>`;
+            resultEl.classList.remove('hidden');
+            resultEl.classList.add('bg-red-50', 'text-red-800');
+            resultEl.textContent = 'Deploy request failed: ' + e.message;
+        }
+    }
+
+    /* ── Detailed Log Rendering ─────────────────────────── */
+    function renderDetailedLog(log) {
+        // Summary banner
+        const summaryEl = document.getElementById('dep-detail-summary');
+        summaryEl.innerHTML = `
+            <div><span class="font-semibold text-slate-700">Workbook:</span> ${log.workbook_name || 'N/A'}</div>
+            <div><span class="font-semibold text-slate-700">OrgId:</span> ${log.org_id || 'N/A'}</div>
+            <div><span class="font-semibold text-slate-700">Approval:</span> ${log.approval_tag || 'N/A'}</div>
+            <div><span class="font-semibold text-slate-700">Started:</span> ${log.started_at ? new Date(log.started_at).toLocaleString() : 'N/A'}</div>
+            <div><span class="font-semibold text-emerald-700">Successful:</span> ${log.successful_requests || 0}</div>
+            <div><span class="font-semibold text-red-700">Failed:</span> ${log.failed_requests || 0}</div>
+            <div><span class="font-semibold text-slate-700">Total Requests:</span> ${log.total_requests || 0}</div>
+            <div><span class="font-semibold text-slate-700">Finished:</span> ${log.finished_at ? new Date(log.finished_at).toLocaleString() : 'N/A'}</div>
+        `;
+
+        // Log entries
+        renderDetailEntries(log.entries || [], 'all');
+    }
+
+    function renderDetailEntries(entries, filter) {
+        const logEl = document.getElementById('dep-detail-log');
+        let filtered = entries;
+        if (filter === 'errors') {
+            filtered = entries.filter(e => !e.success);
+        } else if (filter === 'POST' || filter === 'PATCH' || filter === 'GET') {
+            filtered = entries.filter(e => e.method === filter);
+        }
+
+        if (filtered.length === 0) {
+            logEl.innerHTML = '<div class="text-xs text-slate-400 p-4 text-center">No matching entries</div>';
+            return;
+        }
+
+        logEl.innerHTML = filtered.map(e => {
+            const statusBg = e.success ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
+            const methodBg = e.method === 'POST' ? 'bg-blue-100 text-blue-800'
+                           : e.method === 'PATCH' ? 'bg-amber-100 text-amber-800'
+                           : 'bg-slate-100 text-slate-700';
+            const borderColor = e.success ? 'border-emerald-200' : 'border-red-200';
+
+            // Truncate endpoint for display
+            const shortEndpoint = e.endpoint ? e.endpoint.replace(/\/fscmRestApi\/resources\/11\.13\.18\.05\//g, '/') : '';
+
+            return `
+            <details class="border ${borderColor} rounded-lg bg-white" data-method="${e.method}" data-success="${e.success}">
+                <summary class="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-slate-50 text-xs">
+                    <span class="font-mono font-bold ${statusBg} px-1.5 py-0.5 rounded text-[10px]">${e.status_code}</span>
+                    <span class="font-mono font-semibold ${methodBg} px-1.5 py-0.5 rounded text-[10px]">${e.method}</span>
+                    <span class="text-slate-600 truncate flex-1" title="${shortEndpoint}">${e.action || shortEndpoint}</span>
+                    <span class="text-slate-400 flex-shrink-0">${e.step}</span>
+                    <span class="text-slate-400 flex-shrink-0">#${e.seq}</span>
+                </summary>
+                <div class="border-t border-slate-100 px-3 py-2 text-xs space-y-2">
+                    <div class="grid grid-cols-[100px_1fr] gap-1 text-slate-600">
+                        <span class="font-semibold">Timestamp:</span><span>${e.timestamp || ''}</span>
+                        <span class="font-semibold">Step:</span><span>${e.step || ''}</span>
+                        <span class="font-semibold">Endpoint:</span><span class="font-mono break-all">${shortEndpoint}</span>
+                        <span class="font-semibold">Full URL:</span><span class="font-mono break-all text-[10px]">${e.url || ''}</span>
+                    </div>
+                    ${e.request_payload ? `
+                    <div>
+                        <div class="font-semibold text-slate-700 mb-1">Request Payload:</div>
+                        <pre class="bg-slate-50 border border-slate-200 rounded p-2 overflow-x-auto text-[10px] leading-4 max-h-40 overflow-y-auto">${escapeHtml(JSON.stringify(e.request_payload, null, 2))}</pre>
+                    </div>` : ''}
+                    <div>
+                        <div class="font-semibold text-slate-700 mb-1">Response (${e.status_code}):</div>
+                        <pre class="bg-slate-50 border border-slate-200 rounded p-2 overflow-x-auto text-[10px] leading-4 max-h-40 overflow-y-auto">${escapeHtml(JSON.stringify(e.response_body, null, 2))}</pre>
+                    </div>
+                </div>
+            </details>`;
+        }).join('');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function filterDetailLog(filter) {
+        if (!lastDetailedLog) return;
+        // Update active button
+        document.querySelectorAll('.dep-filter-btn').forEach(b => {
+            b.classList.remove('bg-slate-700', 'text-white');
+            b.classList.add('bg-slate-200');
+        });
+        const activeBtn = document.querySelector(`.dep-filter-btn[data-filter="${filter}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-slate-200');
+            activeBtn.classList.add('bg-slate-700', 'text-white');
+        }
+        renderDetailEntries(lastDetailedLog.entries || [], filter);
+    }
+
+    function toggleAllDetails() {
+        const details = document.querySelectorAll('#dep-detail-log details');
+        const allOpen = Array.from(details).every(d => d.open);
+        details.forEach(d => d.open = !allOpen);
+    }
+
+    function downloadDetailLog() {
+        if (!lastDetailedLog) return;
+        const blob = new Blob([JSON.stringify(lastDetailedLog, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `deploy_log_${analysisId || 'unknown'}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    </script>
+</body>
+</html>

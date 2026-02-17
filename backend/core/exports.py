@@ -17,7 +17,7 @@ def simple_html_summary(analysis: dict) -> str:
     <h3>Risks</h3><ul>{risks}</ul>
     """
 
-def to_icm_excel(analysis: dict, outpath: Path, org_id: int = 300000046987012):
+def to_icm_excel(analysis: dict, outpath: Path, org_id: int = 0):
     """Export analysis as ICM Optimizer-compatible Excel workbook."""
     from .icm_transformer import transform_analysis_to_icm_workbook, write_icm_workbook
     sheets = transform_analysis_to_icm_workbook(analysis, org_id=org_id)

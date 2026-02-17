@@ -23,9 +23,14 @@ TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
 MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
 
 SYSTEM_ROLE = (
-    "You are an Incentive Compensation Automation Analyst. "
+    "You are an Incentive Compensation Automation Analyst specializing in Oracle ICM. "
     "Extract plan mechanics, risks, stakeholder questions, and translate them into "
-    "vendor-neutral requirements, then map to Oracle ICM objects. "
+    "vendor-neutral requirements, then map to Oracle ICM objects following the full "
+    "deployment hierarchy: Credit Categories → Rate Dimensions → Rate Tables → "
+    "Expressions (Attainment/Earnings/RateDimensionInput/Weighted) → Performance Measures "
+    "(with optional scorecards) → Plan Components (with advanced calculation settings: "
+    "Per interval/Per event, split attainment, true-up, payout frequency) → "
+    "Compensation Plans. "
     "Return compact JSON ONLY that matches required schema fields. Do not invent facts."
 )
 
@@ -91,6 +96,10 @@ def _call_stub(_: str) -> str:
             "Provide clawback/return rules?",
         ],
         "oracle_mapping": {
+            "credit_categories": [
+                {"credit_category_name": "Sales Credit", "description": "Direct sales revenue credits", "action": "reuse"},
+                {"credit_category_name": "Overlay Credit", "description": "Indirect overlay credits", "action": "reuse"},
+            ],
             "compensation_plans": [{
                 "name": "Sales Commission Plan 2025", "start_date": "2025-01-01",
                 "end_date": "2025-12-31", "status": "Active",
@@ -101,15 +110,20 @@ def _call_stub(_: str) -> str:
             "plan_components": [{
                 "plan_name": "Sales Commission Plan 2025",
                 "plan_component_name": "Sales Volume Component",
-                "incentive_type": "Sales", "start_date": "2025-01-01",
+                "incentive_type": "Commission", "start_date": "2025-01-01",
                 "end_date": "2025-12-31", "calculation_method": "Tiered",
                 "org_id": 300000046987012,
                 "performance_measure_name": "Sales Volume Metric",
                 "rate_table_name": "Sales Volume Rate",
                 "rt_start_date": "2025-01-01", "rt_end_date": "2025-12-31",
-                "incentive_formula_expression": "Sales Volume Calculation",
+                "incentive_formula_expression": "Sales Volume Earnings",
                 "performance_measure_weight": 1.0,
-                "calculation_sequence": 1, "earning_basis": "Amount"
+                "calculation_sequence": 1, "earning_basis": "Amount",
+                "calculate_incentive": "Per event",
+                "payout_frequency": "Period",
+                "split_attainment": "Yes", "fixed_within_tier": "Yes",
+                "true_up": "No", "include_indirect_credits": "None",
+                "rate_dimension_input_expression": "Sales Volume Rate Input",
             }],
             "rate_dimensions": [
                 {"rate_dimension_name": "Sales Volume Dimension", "rate_dimension_type": "AMOUNT",
@@ -119,44 +133,94 @@ def _call_stub(_: str) -> str:
                 {"rate_dimension_name": "Sales Volume Dimension", "rate_dimension_type": "AMOUNT",
                  "org_id": 300000046987012, "tier_sequence": 3, "minimum_amount": 100000, "maximum_amount": 999999}
             ],
-            "rate_tables": [{
-                "rate_table_name": "Sales Volume Rate", "rate_table_type": "Sales",
-                "org_id": 300000046987012, "display_name": "Sales Volume Commission Rate"
-            }],
+            "rate_tables": [
+                {"rate_table_name": "Sales Volume Rate", "rate_table_type": "Sales",
+                 "org_id": 300000046987012, "display_name": "Sales Volume Commission Rate"},
+            ],
             "rate_table_rates": [
                 {"rate_table_name": "Sales Volume Rate", "minimum_amount": 0, "maximum_amount": 50000, "rate_value": 0.03, "tier_sequence": 1},
                 {"rate_table_name": "Sales Volume Rate", "minimum_amount": 50000, "maximum_amount": 100000, "rate_value": 0.05, "tier_sequence": 2},
                 {"rate_table_name": "Sales Volume Rate", "minimum_amount": 100000, "maximum_amount": 999999, "rate_value": 0.08, "tier_sequence": 3}
             ],
-            "expressions": [{
-                "expression_name": "Sales Volume Calculation", "expression_id": 1,
-                "expression_detail_type": "Calculation",
-                "description": "Sales Volume Incentive Calculation",
-                "expression_type": "Calculation", "sequence": 1,
-                "measure_name": "Sales Volume Measure",
-                "basic_attributes_group": "Sales",
-                "basic_attribute_name": "Sales Volume",
-                "measure_result_attribute": "Sales Volume Amount",
-                "plan_component_name": "Sales Volume Component",
-                "plan_component_result_attribute": "Sales Volume",
-                "constant_value": None, "expression_operator": None,
-                "expression_detail_id": 1
-            }],
+            "expressions": [
+                {
+                    "expression_name": "Sales Volume Attainment", "expression_id": 1,
+                    "expression_detail_type": "Calculation",
+                    "description": "SUM(Credit.Credit Amount / Measure.Interval Target)",
+                    "expression_type": "Calculation",
+                    "expression_category": "Attainment",
+                    "sequence": 1,
+                    "measure_name": "Sales Volume Metric",
+                    "basic_attributes_group": "Credit",
+                    "basic_attribute_name": "Credit Amount",
+                    "measure_result_attribute": None,
+                    "plan_component_name": "Sales Volume Component",
+                    "plan_component_result_attribute": None,
+                    "constant_value": None, "expression_operator": "SUM",
+                    "expression_detail_id": 1
+                },
+                {
+                    "expression_name": "Sales Volume Rate Input", "expression_id": 2,
+                    "expression_detail_type": "Calculation",
+                    "description": "Measure result.Sales Volume Metric.ITD Output Achieved",
+                    "expression_type": "Calculation",
+                    "expression_category": "RateDimensionInput",
+                    "sequence": 2,
+                    "measure_name": "Sales Volume Metric",
+                    "basic_attributes_group": None,
+                    "basic_attribute_name": None,
+                    "measure_result_attribute": "ITD Output Achieved",
+                    "plan_component_name": "Sales Volume Component",
+                    "plan_component_result_attribute": None,
+                    "constant_value": None, "expression_operator": None,
+                    "expression_detail_id": 2
+                },
+                {
+                    "expression_name": "Sales Volume Earnings", "expression_id": 3,
+                    "expression_detail_type": "Calculation",
+                    "description": "Measure result.Sales Volume Metric.ITD Output Achieved * RTR",
+                    "expression_type": "Calculation",
+                    "expression_category": "Earnings",
+                    "sequence": 3,
+                    "measure_name": "Sales Volume Metric",
+                    "basic_attributes_group": None,
+                    "basic_attribute_name": None,
+                    "measure_result_attribute": "ITD Output Achieved",
+                    "plan_component_name": "Sales Volume Component",
+                    "plan_component_result_attribute": None,
+                    "constant_value": None, "expression_operator": "MULTIPLY",
+                    "expression_detail_id": 3
+                },
+            ],
             "performance_measures": [{
                 "name": "Sales Volume Metric",
                 "description": "Tracks Sales Volume for incentive calculation",
                 "unit_of_measure": "AMOUNT", "org_id": 300000046987012,
                 "start_date": "2025-01-01", "end_date": "2025-12-31",
-                "measure_formula_expression_name": "Sales Volume Calculation",
+                "measure_formula_expression_name": "Sales Volume Attainment",
                 "process_transactions": "Yes", "performance_interval": "Quarterly",
                 "active_flag": "Y", "use_external_formula_flag": "N",
-                "running_total_flag": "N", "f_year": 2025,
-                "credit_category_name": "Sales Credit"
+                "running_total_flag": "Y", "f_year": 2025,
+                "credit_category_name": "Sales Credit",
+                "scorecard_rate_table_name": None,
             }],
             "performance_goals": [{
                 "performance_measure_name": "Sales Volume Metric",
                 "goal_interval": "Quarterly", "goal_target": 250000
-            }]
+            }],
+            "scorecards": [],
+            "calculation_settings": [{
+                "plan_component_name": "Sales Volume Component",
+                "calculate_incentive": "Per event",
+                "process_transactions": "Individually",
+                "payout_frequency": "Period",
+                "split_attainment": "Yes",
+                "fixed_within_tier": "Yes",
+                "true_up": "No",
+                "true_up_reset_interval": None,
+                "include_indirect_credits": "None",
+                "running_total": "Yes",
+            }],
         },
         "reports_recommendations": ["Rep statements with drill-through"],
         "governance_controls": ["Versioned plan docs"],
@@ -202,15 +266,56 @@ Return JSON with the following fields:
 - plan_structure[] (name, description, raw_excerpt)
 - risks[] (title, severity, detail, raw_excerpt)
 - stakeholder_questions[]
-- oracle_mapping {{ compensation_plans[], plan_components[], rate_dimensions[], rate_tables[], rate_table_rates[], expressions[], performance_measures[], performance_goals[] }}
+- oracle_mapping:
+    - credit_categories[] (credit_category_name, description, action: "reuse"|"create"|"create_with_mapping")
+    - rate_dimensions[] (rate_dimension_name, rate_dimension_type, tier_sequence, minimum_amount, maximum_amount)
+    - rate_tables[] (rate_table_name, rate_table_type, display_name)
+    - rate_table_rates[] (rate_table_name, minimum_amount, maximum_amount, rate_value, tier_sequence)
+    - expressions[] (expression_name, expression_category: Attainment|Earnings|RateDimensionInput|Weighted, description, expression_type, measure_name, basic_attributes_group, basic_attribute_name, measure_result_attribute, plan_component_name, plan_component_result_attribute, constant_value, expression_operator)
+    - performance_measures[] (name, description, unit_of_measure: AMOUNT|PERCENT|SCORE, performance_interval: Monthly|Quarterly|Annual, measure_formula_expression_name, credit_category_name, running_total_flag: Y|N, scorecard_rate_table_name?)
+    - plan_components[] (plan_name, plan_component_name, incentive_type: Bonus|Commission, calculation_method, performance_measure_name, rate_table_name, incentive_formula_expression, performance_measure_weight, earning_basis, calculate_incentive: Per interval|Per event, payout_frequency: Period|Quarter|Annual|Biweekly, split_attainment: Yes|No, fixed_within_tier: Yes|No, true_up: Yes|No, true_up_reset_interval?, include_indirect_credits: None|All, rate_dimension_input_expression?)
+    - compensation_plans[] (name, description, target_incentive)
+    - performance_goals[] (performance_measure_name, goal_interval, goal_target)
+    - scorecards[] (scorecard_name, performance_measure_name, rate_table_name, input_expression_name, description)
+    - calculation_settings[] (plan_component_name, calculate_incentive, process_transactions: Grouped by interval|Individually, payout_frequency, split_attainment, fixed_within_tier, true_up, true_up_reset_interval, include_indirect_credits, running_total: Yes|No)
 - reports_recommendations[], governance_controls[], operational_flexibility[], data_integrations[]
 - side_by_side_rows[]
 - vendor_compare_rows[] (only when template = side_by_side_vendor_compare)
+
+Credit Category Action Rules:
+- "reuse": category already exists in Oracle — deployer will look up by name, not create
+- "create": new category — deployer will create it in Oracle
+- "create_with_mapping": new category that requires backward integration / data migration mapping rules
+- Default to "reuse" for standard categories (e.g. "Sales Credit", "Overlay Credit")
+- Use "create" for plan-specific categories not likely in the client's existing setup
+- Use "create_with_mapping" when the plan introduces a new credit type that needs historical data migrated
+
+Expression Category Rules:
+- Attainment: formulas that calculate % of quota (e.g. SUM(Credit.Credit Amount / Measure.Interval Target))
+- Earnings: formulas that calculate payout (e.g. Measure.ITD Output Achieved * RTR)
+- RateDimensionInput: expressions that feed a rate table dimension (e.g. Measure result.<name>.ITD Output Achieved)
+- Weighted: weighted score expressions (e.g. SUM(Credit.Credit Amount * Measure.Weight))
+
+Calculation Setting Rules:
+- Per-event commission: calculate_incentive=Per event, process_transactions=Individually, running_total=Yes
+- Quarterly bonus: calculate_incentive=Per interval, payout_frequency=Quarter
+- True-up: true_up=Yes with true_up_reset_interval matching the measure interval
+- Split attainment with fixed tier: split_attainment=Yes, fixed_within_tier=Yes
+
+Year-Specific Naming Rules:
+- If the plan document mentions a specific year, include that year in the names of:
+  compensation plans, plan components, expressions, performance measures
+- Credit categories should NOT include a year suffix — they are reused across years
+- Rate dimensions should NOT include a year suffix
+- Rate tables may include a year if rates change annually
 
 Rules:
 - Output MUST be valid JSON (no prose). If unknown, leave arrays empty.
 - Use concise, accurate entries. Include short exact excerpts when available.
 - Do not assume invoice-based crediting unless present in the text.
+- Rate table percentages should be stored as decimals (25% → 0.25).
+- Each plan component should have a matching calculation_settings entry.
+- Classify each expression into the correct expression_category.
 
 Plan Document (verbatim, truncated if long):
 <<<

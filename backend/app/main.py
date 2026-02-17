@@ -64,7 +64,7 @@ async def _validation(request, exc):
 
 
 # ---------- Helpers ----------
-ALLOWED_EXTS = {".pdf", ".txt", ".md", ".csv", ".log", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
+ALLOWED_EXTS = {".pdf", ".txt", ".md", ".csv", ".log", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".docx", ".xlsx", ".xml"}
 MAX_UPLOAD_MB = 50
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", "change-me")
@@ -340,7 +340,7 @@ async def analyze_for_icm(
             shutil.copyfileobj(file.file, f)
 
         # Parse optional params from query string
-        org_id = int(request.query_params.get("org_id", "300000046987012"))
+        org_id = int(request.query_params.get("org_id", "0"))
         template = request.query_params.get("template", "oracle_mapping")
 
         result = run_analysis_for_icm(target, template=template, org_id=org_id)
@@ -351,16 +351,32 @@ async def analyze_for_icm(
             result["analysis"],
             result["icm_workbook_bytes"],
             result["validation_warnings"],
+            design_doc_bytes=result.get("design_doc_bytes"),
+            config_doc_bytes=result.get("config_doc_bytes"),
         )
 
-        # Save workbook to disk for download
-        wb_path = OUTPUT_DIR / f"icm_{result['analysis_id']}.xlsx"
+        # Save workbook + documents to disk for download
+        aid = result["analysis_id"]
+        wb_path = OUTPUT_DIR / f"icm_{aid}.xlsx"
         wb_path.write_bytes(result["icm_workbook_bytes"])
+        if result.get("design_doc_bytes"):
+            (OUTPUT_DIR / f"design_{aid}.docx").write_bytes(result["design_doc_bytes"])
+        if result.get("config_doc_bytes"):
+            (OUTPUT_DIR / f"config_{aid}.docx").write_bytes(result["config_doc_bytes"])
+        if result.get("efficiency_doc_bytes"):
+            (OUTPUT_DIR / f"efficiency_{aid}.docx").write_bytes(result["efficiency_doc_bytes"])
+        if result.get("xml_export_bytes"):
+            (OUTPUT_DIR / f"export_{aid}.xml").write_bytes(result["xml_export_bytes"])
 
         return {
-            "analysis_id": result["analysis_id"],
+            "analysis_id": aid,
             "message": "ICM analysis complete",
-            "download_url": f"/api/icm-workbook/{result['analysis_id']}",
+            "download_url": f"/api/icm-workbook/{aid}",
+            "design_doc_url": f"/api/design-doc/{aid}",
+            "config_doc_url": f"/api/config-doc/{aid}",
+            "efficiency_doc_url": f"/api/efficiency-report/{aid}",
+            "xml_export_url": f"/api/export-xml/{aid}",
+            "efficiency_score": result.get("efficiency_report", {}).get("score"),
             "validation_warnings": result["validation_warnings"],
             "oracle_mapping_summary": {
                 k: len(v) if isinstance(v, list) else v
@@ -370,6 +386,210 @@ async def analyze_for_icm(
     except Exception as e:
         print(f"[analyze-for-icm] ERROR: {type(e).__name__}: {e}")
         return JSONResponse({"error": f"ICM analysis failed: {e}"}, status_code=500)
+
+
+@app.post("/api/analyze-url")
+async def analyze_url(payload: dict):
+    """Analyze a compensation plan from a web URL (Google Doc, PDF link, wiki page)."""
+    from ..core.pipeline import run_analysis_for_icm
+    from ..core.icm_review import save_review
+    from ..core.fetching import fetch_url_text
+
+    url = payload.get("url", "").strip()
+    if not url:
+        return JSONResponse({"error": "url is required"}, status_code=400)
+
+    org_id = int(payload.get("org_id", "0"))
+    template = payload.get("template", "oracle_mapping")
+
+    try:
+        text, source_type = fetch_url_text(url)
+    except ValueError as e:
+        return JSONResponse({"error": f"Failed to fetch URL: {e}"}, status_code=400)
+    except Exception as e:
+        return JSONResponse({"error": f"URL fetch error: {e}"}, status_code=502)
+
+    try:
+        result = run_analysis_for_icm(text=text, template=template, org_id=org_id)
+
+        aid = result["analysis_id"]
+        save_review(
+            aid,
+            result["analysis"],
+            result["icm_workbook_bytes"],
+            result["validation_warnings"],
+            design_doc_bytes=result.get("design_doc_bytes"),
+            config_doc_bytes=result.get("config_doc_bytes"),
+        )
+
+        wb_path = OUTPUT_DIR / f"icm_{aid}.xlsx"
+        wb_path.write_bytes(result["icm_workbook_bytes"])
+        if result.get("design_doc_bytes"):
+            (OUTPUT_DIR / f"design_{aid}.docx").write_bytes(result["design_doc_bytes"])
+        if result.get("config_doc_bytes"):
+            (OUTPUT_DIR / f"config_{aid}.docx").write_bytes(result["config_doc_bytes"])
+        if result.get("efficiency_doc_bytes"):
+            (OUTPUT_DIR / f"efficiency_{aid}.docx").write_bytes(result["efficiency_doc_bytes"])
+        if result.get("xml_export_bytes"):
+            (OUTPUT_DIR / f"export_{aid}.xml").write_bytes(result["xml_export_bytes"])
+
+        return {
+            "analysis_id": aid,
+            "message": "ICM analysis complete",
+            "source_type": source_type,
+            "source_url": url,
+            "download_url": f"/api/icm-workbook/{aid}",
+            "design_doc_url": f"/api/design-doc/{aid}",
+            "config_doc_url": f"/api/config-doc/{aid}",
+            "efficiency_doc_url": f"/api/efficiency-report/{aid}",
+            "xml_export_url": f"/api/export-xml/{aid}",
+            "efficiency_score": result.get("efficiency_report", {}).get("score"),
+            "validation_warnings": result["validation_warnings"],
+            "oracle_mapping_summary": {
+                k: len(v) if isinstance(v, list) else v
+                for k, v in result["analysis"].get("oracle_mapping", {}).items()
+            },
+        }
+    except Exception as e:
+        print(f"[analyze-url] ERROR: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"ICM analysis failed: {e}"}, status_code=500)
+
+
+@app.post("/api/analyze-text")
+async def analyze_text(payload: dict):
+    """Analyze a compensation plan from raw text or pasted ChatGPT output."""
+    from ..core.pipeline import run_analysis_for_icm
+    from ..core.icm_review import save_review
+
+    text = payload.get("text", "").strip()
+    if not text:
+        return JSONResponse({"error": "text is required"}, status_code=400)
+
+    org_id = int(payload.get("org_id", "0"))
+    template = payload.get("template", "oracle_mapping")
+
+    try:
+        result = run_analysis_for_icm(text=text, template=template, org_id=org_id)
+
+        aid = result["analysis_id"]
+        save_review(
+            aid,
+            result["analysis"],
+            result["icm_workbook_bytes"],
+            result["validation_warnings"],
+            design_doc_bytes=result.get("design_doc_bytes"),
+            config_doc_bytes=result.get("config_doc_bytes"),
+        )
+
+        wb_path = OUTPUT_DIR / f"icm_{aid}.xlsx"
+        wb_path.write_bytes(result["icm_workbook_bytes"])
+        if result.get("design_doc_bytes"):
+            (OUTPUT_DIR / f"design_{aid}.docx").write_bytes(result["design_doc_bytes"])
+        if result.get("config_doc_bytes"):
+            (OUTPUT_DIR / f"config_{aid}.docx").write_bytes(result["config_doc_bytes"])
+        if result.get("efficiency_doc_bytes"):
+            (OUTPUT_DIR / f"efficiency_{aid}.docx").write_bytes(result["efficiency_doc_bytes"])
+        if result.get("xml_export_bytes"):
+            (OUTPUT_DIR / f"export_{aid}.xml").write_bytes(result["xml_export_bytes"])
+
+        return {
+            "analysis_id": aid,
+            "message": "ICM analysis complete",
+            "source_type": "text",
+            "download_url": f"/api/icm-workbook/{aid}",
+            "design_doc_url": f"/api/design-doc/{aid}",
+            "config_doc_url": f"/api/config-doc/{aid}",
+            "efficiency_doc_url": f"/api/efficiency-report/{aid}",
+            "xml_export_url": f"/api/export-xml/{aid}",
+            "efficiency_score": result.get("efficiency_report", {}).get("score"),
+            "validation_warnings": result["validation_warnings"],
+            "oracle_mapping_summary": {
+                k: len(v) if isinstance(v, list) else v
+                for k, v in result["analysis"].get("oracle_mapping", {}).items()
+            },
+        }
+    except Exception as e:
+        print(f"[analyze-text] ERROR: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"ICM analysis failed: {e}"}, status_code=500)
+
+
+@app.post("/api/import-xml")
+async def import_xml(
+    request: Request,
+    file: UploadFile = File(...),
+):
+    """Import Oracle ICM IcCnPlanCopy XML export directly into ICM workbook.
+
+    Bypasses the AI/LLM pipeline entirely — structured XML parsing produces
+    the oracle_mapping dict, then the existing transformer generates the workbook.
+    """
+    from ..core.pipeline import run_xml_import
+    from ..core.icm_review import save_review
+
+    try:
+        filename = _safe_name(file.filename)
+        ext = Path(filename).suffix.lower()
+        if ext != ".xml":
+            return JSONResponse({"error": "Only .xml files are accepted"}, status_code=400)
+
+        target = UPLOAD_DIR / filename
+        with target.open("wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        # Parse optional params from query string
+        org_id = int(request.query_params.get("org_id", "0"))
+        plan_year_str = request.query_params.get("plan_year", "")
+        plan_year = int(plan_year_str) if plan_year_str else None
+
+        result = run_xml_import(target, plan_year=plan_year, org_id=org_id)
+
+        aid = result["analysis_id"]
+        save_review(
+            aid,
+            result["analysis"],
+            result["icm_workbook_bytes"],
+            result["validation_warnings"],
+            design_doc_bytes=result.get("design_doc_bytes"),
+            config_doc_bytes=result.get("config_doc_bytes"),
+        )
+
+        # Save workbook + documents to disk for download
+        wb_path = OUTPUT_DIR / f"icm_{aid}.xlsx"
+        wb_path.write_bytes(result["icm_workbook_bytes"])
+        if result.get("design_doc_bytes"):
+            (OUTPUT_DIR / f"design_{aid}.docx").write_bytes(result["design_doc_bytes"])
+        if result.get("config_doc_bytes"):
+            (OUTPUT_DIR / f"config_{aid}.docx").write_bytes(result["config_doc_bytes"])
+        if result.get("efficiency_doc_bytes"):
+            (OUTPUT_DIR / f"efficiency_{aid}.docx").write_bytes(result["efficiency_doc_bytes"])
+        if result.get("xml_export_bytes"):
+            (OUTPUT_DIR / f"export_{aid}.xml").write_bytes(result["xml_export_bytes"])
+
+        # Extract source plan name from the analysis
+        comp_plans = result["analysis"].get("oracle_mapping", {}).get("compensation_plans", [])
+        source_plan_name = comp_plans[0]["name"] if comp_plans else "Unknown"
+
+        return {
+            "analysis_id": aid,
+            "message": "XML import complete — workbook generated",
+            "source_type": "xml_import",
+            "source_plan_name": source_plan_name,
+            "download_url": f"/api/icm-workbook/{aid}",
+            "design_doc_url": f"/api/design-doc/{aid}",
+            "config_doc_url": f"/api/config-doc/{aid}",
+            "efficiency_doc_url": f"/api/efficiency-report/{aid}",
+            "xml_export_url": f"/api/export-xml/{aid}",
+            "efficiency_score": result.get("efficiency_report", {}).get("score"),
+            "efficiency_findings": result.get("efficiency_report", {}).get("summary"),
+            "validation_warnings": result["validation_warnings"],
+            "oracle_mapping_summary": {
+                k: len(v) if isinstance(v, list) else v
+                for k, v in result["analysis"].get("oracle_mapping", {}).items()
+            },
+        }
+    except Exception as e:
+        print(f"[import-xml] ERROR: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"XML import failed: {e}"}, status_code=500)
 
 
 @app.get("/api/icm-workbook/{analysis_id}")
@@ -383,6 +603,58 @@ def get_icm_workbook(analysis_id: str):
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
     return JSONResponse({"error": "Workbook not found"}, status_code=404)
+
+
+@app.get("/api/design-doc/{analysis_id}")
+def get_design_doc(analysis_id: str):
+    """Download the generated Design Document for review."""
+    doc_path = OUTPUT_DIR / f"design_{analysis_id}.docx"
+    if doc_path.exists():
+        return FileResponse(
+            str(doc_path),
+            filename=f"Design_Document_{analysis_id}.docx",
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+    return JSONResponse({"error": "Design document not found"}, status_code=404)
+
+
+@app.get("/api/config-doc/{analysis_id}")
+def get_config_doc(analysis_id: str):
+    """Download the generated Configuration Document for review."""
+    doc_path = OUTPUT_DIR / f"config_{analysis_id}.docx"
+    if doc_path.exists():
+        return FileResponse(
+            str(doc_path),
+            filename=f"Configuration_Document_{analysis_id}.docx",
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+    return JSONResponse({"error": "Configuration document not found"}, status_code=404)
+
+
+@app.get("/api/efficiency-report/{analysis_id}")
+def get_efficiency_report(analysis_id: str):
+    """Download the Configuration Efficiency Report."""
+    doc_path = OUTPUT_DIR / f"efficiency_{analysis_id}.docx"
+    if doc_path.exists():
+        return FileResponse(
+            str(doc_path),
+            filename=f"Efficiency_Report_{analysis_id}.docx",
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+    return JSONResponse({"error": "Efficiency report not found"}, status_code=404)
+
+
+@app.get("/api/export-xml/{analysis_id}")
+def get_export_xml(analysis_id: str):
+    """Download the generated IcCnPlanCopy XML for Oracle ICM import."""
+    xml_path = OUTPUT_DIR / f"export_{analysis_id}.xml"
+    if xml_path.exists():
+        return FileResponse(
+            str(xml_path),
+            filename=f"IcCnPlanCopy_{analysis_id}.xml",
+            media_type="application/xml",
+        )
+    return JSONResponse({"error": "XML export not found"}, status_code=404)
 
 
 @app.post("/api/icm-workbook/{analysis_id}/review")
@@ -403,9 +675,33 @@ async def review_icm_workbook(analysis_id: str, payload: dict):
         return {"status": "rejected", "analysis_id": analysis_id}
 
 
+@app.get("/api/deploy-preview/{analysis_id}")
+def deploy_preview(analysis_id: str):
+    """Preview what objects will be deployed (no API calls made)."""
+    from ..core.icm_deployer import preview_deployment
+    from ..core.icm_review import get_review
+
+    wb_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
+    if not wb_path.exists():
+        review = get_review(analysis_id)
+        if review and review.get("workbook_bytes"):
+            wb_path.write_bytes(review["workbook_bytes"])
+        else:
+            return JSONResponse({"error": "Workbook not found"}, status_code=404)
+
+    return preview_deployment(wb_path)
+
+
 @app.post("/api/deploy-to-icm/{analysis_id}")
 async def deploy_to_icm(analysis_id: str, payload: dict):
-    """Deploy the reviewed ICM workbook to Oracle Fusion ICM."""
+    """Deploy the reviewed ICM workbook to Oracle Fusion ICM.
+
+    Supports two credential modes:
+    - config_path: path to ICM Optimizer config.yaml
+    - Direct credentials: base_url + username + password in payload
+
+    Returns deployment results with a detailed request/response log.
+    """
     from ..core.icm_review import get_review
     from ..core.icm_deployer import deploy_to_oracle_icm
 
@@ -419,13 +715,6 @@ async def deploy_to_icm(analysis_id: str, payload: dict):
             status_code=400,
         )
 
-    config_path = payload.get("config_path", "")
-    if not config_path:
-        return JSONResponse(
-            {"error": "config_path is required (path to ICM Optimizer config.yaml)"},
-            status_code=400,
-        )
-
     dry_run = payload.get("dry_run", False)
 
     # Ensure workbook exists on disk
@@ -433,16 +722,78 @@ async def deploy_to_icm(analysis_id: str, payload: dict):
     if not wb_path.exists():
         wb_path.write_bytes(review["workbook_bytes"])
 
-    result = deploy_to_oracle_icm(
-        excel_path=wb_path,
-        config_path=Path(config_path),
-        dry_run=dry_run,
-    )
+    # Build approval tag for audit trail
+    approved_at = review.get("reviewed_at", "")
+    approval_tag = f"Analysis {analysis_id} | Approved: {approved_at}"
+
+    # Support both config file and direct credential modes
+    config_path = payload.get("config_path", "")
+    base_url = payload.get("base_url", "")
+    username = payload.get("username", "")
+    password = payload.get("password", "")
+
+    selected_org_id = int(payload.get("org_id", 0))
+
+    if base_url and username and password:
+        result = deploy_to_oracle_icm(
+            excel_path=wb_path,
+            dry_run=dry_run,
+            base_url=base_url,
+            username=username,
+            password=password,
+            org_id=selected_org_id,
+            approval_tag=approval_tag,
+        )
+    elif config_path:
+        result = deploy_to_oracle_icm(
+            excel_path=wb_path,
+            config_path=Path(config_path),
+            dry_run=dry_run,
+            org_id=selected_org_id,
+            approval_tag=approval_tag,
+        )
+    else:
+        return JSONResponse(
+            {"error": "Provide either config_path or base_url+username+password"},
+            status_code=400,
+        )
+
+    # Save detailed log to disk for later retrieval
+    import json as _json
+    detailed_log = result.get("detailed_log")
+    if detailed_log:
+        log_path = OUTPUT_DIR / f"deploy_log_{analysis_id}.json"
+        with open(log_path, "w") as f:
+            _json.dump(detailed_log, f, indent=2, default=str)
 
     return {
         "analysis_id": analysis_id,
         "deployment": result,
     }
+
+
+@app.get("/api/deploy-log/{analysis_id}")
+def get_deploy_log(analysis_id: str):
+    """Retrieve the detailed deployment log for a given analysis."""
+    import json as _json
+    log_path = OUTPUT_DIR / f"deploy_log_{analysis_id}.json"
+    if log_path.exists():
+        with open(log_path) as f:
+            return _json.load(f)
+    return JSONResponse({"error": "Deployment log not found"}, status_code=404)
+
+
+@app.get("/api/configured-workbook/{analysis_id}")
+def get_configured_workbook(analysis_id: str):
+    """Download the post-deployment configured workbook with Oracle IDs."""
+    wb_path = OUTPUT_DIR / f"icm_configured_{analysis_id}.xlsx"
+    if wb_path.exists():
+        return FileResponse(
+            str(wb_path),
+            filename=f"ICM_Configured_{analysis_id}.xlsx",
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    return JSONResponse({"error": "Configured workbook not found. Run deployment first."}, status_code=404)
 
 
 @app.get("/api/icm-reviews")
@@ -526,29 +877,104 @@ async def icm_deploy_validate_excel(payload: dict):
         return {"success": False, "message": f"Cannot read Excel: {e}"}
 
 
+@app.post("/api/icm-deploy/list-orgs")
+async def icm_deploy_list_orgs(payload: dict):
+    """Query Oracle instance for available Business Units (OrgIds).
+
+    Returns a list of {org_id, name} dicts the user can choose from.
+    Tries multiple Oracle REST endpoints to discover BUs.
+    """
+    from ..icm_optimizer.utils.api_client import APIClient
+
+    base_url = payload.get("base_url", "")
+    username = payload.get("username", "")
+    password = payload.get("password", "")
+    if not all([base_url, username, password]):
+        return JSONResponse(
+            {"success": False, "message": "base_url, username, and password required"},
+            status_code=400,
+        )
+
+    try:
+        client = APIClient(base_url=base_url, username=username, password=password)
+        orgs: list = []
+        seen_ids: set = set()
+
+        # Strategy 0: Query Business Units LOV directly (proper approach)
+        response, status = client.get("/businessUnits?limit=500&fields=BusinessUnitId,BusinessUnitName,Status")
+        if status == 200 and response.get("items"):
+            for item in response["items"]:
+                oid = item.get("BusinessUnitId", 0)
+                name = item.get("BusinessUnitName", "")
+                bu_status = item.get("Status", "")
+                if oid and oid not in seen_ids:
+                    seen_ids.add(oid)
+                    status_label = f" [{bu_status}]" if bu_status else ""
+                    orgs.append({"org_id": oid, "name": f"{name}{status_label}" if name else f"OrgId: {oid}"})
+
+        # Strategy 1: Query compensation plans for distinct OrgId values (fallback)
+        if not orgs:
+            response, status = client.get("/compensationPlans?limit=100&fields=OrgId,Name")
+            if status == 200 and response.get("items"):
+                for item in response["items"]:
+                    oid = item.get("OrgId", 0)
+                    if oid and oid not in seen_ids:
+                        seen_ids.add(oid)
+                        orgs.append({"org_id": oid, "name": f"Business Unit (from plan: {item.get('Name', 'N/A')})"})
+
+        # Strategy 2: Query performance measures if no plans found
+        if not orgs:
+            response, status = client.get("/incentiveCompensationPerformanceMeasures?limit=100&fields=OrgId,Name")
+            if status == 200 and response.get("items"):
+                for item in response["items"]:
+                    oid = item.get("OrgId", 0)
+                    if oid and oid not in seen_ids:
+                        seen_ids.add(oid)
+                        orgs.append({"org_id": oid, "name": f"Business Unit (from measure: {item.get('Name', 'N/A')})"})
+
+        # Strategy 3: Query the workbook Config sheet if an analysis_id is provided
+        analysis_id = payload.get("analysis_id", "")
+        if analysis_id:
+            wb_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
+            if wb_path.exists():
+                try:
+                    cfg_df = pd.read_excel(wb_path, sheet_name="Config")
+                    row = cfg_df.loc[cfg_df["Key"] == "OrgId"]
+                    if not row.empty:
+                        wb_org = int(row.iloc[0]["Value"])
+                        if wb_org and wb_org not in seen_ids:
+                            seen_ids.add(wb_org)
+                            orgs.append({"org_id": wb_org, "name": "From ICM Workbook"})
+                except Exception:
+                    pass
+
+        return {
+            "success": True,
+            "orgs": orgs,
+            "message": f"Found {len(orgs)} business unit(s)" if orgs else "No business units found. Enter OrgId manually.",
+        }
+    except Exception as e:
+        return {"success": False, "orgs": [], "message": f"Failed to query orgs: {e}"}
+
+
 @app.post("/api/icm-deploy/run")
 async def icm_deploy_run(payload: dict):
-    """Run the 6-step ICM deployment."""
+    """Run the 6-step ICM deployment.
+
+    Supports two modes:
+    - Config file mode: config_id + password
+    - Direct credential mode: base_url + username + password (no config upload needed)
+    """
     from ..core.icm_deployer import deploy_to_oracle_icm
 
     analysis_id = payload.get("analysis_id", "")
     config_id = payload.get("config_id", "")
     password = payload.get("password", "")
+    base_url = payload.get("base_url", "")
+    username = payload.get("username", "")
+    selected_org_id = int(payload.get("org_id", 0))
 
-    session = _deploy_sessions.get(config_id)
-    if not session:
-        return JSONResponse({"success": False, "message": "Config not found. Upload config first."}, status_code=400)
-
-    yaml_path = session["yaml_path"]
-
-    if password:
-        import yaml
-        with open(yaml_path) as f:
-            cfg = yaml.safe_load(f)
-        cfg.setdefault("api", {})["password"] = password
-        with open(yaml_path, "w") as f:
-            yaml.dump(cfg, f, default_flow_style=False)
-
+    # Ensure workbook exists
     excel_path = OUTPUT_DIR / f"icm_{analysis_id}.xlsx"
     if not excel_path.exists():
         from ..core.icm_review import get_review
@@ -558,11 +984,46 @@ async def icm_deploy_run(payload: dict):
         else:
             return JSONResponse({"success": False, "message": f"Workbook not found for analysis {analysis_id}"}, status_code=404)
 
-    result = deploy_to_oracle_icm(
-        excel_path=excel_path,
-        config_path=Path(yaml_path),
-        dry_run=False,
-    )
+    # Direct credential mode (no config file needed)
+    if base_url and username and password:
+        result = deploy_to_oracle_icm(
+            excel_path=excel_path,
+            base_url=base_url,
+            username=username,
+            password=password,
+            org_id=selected_org_id,
+        )
+    elif config_id:
+        # Config file mode
+        session = _deploy_sessions.get(config_id)
+        if not session:
+            return JSONResponse({"success": False, "message": "Provide credentials or upload config first."}, status_code=400)
+
+        yaml_path = session["yaml_path"]
+
+        if password:
+            import yaml
+            with open(yaml_path) as f:
+                cfg = yaml.safe_load(f)
+            cfg.setdefault("api", {})["password"] = password
+            with open(yaml_path, "w") as f:
+                yaml.dump(cfg, f, default_flow_style=False)
+
+        result = deploy_to_oracle_icm(
+            excel_path=excel_path,
+            config_path=Path(yaml_path),
+        )
+    else:
+        return JSONResponse({"success": False, "message": "Provide credentials or upload config first."}, status_code=400)
+
+    # Save detailed log to disk for later retrieval / download
+    import json as _json
+    detailed_log = result.get("detailed_log")
+    if detailed_log:
+        log_path = OUTPUT_DIR / f"deploy_log_{analysis_id}.json"
+        with open(log_path, "w") as f:
+            _json.dump(detailed_log, f, indent=2, default=str)
+
     return {"analysis_id": analysis_id, "deployment": result}
 
 
@@ -572,6 +1033,11 @@ async def spa_fallback(request: Request, call_next):
     p = request.url.path
     if p.startswith("/api") or p.startswith("/static") or p in ("/docs", "/openapi.json", "/healthz"):
         return await call_next(request)
+    # Serve .html files directly from static dir (e.g. /icm-e2e.html → static/icm-e2e.html)
+    if p.endswith(".html"):
+        static_file = STATIC_DIR / p.lstrip("/")
+        if static_file.exists():
+            return FileResponse(str(static_file))
     if INDEX_FILE.exists():
         return FileResponse(str(INDEX_FILE))
     return await call_next(request)

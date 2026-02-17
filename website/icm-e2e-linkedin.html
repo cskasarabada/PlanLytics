@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICM End-to-End | From Plan Document to Oracle ICM Deployment in Minutes</title>
+    <meta name="description" content="Automate Oracle ICM configuration end-to-end: AI plan analysis, document generation, XML export, efficiency optimization, and REST API deployment. Built by ICM PlanLytics.">
+
+    <!-- Open Graph / LinkedIn -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ICM End-to-End | Oracle ICM Configuration Automation">
+    <meta property="og:description" content="5 stages. 1 workspace. From compensation plan document to live Oracle ICM deployment in minutes, not months.">
+    <meta property="og:url" content="https://icm-planlytics.com/icm-e2e-linkedin.html">
+    <meta property="og:site_name" content="ICM PlanLytics">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ICM End-to-End | Oracle ICM Configuration Automation">
+    <meta name="twitter:description" content="5 stages. 1 workspace. From compensation plan document to live Oracle ICM deployment in minutes.">
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --ink: #0f172a; }
+        body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0f766e 100%);
+        }
+        .glass {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(226,232,240,0.9);
+            box-shadow: 0 12px 32px rgba(15,23,42,0.07);
+        }
+        .stage-card {
+            transition: all .25s ease;
+            border: 1px solid rgba(226,232,240,0.8);
+        }
+        .stage-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(15,23,42,0.12);
+        }
+        .stage-num {
+            width: 2.5rem; height: 2.5rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .875rem;
+            flex-shrink: 0;
+        }
+        .pipeline-connector {
+            position: relative;
+        }
+        .pipeline-connector::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #22c55e);
+        }
+        @media (max-width: 1024px) {
+            .pipeline-connector::after { display: none; }
+        }
+        .metric-ring {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .testimonial-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+            border: 1px solid rgba(226,232,240,0.7);
+        }
+
+        /* Animated pipeline */
+        @keyframes flowRight {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+        .flow-line {
+            overflow: hidden;
+            position: relative;
+        }
+        .flow-line::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 60px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.6), transparent);
+            animation: flowRight 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- ═══════════════════ HERO ═══════════════════ -->
+    <section class="hero-gradient text-white relative overflow-hidden">
+        <!-- Decorative circles -->
+        <div class="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full bg-white/5 blur-xl"></div>
+        <div class="absolute bottom-[-15%] left-[-8%] w-80 h-80 rounded-full bg-teal-400/10 blur-xl"></div>
+
+        <!-- Nav -->
+        <nav class="relative z-10 max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center border border-white/30">
+                    <span class="text-white font-bold text-sm">ICM</span>
+                </div>
+                <span class="text-xl font-bold">ICM PlanLytics</span>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm text-white/80">
+                <a href="icm-e2e.html" class="hover:text-white transition-colors font-medium">Try ICM E2E</a>
+                <a href="ai-plan-analytics.html" class="hover:text-white transition-colors">AI Plan Analytics</a>
+                <a href="ai-plan-studio.html" class="hover:text-white transition-colors">Plan Studio</a>
+                <a href="mailto:sales@icm-planlytics.com" class="bg-white/20 border border-white/30 px-4 py-2 rounded-lg hover:bg-white/30 transition-colors font-medium">
+                    Get in Touch
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero content -->
+        <div class="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-24 md:pt-20 md:pb-32">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-teal-300 mb-6">
+                    Oracle ICM Automation
+                </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6">
+                    From plan document to<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-blue-300">live ICM deployment</span><br>
+                    in minutes.
+                </h1>
+                <p class="text-xl md:text-2xl text-white/70 max-w-2xl mb-10 leading-relaxed">
+                    Five connected stages. One workspace. AI-powered Oracle ICM configuration
+                    that turns weeks of manual work into a single session.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="icm-e2e.html" class="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-colors shadow-lg shadow-black/20">
+                        Launch ICM E2E
+                    </a>
+                    <a href="#how-it-works" class="border border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-colors">
+                        See How It Works
+                    </a>
+                </div>
+            </div>
+
+            <!-- Floating metric cards -->
+            <div class="hidden lg:grid grid-cols-3 gap-4 max-w-md absolute right-8 top-1/2 -translate-y-1/2">
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-3xl font-bold text-teal-300">5</div>
+                    <div class="text-xs text-white/60 mt-1">Pipeline<br>Stages</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-300">12</div>
+                    <div class="text-xs text-white/60 mt-1">Excel<br>Sheets</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-3xl font-bold text-emerald-300">6</div>
+                    <div class="text-xs text-white/60 mt-1">REST API<br>Steps</div>
+                </div>
+                <div class="col-span-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 text-center">
+                    <div class="text-2xl font-bold text-amber-300">95%</div>
+                    <div class="text-xs text-white/60 mt-1">Configuration extraction accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom wave -->
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-slate-50" style="clip-path: ellipse(55% 100% at 50% 100%);"></div>
+    </section>
+
+    <!-- ═══════════════════ PROBLEM / SOLUTION ═══════════════════ -->
+    <section class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">The Problem</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Oracle ICM implementations take months.<br>They don't have to.
+                </h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Manual plan analysis, spreadsheet-based configuration, and error-prone REST API deployment
+                    create bottlenecks across every ICM project.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Before -->
+                <div class="bg-red-50/60 border border-red-200/60 rounded-2xl p-8">
+                    <div class="text-xs uppercase tracking-wide text-red-500 font-semibold mb-4">Before ICM E2E</div>
+                    <div class="space-y-4 text-sm text-slate-700">
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            <span>3-4 weeks to manually read and map compensation plan documents</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            <span>Manual Excel workbook creation for every plan component, expression, and rate table</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            <span>No efficiency analysis &mdash; year-over-year config bloat goes unchecked</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            <span>Error-prone REST API deployment with no preview or rollback</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <div class="text-3xl font-bold text-red-600">4-8 weeks</div>
+                        <div class="text-xs text-red-500 mt-1">Typical implementation timeline</div>
+                    </div>
+                </div>
+
+                <!-- After -->
+                <div class="bg-emerald-50/60 border border-emerald-200/60 rounded-2xl p-8">
+                    <div class="text-xs uppercase tracking-wide text-emerald-600 font-semibold mb-4">With ICM E2E</div>
+                    <div class="space-y-4 text-sm text-slate-700">
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            <span>AI reads plan documents and maps to ICM objects in minutes</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            <span>12-sheet ICM workbook, Design Doc, and Config Doc generated automatically</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            <span>Configuration efficiency scoring with actionable optimization findings</span>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            <span>One-click deployment via Oracle REST APIs with preview and logging</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <div class="text-3xl font-bold text-emerald-600">Under 1 hour</div>
+                        <div class="text-xs text-emerald-500 mt-1">End-to-end with ICM E2E</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ 5-STAGE PIPELINE ═══════════════════ -->
+    <section id="how-it-works" class="py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">How It Works</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Five stages. One continuous flow.
+                </h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Each stage produces real, downloadable artifacts. No black boxes.
+                </p>
+            </div>
+
+            <!-- Animated pipeline bar -->
+            <div class="max-w-4xl mx-auto mb-12">
+                <div class="flow-line h-1 bg-gradient-to-r from-blue-500 via-teal-500 to-emerald-500 rounded-full"></div>
+            </div>
+
+            <!-- Stage cards -->
+            <div class="grid md:grid-cols-5 gap-6">
+                <!-- Stage 1 -->
+                <div class="stage-card rounded-2xl p-6 bg-white">
+                    <div class="stage-num bg-blue-100 text-blue-700 mb-4">1</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Plan Agent</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Upload a PDF, paste text, import Oracle XML, or fetch from a URL. AI maps everything to ICM objects.
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">PDF</span>
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">DOCX</span>
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">URL</span>
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">XML</span>
+                    </div>
+                </div>
+
+                <!-- Stage 2 -->
+                <div class="stage-card rounded-2xl p-6 bg-white">
+                    <div class="stage-num bg-violet-100 text-violet-700 mb-4">2</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Documents &amp; Config</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Download a Design Document, Configuration Document, and 12-sheet ICM Excel workbook.
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded-full">.docx</span>
+                        <span class="text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded-full">.xlsx</span>
+                    </div>
+                </div>
+
+                <!-- Stage 3 -->
+                <div class="stage-card rounded-2xl p-6 bg-white">
+                    <div class="stage-num bg-teal-100 text-teal-700 mb-4">3</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Generate XML</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Export a native IcCnPlanCopy XML ready for Oracle Fusion Scheduled Process import.
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded-full">IcCnPlanCopy</span>
+                        <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded-full">.xml</span>
+                    </div>
+                </div>
+
+                <!-- Stage 4 -->
+                <div class="stage-card rounded-2xl p-6 bg-white">
+                    <div class="stage-num bg-amber-100 text-amber-700 mb-4">4</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Efficiency Report</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Score your config 0-100 with findings on duplicates, unused objects, and optimization opportunities.
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-full">Scoring</span>
+                        <span class="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-full">12 checks</span>
+                    </div>
+                </div>
+
+                <!-- Stage 5 -->
+                <div class="stage-card rounded-2xl p-6 bg-white">
+                    <div class="stage-num bg-emerald-100 text-emerald-700 mb-4">5</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Deploy via REST</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Push to Oracle Fusion ICM via REST API. Preview objects, approve, deploy with real-time logging.
+                    </p>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full">REST API</span>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full">6 steps</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ WHAT GETS GENERATED ═══════════════════ -->
+    <section class="py-20 px-6 bg-slate-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverables</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Real artifacts. Not just summaries.
+                </h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Every stage produces files you can download, review, share with stakeholders, and deploy.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Design Document</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        A Word document covering plan structure, risk assessment, implementation questions, and recommended ICM architecture.
+                    </p>
+                    <div class="text-xs text-indigo-600 font-semibold">.docx &mdash; Phase 1</div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Configuration Document</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        Detailed Oracle ICM object mapping with expressions, rate tables, crediting rules, and calculation settings.
+                    </p>
+                    <div class="text-xs text-violet-600 font-semibold">.docx &mdash; Phase 2</div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">ICM Workbook (12 sheets)</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        Credit Categories, Rate Dimensions, Rate Tables, Expressions, Performance Measures, Goals, Plan Components, Comp Plans, Calculation Settings, and more.
+                    </p>
+                    <div class="text-xs text-slate-600 font-semibold">.xlsx &mdash; Phase 2</div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Efficiency Report</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        Configuration quality score (0-100) with specific findings on duplicates, unused objects, missing goals, and optimization candidates.
+                    </p>
+                    <div class="text-xs text-amber-600 font-semibold">.docx &mdash; Phase 2b</div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Oracle ICM XML</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        Native IcCnPlanCopy XML export compatible with Oracle Fusion's "Import Incentive Compensation Plans" scheduled process.
+                    </p>
+                    <div class="text-xs text-teal-600 font-semibold">.xml &mdash; Phase 3</div>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">REST API Deployment</h3>
+                    <p class="text-sm text-slate-600 mb-3">
+                        Direct deployment to Oracle Fusion ICM via REST APIs: Rate Dimensions, Rate Tables, Expressions, Measures, Components, and Comp Plans.
+                    </p>
+                    <div class="text-xs text-emerald-600 font-semibold">Live deployment &mdash; Phase 3</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ USE CASES ═══════════════════ -->
+    <section class="py-20 px-6 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Use Cases</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Built for Oracle ICM teams
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="border border-slate-200 rounded-2xl p-8">
+                    <div class="text-2xl mb-4">1.</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">New Plan Implementation</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Upload a compensation plan document (PDF, DOCX, or pasted text). The AI agent extracts plan structure,
+                        maps to Oracle ICM objects, generates all configuration artifacts, and optionally deploys via REST API.
+                    </p>
+                    <div class="text-xs text-blue-600 font-semibold">Input: Plan document &rarr; Output: Live ICM configuration</div>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl p-8">
+                    <div class="text-2xl mb-4">2.</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Year-Over-Year Plan Migration</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Import the current year's IcCnPlanCopy XML export. Migrate to the next plan year with updated date ranges,
+                        year-suffix logic, and credit category reuse. Export the new XML for upload.
+                    </p>
+                    <div class="text-xs text-teal-600 font-semibold">Input: 2025 XML &rarr; Output: 2026 XML + workbook</div>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl p-8">
+                    <div class="text-2xl mb-4">3.</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Configuration Health Check</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Import an existing Oracle ICM XML export and run the Efficiency Report. Find duplicate expressions,
+                        unused rate tables, missing goals, and consolidation candidates. Score your config 0-100.
+                    </p>
+                    <div class="text-xs text-amber-600 font-semibold">Input: Current XML &rarr; Output: Efficiency score + findings</div>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl p-8">
+                    <div class="text-2xl mb-4">4.</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">SI Accelerator</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        System integrators can use ICM E2E to accelerate client engagements. Generate Design Documents
+                        and Configuration Documents from plan requirements, then deploy to the client's Oracle instance.
+                    </p>
+                    <div class="text-xs text-violet-600 font-semibold">Input: Client requirements &rarr; Output: Full SI deliverable set</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ TECHNICAL DETAILS ═══════════════════ -->
+    <section class="py-20 px-6 bg-slate-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Technical Details</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Enterprise-grade Oracle ICM integration
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-3">Oracle REST API v11.13.18.05</h4>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Rate Dimensions &amp; Tables</li>
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Expressions with detail rows</li>
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Performance Measures &amp; Goals</li>
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Plan Components</li>
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Compensation Plans</li>
+                        <li class="flex gap-2"><span class="text-emerald-500 font-bold">+</span> Expression validation</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-3">12-Sheet ICM Workbook</h4>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Config (OrgId, Plan Year)</li>
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Credit Categories</li>
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Rate Dimensions &amp; Tables</li>
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Rate Table Rates</li>
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Expressions (detail rows)</li>
+                        <li class="flex gap-2"><span class="text-blue-500 font-bold">#</span> Eligible Categories</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-3">Efficiency Analysis (12 checks)</h4>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Duplicate expression detection</li>
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Unused rate tables &amp; expressions</li>
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Missing goals &amp; scorecards</li>
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Single-tier rate table candidates</li>
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Expression consolidation</li>
+                        <li class="flex gap-2"><span class="text-amber-500 font-bold">!</span> Component naming standards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ CREDIBILITY ═══════════════════ -->
+    <section class="py-20 px-6 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="metric-ring bg-blue-100 text-blue-700 mx-auto text-2xl">95%</div>
+                    <div class="text-sm font-semibold text-slate-900 mt-3">Extraction Accuracy</div>
+                    <div class="text-xs text-slate-500">AI plan analysis precision</div>
+                </div>
+                <div>
+                    <div class="metric-ring bg-teal-100 text-teal-700 mx-auto text-2xl">12</div>
+                    <div class="text-sm font-semibold text-slate-900 mt-3">ICM Object Types</div>
+                    <div class="text-xs text-slate-500">Complete configuration coverage</div>
+                </div>
+                <div>
+                    <div class="metric-ring bg-amber-100 text-amber-700 mx-auto text-2xl">6</div>
+                    <div class="text-sm font-semibold text-slate-900 mt-3">Deployment Steps</div>
+                    <div class="text-xs text-slate-500">Full REST API automation</div>
+                </div>
+                <div>
+                    <div class="metric-ring bg-emerald-100 text-emerald-700 mx-auto text-xl">100+</div>
+                    <div class="text-sm font-semibold text-slate-900 mt-3">Tests Passing</div>
+                    <div class="text-xs text-slate-500">Battle-tested pipeline</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ CTA ═══════════════════ -->
+    <section class="py-24 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="hero-gradient rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden">
+                <div class="absolute top-[-20%] right-[-10%] w-72 h-72 rounded-full bg-white/5 blur-xl"></div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6">
+                        Ready to automate your<br>Oracle ICM workflow?
+                    </h2>
+                    <p class="text-xl text-white/70 mb-10 max-w-xl mx-auto">
+                        Try ICM E2E today. Upload a plan document and see the full pipeline in action.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="icm-e2e.html" class="bg-white text-slate-900 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-colors shadow-lg shadow-black/20">
+                            Launch ICM E2E
+                        </a>
+                        <a href="mailto:sales@icm-planlytics.com?subject=ICM%20E2E%20Demo%20Request" class="border border-white/30 text-white px-10 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-colors">
+                            Request a Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <footer class="bg-slate-900 text-white py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-10">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">ICM</span>
+                        </div>
+                        <span class="text-xl font-bold">ICM PlanLytics</span>
+                    </div>
+                    <p class="text-slate-400 text-sm max-w-sm">
+                        AI-assisted Oracle ICM configuration, from compensation plan analysis to live cloud deployment.
+                    </p>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Product</div>
+                    <div class="space-y-2 text-sm text-slate-400">
+                        <a href="icm-e2e.html" class="block hover:text-white transition-colors">ICM E2E</a>
+                        <a href="ai-plan-analytics.html" class="block hover:text-white transition-colors">AI Plan Analytics</a>
+                        <a href="ai-plan-studio.html" class="block hover:text-white transition-colors">Plan Studio</a>
+                        <a href="sales-360-ai.html" class="block hover:text-white transition-colors">Sales 360 AI</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Contact</div>
+                    <div class="space-y-2 text-sm text-slate-400">
+                        <a href="mailto:sales@icm-planlytics.com" class="block hover:text-white transition-colors">sales@icm-planlytics.com</a>
+                        <a href="https://linkedin.com/company/icm-planlytics" class="block hover:text-white transition-colors">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 mt-10 pt-6 text-center text-sm text-slate-500">
+                &copy; 2025 ICM PlanLytics. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

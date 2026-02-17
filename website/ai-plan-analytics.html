@@ -83,6 +83,7 @@
                 </div>
                 <div class="hidden md:flex items-center space-x-5 whitespace-nowrap text-sm">
                     <a href="ai-plan-analytics.html" class="text-blue-600 font-medium whitespace-nowrap">AI Plan Analytics</a>
+                    <a href="icm-e2e.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">ICM E2E</a>
                     <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
                     <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
                     <a href="index.html#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
@@ -104,6 +105,7 @@
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
             <div class="px-4 pb-4 pt-3 space-y-3">
                 <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
+                <a href="icm-e2e.html" class="block text-gray-600 hover:text-blue-600 transition-colors">ICM E2E</a>
                 <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
                 <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
                 <a href="index.html#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
@@ -353,30 +355,121 @@
 
                 <div class="grid lg:grid-cols-2 gap-12">
                     <div class="bg-white p-8 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-6">Upload Your Document</h3>
+                        <h3 class="text-2xl font-semibold text-slate-900 mb-6">Create Your Plan Analysis</h3>
 
-                        <div id="upload-area" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
-                            <svg class="mx-auto h-12 w-12 text-slate-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                            <div class="text-lg font-medium text-slate-900 mb-2">Drop your compensation document here</div>
-                            <div class="text-sm text-slate-500 mb-4">or click to browse files</div>
-                            <div class="text-xs text-slate-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
-                            <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
+                        <!-- Input method tabs -->
+                        <div class="flex border-b border-slate-200 mb-6">
+                            <button type="button" data-input-method="file"
+                                    class="input-tab px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600"
+                                    onclick="switchInputMethod('file')">
+                                Upload File
+                            </button>
+                            <button type="button" data-input-method="url"
+                                    class="input-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700"
+                                    onclick="switchInputMethod('url')">
+                                Web URL
+                            </button>
+                            <button type="button" data-input-method="text"
+                                    class="input-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700"
+                                    onclick="switchInputMethod('text')">
+                                ChatGPT / Paste
+                            </button>
+                            <button type="button" data-input-method="xml"
+                                    class="input-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700"
+                                    onclick="switchInputMethod('xml')">
+                                Import XML
+                            </button>
                         </div>
 
-                        <div id="file-info" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-emerald-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        <!-- File upload panel (existing) -->
+                        <div data-input-panel="file">
+                            <div id="upload-area" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
+                                <svg class="mx-auto h-12 w-12 text-slate-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
-                                <span id="file-name" class="text-emerald-700 font-medium"></span>
+                                <div class="text-lg font-medium text-slate-900 mb-2">Drop your compensation document here</div>
+                                <div class="text-sm text-slate-500 mb-4">or click to browse files</div>
+                                <div class="text-xs text-slate-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
+                                <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
+                            </div>
+
+                            <div id="file-info" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-emerald-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span id="file-name" class="text-emerald-700 font-medium"></span>
+                                </div>
+                            </div>
+
+                            <button id="analyze-btn" onclick="startAnalysis()" disabled class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
+                                Analyze Document
+                            </button>
+                        </div>
+
+                        <!-- URL input panel -->
+                        <div data-input-panel="url" class="hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Paste a URL to a compensation plan document</label>
+                                    <input type="url" id="url-input" placeholder="https://docs.google.com/document/d/..."
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                </div>
+                                <div class="text-xs text-slate-400 space-y-1">
+                                    <div>Supports: Google Docs, PDF links, company wiki pages, any web page</div>
+                                    <div>Google Docs must be shared with "Anyone with the link"</div>
+                                </div>
+                                <button id="analyze-url-btn" onclick="startUrlAnalysis()"
+                                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Fetch &amp; Analyze
+                                </button>
                             </div>
                         </div>
 
-                        <button id="analyze-btn" onclick="startAnalysis()" disabled class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
-                            Analyze Document
-                        </button>
+                        <!-- Text / ChatGPT paste panel -->
+                        <div data-input-panel="text" class="hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Paste plan text or ChatGPT output</label>
+                                    <textarea id="text-input" rows="8"
+                                              placeholder="Paste your compensation plan text, ChatGPT Custom GPT output, or any plan description here..."
+                                              class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-y"></textarea>
+                                </div>
+                                <div class="text-xs text-slate-400">
+                                    Works with: plain text, ChatGPT Custom GPT output, copied plan documents
+                                </div>
+                                <button id="analyze-text-btn" onclick="startTextAnalysis()"
+                                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Analyze Text
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- XML import panel -->
+                        <div data-input-panel="xml" class="hidden">
+                            <div class="space-y-4">
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+                                    Direct import from Oracle ICM XML export — no AI analysis needed. Extracts plan structure and generates the ICM workbook instantly.
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Oracle ICM Plan Export (.xml)</label>
+                                    <input type="file" id="xml-file-input" accept=".xml"
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Plan Year (optional — override dates for migration)</label>
+                                    <input type="number" id="xml-plan-year" placeholder="e.g. 2026"
+                                           class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                </div>
+                                <div class="text-xs text-slate-400">
+                                    Upload an IcCnPlanCopy XML export from Oracle Fusion ICM. Credit categories will be reused.
+                                </div>
+                                <button id="import-xml-btn" onclick="startXmlImport()"
+                                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    Import &amp; Generate
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-white p-8 rounded-2xl shadow-lg">
@@ -427,9 +520,25 @@
                                     <span id="icm-status-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Pending Review</span>
                                 </div>
                                 <div class="space-y-3">
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-1">Phase 1 — Design Review</div>
+                                    <button onclick="downloadDesignDoc()" class="w-full bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm">
+                                        Download Design Document (.docx)
+                                    </button>
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mt-4 mb-1">Phase 2 — Configuration</div>
+                                    <button onclick="downloadConfigDoc()" class="w-full bg-violet-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-violet-700 transition-colors text-sm">
+                                        Download Configuration Document (.docx)
+                                    </button>
                                     <button onclick="downloadWorkbook()" class="w-full bg-slate-700 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-slate-600 transition-colors text-sm">
                                         Download ICM Workbook (.xlsx)
                                     </button>
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mt-4 mb-1">Phase 2b — Efficiency &amp; Export</div>
+                                    <button onclick="downloadEfficiencyReport()" class="w-full bg-amber-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-amber-700 transition-colors text-sm">
+                                        Download Efficiency Report (.docx)
+                                    </button>
+                                    <button onclick="downloadXmlExport()" class="w-full bg-teal-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-teal-700 transition-colors text-sm">
+                                        Download Oracle ICM XML (.xml)
+                                    </button>
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500 mt-4 mb-1">Phase 3 — Approval &amp; Deploy</div>
                                     <div class="grid grid-cols-2 gap-3">
                                         <button onclick="approveConfig()" class="bg-emerald-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
                                             Approve Config
@@ -438,9 +547,27 @@
                                             Reject & Re-analyze
                                         </button>
                                     </div>
-                                    <button id="icm-deploy-btn" onclick="deployToICMOptimizer()" class="hidden w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                                        Deploy via ICM Optimizer &rarr;
+                                    <button id="icm-deploy-btn" onclick="showDeployPanel()" class="hidden w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                        Deploy to Oracle ICM &rarr;
                                     </button>
+                                    <!-- Inline Deploy Panel -->
+                                    <div id="deploy-panel" class="hidden mt-4 border border-slate-200 rounded-xl p-4 bg-slate-50">
+                                        <h4 class="font-semibold text-slate-900 mb-3">Oracle Fusion ICM Credentials</h4>
+                                        <div class="space-y-2 mb-3">
+                                            <input type="text" id="deploy-base-url" placeholder="https://instance.fa.region.oraclecloud.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                            <input type="text" id="deploy-username" placeholder="Username" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                            <input type="password" id="deploy-password" placeholder="Password" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
+                                        </div>
+                                        <div id="deploy-preview" class="hidden mb-3 p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-600"></div>
+                                        <div class="flex gap-2">
+                                            <button onclick="previewDeployment()" class="flex-1 bg-slate-700 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors">Preview</button>
+                                            <button onclick="runInlineDeploy()" class="flex-1 bg-emerald-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">Deploy</button>
+                                        </div>
+                                        <div id="deploy-status" class="hidden mt-3 p-3 rounded-lg text-sm"></div>
+                                        <div class="mt-2 text-center">
+                                            <a href="#" onclick="openDeployWizard(); return false;" class="text-xs text-blue-600 hover:text-blue-700">Advanced Deploy Wizard &rarr;</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -610,22 +737,35 @@
         let currentAnalysisId = null;
         let currentWorkbookPath = null;
         const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO', displayName: 'Demo User' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631', displayName: 'Chandra K' }
         };
 
         function showUpgradeModal() {
             alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
         }
 
-        function applyRole(role) {
+        function applyRole(role, displayName) {
             activeRole = role;
             localStorage.setItem(ROLE_STORAGE_KEY, role);
+            if (displayName) localStorage.setItem('icm-planlytics-user', displayName);
             document.querySelectorAll('[data-role="demo"]').forEach((el) => {
                 el.classList.toggle('hidden', role !== 'demo');
             });
             document.querySelectorAll('[data-role="paid"]').forEach((el) => {
                 el.classList.toggle('hidden', role !== 'paid');
+            });
+
+            // Update sign-in buttons with user display name
+            const dn = displayName || localStorage.getItem('icm-planlytics-user');
+            document.querySelectorAll('[data-role-toggle]').forEach(btn => {
+                if (dn && dn !== 'Demo User' && role === 'paid') {
+                    btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>' + dn + '</span>';
+                } else if (role === 'demo') {
+                    btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Demo</span>';
+                } else {
+                    btn.textContent = 'Sign in';
+                }
             });
 
             const analyzeBtn = document.getElementById('analyze-btn');
@@ -636,7 +776,8 @@
 
         function initRoleControls() {
             const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+            const savedUser = localStorage.getItem('icm-planlytics-user');
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo', savedUser);
 
             const roleModal = document.getElementById('role-modal');
             const roleClose = document.getElementById('role-close');
@@ -675,7 +816,8 @@
                 const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
 
                 if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
+                    const cred = isPaid ? ROLE_CREDENTIALS.paid : ROLE_CREDENTIALS.demo;
+                    applyRole(isPaid ? 'paid' : 'demo', cred.displayName);
                     roleModal.classList.add('hidden');
                     roleModal.classList.remove('flex');
                 } else {
@@ -742,6 +884,104 @@
             }
         }
 
+        // ── Shared results display ──────────────────────────────
+
+        function displayAnalysisResults(data) {
+            currentAnalysisId = data.analysis_id;
+            currentWorkbookPath = `/tmp/outputs/icm_${data.analysis_id}.xlsx`;
+
+            const summary = data.oracle_mapping_summary || {};
+            const warnings = data.validation_warnings || [];
+            const analysisOutput = document.getElementById('analysis-output');
+            const placeholder = document.getElementById('demo-placeholder');
+            const results = document.getElementById('demo-results');
+
+            let html = `<div class="mb-2">ICM PLANLYTICS AI ANALYSIS</div>`;
+            html += `<div class="mb-2">===================================</div>`;
+            html += `<div>Analysis ID: ${data.analysis_id}</div>`;
+            if (data.source_type) {
+                html += `<div>Source: ${data.source_type}${data.source_url ? ' — ' + data.source_url : ''}</div>`;
+            }
+            html += `<div class="my-2">-----------------------------------</div>`;
+            html += `<div>ORACLE ICM OBJECTS GENERATED:</div>`;
+            for (const [key, val] of Object.entries(summary)) {
+                html += `<div>  ${key}: ${val}</div>`;
+            }
+
+            if (warnings.length > 0) {
+                html += `<div class="my-2">-----------------------------------</div>`;
+                html += `<div>VALIDATION WARNINGS:</div>`;
+                warnings.forEach(w => { html += `<div class="text-amber-300">  ! ${w}</div>`; });
+            } else {
+                html += `<div class="my-2">-----------------------------------</div>`;
+                html += `<div class="text-emerald-300">No validation warnings</div>`;
+            }
+
+            // Efficiency score
+            if (data.efficiency_score !== undefined && data.efficiency_score !== null) {
+                html += `<div class="my-2">-----------------------------------</div>`;
+                html += `<div>EFFICIENCY SCORE:</div>`;
+                const sc = data.efficiency_score;
+                const scColor = sc >= 80 ? 'text-emerald-300' : sc >= 60 ? 'text-amber-300' : 'text-red-300';
+                html += `<div class="${scColor} text-lg font-bold">  ${sc}/100</div>`;
+                if (data.efficiency_findings) {
+                    const ef = data.efficiency_findings;
+                    html += `<div class="text-slate-400">  ${ef.total_findings} finding(s): ${ef.high_severity} high, ${ef.medium_severity} medium, ${ef.low_severity} low</div>`;
+                }
+            }
+
+            html += `<div class="my-2">-----------------------------------</div>`;
+            html += `<div>DOCUMENTS GENERATED:</div>`;
+            if (data.design_doc_url) html += `<div class="text-sky-300">  Design Document (.docx)</div>`;
+            if (data.config_doc_url) html += `<div class="text-sky-300">  Configuration Document (.docx)</div>`;
+            html += `<div class="text-sky-300">  ICM Workbook (.xlsx)</div>`;
+            if (data.efficiency_doc_url) html += `<div class="text-sky-300">  Efficiency Report (.docx)</div>`;
+            if (data.xml_export_url) html += `<div class="text-sky-300">  Oracle ICM XML Export (.xml)</div>`;
+            html += `<div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">5-Phase output ready: Design → Config → Efficiency → XML Export → Deploy</div>`;
+            analysisOutput.innerHTML = html;
+
+            if (placeholder) placeholder.classList.add('hidden');
+            if (results) results.classList.remove('hidden');
+
+            const reviewPanel = document.getElementById('icm-review-panel');
+            if (reviewPanel) {
+                reviewPanel.classList.remove('hidden');
+                document.getElementById('icm-status-badge').textContent = 'Pending Review';
+                document.getElementById('icm-status-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
+                document.getElementById('icm-deploy-btn').classList.add('hidden');
+            }
+        }
+
+        function displayAnalysisError(error) {
+            const analysisOutput = document.getElementById('analysis-output');
+            const placeholder = document.getElementById('demo-placeholder');
+            const results = document.getElementById('demo-results');
+
+            console.error('Analysis failed:', error);
+            if (analysisOutput) {
+                analysisOutput.innerHTML = `<div class="text-red-400">Analysis failed: ${error.message}</div><div class="text-slate-400 mt-2">Make sure the PlanLytics server is running on ${API_BASE_URL}</div>`;
+            }
+            if (placeholder) placeholder.classList.add('hidden');
+            if (results) results.classList.remove('hidden');
+        }
+
+        // ── Input method switching ──────────────────────────────
+
+        function switchInputMethod(method) {
+            document.querySelectorAll('.input-tab').forEach(tab => {
+                const isActive = tab.getAttribute('data-input-method') === method;
+                tab.classList.toggle('border-blue-600', isActive);
+                tab.classList.toggle('text-blue-600', isActive);
+                tab.classList.toggle('border-transparent', !isActive);
+                tab.classList.toggle('text-slate-500', !isActive);
+            });
+            document.querySelectorAll('[data-input-panel]').forEach(panel => {
+                panel.classList.toggle('hidden', panel.getAttribute('data-input-panel') !== method);
+            });
+        }
+
+        // ── File upload analysis (existing) ─────────────────────
+
         async function startAnalysis() {
             if (!selectedFile) {
                 alert('Please select a file first');
@@ -750,13 +990,8 @@
 
             const btn = document.getElementById('analyze-btn');
             if (!btn) return;
-
             btn.disabled = true;
             btn.textContent = 'Analyzing with AI...';
-
-            const placeholder = document.getElementById('demo-placeholder');
-            const results = document.getElementById('demo-results');
-            const analysisOutput = document.getElementById('analysis-output');
 
             try {
                 const formData = new FormData();
@@ -773,62 +1008,152 @@
                 }
 
                 const data = await response.json();
-                currentAnalysisId = data.analysis_id;
-                currentWorkbookPath = `/tmp/outputs/icm_${data.analysis_id}.xlsx`;
-
-                // Build results display
-                const summary = data.oracle_mapping_summary || {};
-                const warnings = data.validation_warnings || [];
-
-                let html = `<div class="mb-2">ICM PLANLYTICS AI ANALYSIS</div>`;
-                html += `<div class="mb-2">===================================</div>`;
-                html += `<div>Analysis ID: ${data.analysis_id}</div>`;
-                html += `<div class="my-2">-----------------------------------</div>`;
-                html += `<div>ORACLE ICM OBJECTS GENERATED:</div>`;
-                for (const [key, val] of Object.entries(summary)) {
-                    html += `<div>  ${key}: ${val}</div>`;
-                }
-
-                if (warnings.length > 0) {
-                    html += `<div class="my-2">-----------------------------------</div>`;
-                    html += `<div>VALIDATION WARNINGS:</div>`;
-                    warnings.forEach(w => { html += `<div class="text-amber-300">  ! ${w}</div>`; });
-                } else {
-                    html += `<div class="my-2">-----------------------------------</div>`;
-                    html += `<div class="text-emerald-300">No validation warnings</div>`;
-                }
-
-                html += `<div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">ICM Config workbook ready for review</div>`;
-                analysisOutput.innerHTML = html;
-
-                if (placeholder) placeholder.classList.add('hidden');
-                if (results) results.classList.remove('hidden');
-
-                // Show ICM review panel
-                const reviewPanel = document.getElementById('icm-review-panel');
-                if (reviewPanel) {
-                    reviewPanel.classList.remove('hidden');
-                    document.getElementById('icm-status-badge').textContent = 'Pending Review';
-                    document.getElementById('icm-status-badge').className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
-                    document.getElementById('icm-deploy-btn').classList.add('hidden');
-                }
-
+                displayAnalysisResults(data);
             } catch (error) {
-                console.error('Analysis failed:', error);
-                if (analysisOutput) {
-                    analysisOutput.innerHTML = `<div class="text-red-400">Analysis failed: ${error.message}</div><div class="text-slate-400 mt-2">Make sure the PlanLytics server is running on ${API_BASE_URL}</div>`;
-                }
-                if (placeholder) placeholder.classList.add('hidden');
-                if (results) results.classList.remove('hidden');
+                displayAnalysisError(error);
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Analyze Document';
             }
         }
 
+        // ── URL analysis ────────────────────────────────────────
+
+        async function startUrlAnalysis() {
+            const urlInput = document.getElementById('url-input');
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            const btn = document.getElementById('analyze-url-btn');
+            btn.disabled = true;
+            btn.textContent = 'Fetching & analyzing...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analyze-url`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url }),
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayAnalysisResults(data);
+            } catch (error) {
+                displayAnalysisError(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Fetch & Analyze';
+            }
+        }
+
+        // ── Text / ChatGPT paste analysis ───────────────────────
+
+        async function startTextAnalysis() {
+            const textInput = document.getElementById('text-input');
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please paste some text');
+                return;
+            }
+
+            const btn = document.getElementById('analyze-text-btn');
+            btn.disabled = true;
+            btn.textContent = 'Analyzing text...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analyze-text`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayAnalysisResults(data);
+            } catch (error) {
+                displayAnalysisError(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Analyze Text';
+            }
+        }
+
+        // ── XML import ─────────────────────────────────────────────
+        async function startXmlImport() {
+            const fileInput = document.getElementById('xml-file-input');
+            if (!fileInput.files.length) {
+                alert('Please select an XML file');
+                return;
+            }
+
+            const btn = document.getElementById('import-xml-btn');
+            btn.disabled = true;
+            btn.textContent = 'Importing XML...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                let queryParams = '';
+                const planYear = document.getElementById('xml-plan-year').value.trim();
+                if (planYear) {
+                    queryParams = `?plan_year=${encodeURIComponent(planYear)}`;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/api/import-xml${queryParams}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayAnalysisResults(data);
+            } catch (error) {
+                displayAnalysisError(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Import & Generate';
+            }
+        }
+
+        async function downloadDesignDoc() {
+            if (!currentAnalysisId) return;
+            window.open(`${API_BASE_URL}/api/design-doc/${currentAnalysisId}`, '_blank');
+        }
+
+        async function downloadConfigDoc() {
+            if (!currentAnalysisId) return;
+            window.open(`${API_BASE_URL}/api/config-doc/${currentAnalysisId}`, '_blank');
+        }
+
         async function downloadWorkbook() {
             if (!currentAnalysisId) return;
             window.open(`${API_BASE_URL}/api/icm-workbook/${currentAnalysisId}`, '_blank');
+        }
+
+        async function downloadEfficiencyReport() {
+            if (!currentAnalysisId) return;
+            window.open(`${API_BASE_URL}/api/efficiency-report/${currentAnalysisId}`, '_blank');
+        }
+
+        async function downloadXmlExport() {
+            if (!currentAnalysisId) return;
+            window.open(`${API_BASE_URL}/api/export-xml/${currentAnalysisId}`, '_blank');
         }
 
         async function approveConfig() {
@@ -866,9 +1191,82 @@
             }
         }
 
-        function deployToICMOptimizer() {
+        function showDeployPanel() {
+            document.getElementById('deploy-panel').classList.toggle('hidden');
+        }
+
+        function openDeployWizard() {
             if (!currentAnalysisId) return;
             window.open(`/static/icm-deploy.html?analysis_id=${currentAnalysisId}`, '_blank');
+        }
+
+        async function previewDeployment() {
+            if (!currentAnalysisId) return;
+            const previewEl = document.getElementById('deploy-preview');
+            previewEl.classList.remove('hidden');
+            previewEl.innerHTML = 'Loading preview...';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/deploy-preview/${currentAnalysisId}`);
+                const data = await res.json();
+                if (data.success) {
+                    let html = `<div class="font-semibold text-slate-800 mb-1">${data.total_objects} objects to deploy:</div>`;
+                    for (const [key, info] of Object.entries(data.objects || {})) {
+                        if (info.count > 0) {
+                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                            html += `<div class="mt-1"><span class="font-medium">${label}</span> (${info.count}): ${info.names.join(', ')}</div>`;
+                        }
+                    }
+                    previewEl.innerHTML = html;
+                } else {
+                    previewEl.innerHTML = `<span class="text-red-600">${data.error || 'Preview failed'}</span>`;
+                }
+            } catch (e) {
+                previewEl.innerHTML = `<span class="text-red-600">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function runInlineDeploy() {
+            if (!currentAnalysisId) return;
+            const baseUrl = document.getElementById('deploy-base-url').value.trim();
+            const username = document.getElementById('deploy-username').value.trim();
+            const password = document.getElementById('deploy-password').value.trim();
+            if (!baseUrl || !username || !password) {
+                alert('Please fill in all credential fields.');
+                return;
+            }
+            const statusEl = document.getElementById('deploy-status');
+            statusEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-red-50', 'text-red-800');
+            statusEl.classList.add('bg-blue-50', 'text-blue-700');
+            statusEl.innerHTML = 'Deploying to Oracle ICM... This may take several minutes.';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/deploy-to-icm/${currentAnalysisId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ base_url: baseUrl, username, password }),
+                });
+                const data = await res.json();
+                const deployment = data.deployment || {};
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                if (deployment.success) {
+                    statusEl.classList.add('bg-emerald-50', 'text-emerald-800');
+                    let html = '<div class="font-semibold mb-1">Deployment completed!</div>';
+                    (deployment.steps || []).forEach(s => {
+                        html += `<div>${s.success ? '&#10003;' : '&#10007;'} ${s.name}${s.error ? ' - ' + s.error : ''}</div>`;
+                    });
+                    statusEl.innerHTML = html;
+                } else {
+                    statusEl.classList.add('bg-red-50', 'text-red-800');
+                    let html = `<div class="font-semibold mb-1">${deployment.error || 'Deployment failed'}</div>`;
+                    (deployment.steps || []).forEach(s => {
+                        html += `<div>${s.success ? '&#10003;' : '&#10007;'} ${s.name}${s.error ? ' - ' + s.error : ''}</div>`;
+                    });
+                    statusEl.innerHTML = html;
+                }
+            } catch (e) {
+                statusEl.classList.remove('bg-blue-50', 'text-blue-700');
+                statusEl.classList.add('bg-red-50', 'text-red-800');
+                statusEl.innerHTML = `Deploy request failed: ${e.message}`;
+            }
         }
 
         function initAnalyticsTabs() {

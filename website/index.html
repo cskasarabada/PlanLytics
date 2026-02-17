@@ -36,6 +36,7 @@
                 </div>
                 <div class="hidden md:flex items-center space-x-6 whitespace-nowrap text-sm">
                     <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">AI Plan Analytics</a>
+                    <a href="icm-e2e.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">ICM E2E</a>
                     <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
                     <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
                     <a href="#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
@@ -57,6 +58,7 @@
         <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
             <div class="px-4 pb-4 pt-3 space-y-3">
                 <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
+                <a href="icm-e2e.html" class="block text-gray-600 hover:text-blue-600 transition-colors">ICM E2E</a>
                 <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
                 <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
                 <a href="#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
@@ -393,17 +395,18 @@
         const ROLE_STORAGE_KEY = 'icm-planlytics-role';
         let activeRole = 'demo';
         const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO', displayName: 'Demo User' },
+            paid: { username: 'ChandraK', password: 'ICMPlan6631', displayName: 'Chandra K' }
         };
 
         function showUpgradeModal() {
             alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
         }
 
-        function applyRole(role) {
+        function applyRole(role, displayName) {
             activeRole = role;
             localStorage.setItem(ROLE_STORAGE_KEY, role);
+            if (displayName) localStorage.setItem('icm-planlytics-user', displayName);
             document.querySelectorAll('[data-role-badge]').forEach((badge) => {
                 badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
             });
@@ -413,6 +416,18 @@
             });
             document.querySelectorAll('[data-role="paid"]').forEach((el) => {
                 el.classList.toggle('hidden', role !== 'paid');
+            });
+
+            // Update sign-in buttons with user display name
+            const dn = displayName || localStorage.getItem('icm-planlytics-user');
+            document.querySelectorAll('[data-role-toggle]').forEach(btn => {
+                if (dn && dn !== 'Demo User' && role === 'paid') {
+                    btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>' + dn + '</span>';
+                } else if (role === 'demo') {
+                    btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Demo</span>';
+                } else {
+                    btn.textContent = 'Sign in';
+                }
             });
 
             const analyzeBtn = document.getElementById('analyze-btn');
@@ -425,7 +440,8 @@
 
         function initRoleControls() {
             const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+            const savedUser = localStorage.getItem('icm-planlytics-user');
+            applyRole(savedRole === 'paid' ? 'paid' : 'demo', savedUser);
 
             const roleModal = document.getElementById('role-modal');
             const roleClose = document.getElementById('role-close');
@@ -464,7 +480,8 @@
                 const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
 
                 if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
+                    const cred = isPaid ? ROLE_CREDENTIALS.paid : ROLE_CREDENTIALS.demo;
+                    applyRole(isPaid ? 'paid' : 'demo', cred.displayName);
                     roleModal.classList.add('hidden');
                     roleModal.classList.remove('flex');
                 } else {

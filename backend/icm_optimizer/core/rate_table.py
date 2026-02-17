@@ -13,14 +13,6 @@ from ..utils.api_client import APIClient
 from ..config.config_manager import ConfigManager
 from ..utils.logging_utils import log_api_response
 
-import logging
-import pandas as pd
-from typing import Optional, List, Dict, Any
-
-from ..utils.api_client import APIClient
-from ..config.config_manager import ConfigManager
-from ..utils.logging_utils import log_api_response
-
 class RateTableManager:
     def __init__(self, api_client: APIClient, config_manager: ConfigManager, log_file: str, excel_path: Optional[str] = None):
         self.api_client = api_client
@@ -51,34 +43,6 @@ class RateTableManager:
             return False
         return True
 
-    def create_rate_tables(self, force: bool = False) -> bool:
-        self.logger.info("Starting Rate Table creation process")
-        self.logger.info(f"Loading Rate Tables from {self.excel_path}")
-        rate_tables = self._load_rate_tables_from_excel()
-        self.logger.info(f"Loaded {len(rate_tables)} Rate Tables from Excel")
-
-        created_tables = 0
-        for rt in rate_tables:
-            rate_table_name = rt.get('name')
-            self.logger.info(f"Processing Rate Table: {rate_table_name} with OrgId: {self.org_id}")
-            rate_table_id = self.get_rate_table_id(rate_table_name)
-            if rate_table_id is None:
-                rate_table_id = self.create_rate_table(rate_table_name)
-                if rate_table_id is None and not force:
-                    return False
-            created_tables += 1
-        self.logger.info("Rate Table processing completed!")
-        self.logger.info(f"Created Rate Tables: {created_tables}")
-        return created_tables > 0
-
-    def _load_rate_tables_from_excel(self) -> List[Dict]:
-        try:
-            df = pd.read_excel(self.excel_path, sheet_name="RateTables")  # Adjust sheet name
-            return df.to_dict('records')
-        except Exception as e:
-            self.logger.error(f"Error loading Rate Tables from Excel: {e}")
-            return []
-
     def get_rate_table_id(self, name: str) -> Optional[int]:
         self.logger.info(f"Retrieving Rate Table ID for: {name} with OrgId: {self.org_id}")
         try:
@@ -107,7 +71,14 @@ class RateTableManager:
             log_api_response(f"Create Rate Table: {name}", {"status_code": status_code, "response": response}, self.log_file)
             if status_code == 201:
                 return int(response["RateTableId"])
-            self.logger.error(f"Failed to create Rate Table: {response.get('message', 'No message')}")
+            # If creation failed with 400 (likely already exists), try to fetch existing
+            if status_code == 400:
+                self.logger.warning(f"POST returned 400 for Rate Table '{name}'. Re-checking if it exists.")
+                existing_id = self.get_rate_table_id(name)
+                if existing_id:
+                    self.logger.info(f"Found existing Rate Table '{name}' with ID: {existing_id}")
+                    return existing_id
+            self.logger.error(f"Failed to create Rate Table: {response.get('message', 'No message') if isinstance(response, dict) else response}")
             return None
         except Exception as e:
             self.logger.error(f"Error creating Rate Table: {e}")
@@ -203,7 +174,7 @@ class RateTableManager:
         Returns:
             RateTableDimId if successful, None otherwise
         """
-        self.logger.info(f"Adding or updating Dimension to Rate Table ID: {rate_table_id} with type: {rate_table_type}")
+        self.logger.info(f"🔧 Adding Dimension {rate_dimension_id} to Rate Table ID: {rate_table_id} (table type: {rate_table_type})")
         try:
             # Get the rate dimension details to check its OrgId, type, and NumberTier
             dimension_endpoint = f"/rateDimensions/{rate_dimension_id}"
@@ -211,31 +182,34 @@ class RateTableManager:
             log_api_response(f"Get Rate Dimension Details for ID: {rate_dimension_id}",
                             {"status_code": status_code, "response": response}, self.log_file)
             if status_code != 200:
-                self.logger.error(f"Failed to retrieve details for Rate Dimension ID: {rate_dimension_id}. Status: {status_code}, Response: {response}")
+                self.logger.error(f"❌ Failed to retrieve details for Rate Dimension ID: {rate_dimension_id}. Status: {status_code}, Response: {response}")
                 return None
             # Check if response is a list (from a collection) or a single item
             dimension = response if "RateDimensionId" in response else response.get("items", [{}])[0] if response.get("items") else {}
             if not dimension:
-                self.logger.error(f"No valid data in response for Rate Dimension ID: {rate_dimension_id}. Response: {response}")
+                self.logger.error(f"❌ No valid data in response for Rate Dimension ID: {rate_dimension_id}. Response: {response}")
                 return None
             dimension_type = dimension.get("RateDimensionType", "AMOUNT").upper()
             dimension_org_id = int(dimension.get("OrgId", 0))
             number_tier = int(dimension.get("NumberTier", 0))
-            self.logger.debug(f"Rate Dimension {rate_dimension_id} type: {dimension_type}, OrgId: {dimension_org_id}, NumberTier: {number_tier}, Rate Table type: {rate_table_type}, Rate Table OrgId: {self.org_id}")
+            self.logger.info(f"📊 Rate Dimension {rate_dimension_id}: type={dimension_type}, OrgId={dimension_org_id}, NumberTier={number_tier}, RateTableType={rate_table_type}, self.org_id={self.org_id}")
 
-            # Validate OrgId match
-            if dimension_org_id != self.org_id:
-                self.logger.error(f"OrgId mismatch: Rate Dimension OrgId {dimension_org_id} does not match Rate Table OrgId {self.org_id}")
+            # Validate OrgId match (use int comparison to handle str/int mismatches)
+            if int(dimension_org_id) != int(self.org_id):
+                self.logger.error(f"❌ OrgId mismatch: Rate Dimension OrgId {dimension_org_id} != Rate Table OrgId {self.org_id}")
                 return None
+            self.logger.info(f"✅ OrgId match confirmed: {dimension_org_id}")
 
-            # Check type compatibility
+            # Check type compatibility — Rate Dimension type "AMOUNT" is universally
+            # compatible with all rate table types (PERCENT, AMOUNT, etc.)
             compatible_types = {"AMOUNT", "PERCENT", "EXPRESSION", "STRING"}
             if dimension_type not in compatible_types or rate_table_type not in compatible_types:
-                self.logger.error(f"Incompatible types: Dimension type {dimension_type} vs Table type {rate_table_type}")
+                self.logger.error(f"❌ Incompatible types: Dimension type {dimension_type} vs Table type {rate_table_type}")
                 return None
             if dimension_type != rate_table_type and dimension_type != "AMOUNT" and rate_table_type != "AMOUNT":
-                self.logger.error(f"Type mismatch: Dimension type {dimension_type} not compatible with Table type {rate_table_type}")
+                self.logger.error(f"❌ Type mismatch: Dimension type {dimension_type} not compatible with Table type {rate_table_type}")
                 return None
+            self.logger.info(f"✅ Type compatibility confirmed: Dimension={dimension_type}, Table={rate_table_type}")
 
             # Ensure tiers exist if NumberTier is 0
             if number_tier == 0:
@@ -402,7 +376,13 @@ class RateTableManager:
             rate_tables_df = self.load_rate_tables()
             rate_table_row = rate_tables_df[rate_tables_df["Rate Table Name"] == rate_table_name].iloc[0]
             intended_dimension_name = rate_table_row.get("Rate Dimension Name", f"{rate_table_name}_Dimension")
-            rate_table_type = rate_table_row.get("RateTableType", "PERCENT").upper()
+            raw_rate_table_type = str(rate_table_row.get("RateTableType", "PERCENT")).strip()
+            # Map human-readable names to Oracle API values
+            type_mapping = {
+                "Amount": "AMOUNT", "Percent": "PERCENT", "Expression": "EXPRESSION",
+                "Standard": "PERCENT", "String": "STRING", "Sales": "PERCENT",
+            }
+            rate_table_type = type_mapping.get(raw_rate_table_type, raw_rate_table_type.upper())
 
             # Retrieve or create the dimension with the correct OrgId
             intended_rate_dimension_id = self.get_rate_dimension_id(intended_dimension_name)
@@ -572,11 +552,23 @@ class RateTableManager:
                     self.logger.debug(f"Payload for creating Rate Table {rate_table_name}: {payload}")
                     response, status_code = self.api_client.post(self.rate_table_endpoint, payload)
                     log_api_response(f"Create Rate Table: {rate_table_name}", {"status_code": status_code, "response": response}, self.log_file)
-                    if status_code == 201 and "RateTableId" in response:
+                    if status_code == 201 and isinstance(response, dict) and "RateTableId" in response:
                         rate_table_id = response["RateTableId"]
                         self.logger.info(f"Successfully created Rate Table: {rate_table_name} with ID: {rate_table_id}")
+                    elif status_code == 400:
+                        # 400 often means "already exists" — re-check
+                        self.logger.warning(f"POST returned 400 for Rate Table '{rate_table_name}'. Re-checking if it exists.")
+                        rate_table_id = self.get_rate_table_id(rate_table_name)
+                        if rate_table_id:
+                            self.logger.info(f"Found existing Rate Table '{rate_table_name}' with ID: {rate_table_id}")
+                        else:
+                            self.logger.error(f"Rate Table '{rate_table_name}' not found after 400. Cannot proceed.")
+                            error_count += 1
+                            if not force:
+                                return False
+                            continue
                     else:
-                        self.logger.error(f"Failed to create Rate Table: {rate_table_name}: {response.get('message', 'No message')}")
+                        self.logger.error(f"Failed to create Rate Table: {rate_table_name}: {response.get('message', 'No message') if isinstance(response, dict) else response}")
                         error_count += 1
                         if not force:
                             return False

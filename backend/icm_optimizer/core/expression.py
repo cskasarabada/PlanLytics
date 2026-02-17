@@ -12,13 +12,6 @@ from ..utils.api_client import APIClient
 from ..config.config_manager import ConfigManager
 from ..utils.logging_utils import log_api_response
 
-# app/core/expression.py
-import os
-import logging
-from typing import Optional
-from ..utils.api_client import APIClient
-from ..config.config_manager import ConfigManager
-
 class ExpressionManager:
     def __init__(self, api_client: APIClient, config_manager: ConfigManager, log_file: str, excel_path: Optional[str] = None):
         self.api_client = api_client
@@ -55,48 +48,6 @@ class ExpressionManager:
             self.logger.error(f"Excel file not readable: {self.excel_path}")
             return False
         return True
-
-    def configure_expressions(self, force: bool = False) -> bool:
-        """Configure expressions based on the Excel file."""
-        if not self.excel_path:
-            self.logger.error("No Excel file provided for expressions")
-            return False
-        self.logger.info(f"Configuring expressions from {self.excel_path} for org_id: {self.org_id}")
-        # Add your logic here to process the Excel file and configure expressions
-        # Example: Simulate creating expressions
-        try:
-            expressions = [
-                {"name": "Expression 1", "expression": "SUM(TransactionAmount)"},
-                {"name": "Expression 2", "expression": "AVG(TransactionAmount)"}
-            ]
-            created_expressions = 0
-            for expr in expressions:
-                name = expr["name"]
-                expression = expr["expression"]
-                # Check if the expression already exists
-                query = f"{self.expression_endpoint}?q=Name='{name}';OrgId={self.org_id}"
-                response, status_code = self.api_client.get(query)
-                if status_code == 200 and response.get('items'):
-                    self.logger.info(f"Skipping duplicate Expression: {name}")
-                    continue
-                # Create a new expression
-                payload = {
-                    "Name": name,
-                    "Expression": expression,
-                    "OrgId": self.org_id
-                }
-                response, status_code = self.api_client.post(self.expression_endpoint, data=payload)
-                if status_code == 201:
-                    created_expressions += 1
-                    self.logger.info(f"Successfully created Expression: {name}")
-                else:
-                    self.logger.error(f"Failed to create Expression: {name}, Status Code: {status_code}, Response: {response}")
-                    return False
-            self.logger.info(f"Created {created_expressions} Expressions")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error in configure_expressions: {str(e)}")
-            return False
 
     def load_expressions(self) -> List[Dict[str, Any]]:
         """
@@ -137,6 +88,7 @@ class ExpressionManager:
                 return []
 
             expressions = {}
+            detail_rows_map = {}  # expr_name -> list of ExpressionDetail payloads
             for _, row in df.iterrows():
                 expr_name = row.get('Expression Name')
                 if pd.isna(expr_name):
@@ -150,33 +102,85 @@ class ExpressionManager:
                         'ExpressionType': 'FORMULA',
                         'OrgId': self.org_id
                     }
+                    detail_rows_map[expr_name] = []
 
                 detail_type = row.get('ExpressionDetailType', '').strip()
                 sequence = pd.to_numeric(row.get('Sequence', 0), errors='coerce')
                 if pd.isna(sequence):
                     sequence = 0
 
+                # Build ExpressionDetails child row for the Oracle API
+                detail_row = {}
                 if detail_type == 'Primary object attribute':
                     attr_group = row.get('BasicAttributesGroup', '')
                     attr_name = row.get('BasicAttributeName', '')
                     if attr_group and attr_name:
                         expressions[expr_name]['Expression'] = f"{attr_group}.{attr_name}"
+                        detail_row = {
+                            "ExpressionDetailType": "PRIMOBJATTR",
+                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
+                            "BasicAttributesGroup": attr_group,
+                            "BasicAttributeName": attr_name,
+                        }
                 elif detail_type == 'Measure result':
                     measure_name = row.get('MeasureName', '')
                     result_attr = row.get('MeasureResultAttribute', '')
                     if measure_name and result_attr:
                         expressions[expr_name]['Expression'] = f"{measure_name}.{result_attr}"
+                        detail_row = {
+                            "ExpressionDetailType": "MEASURERESULT",
+                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
+                            "MeasureName": measure_name,
+                            "MeasureResultAttribute": result_attr,
+                        }
+                elif detail_type == 'Plan component result':
+                    pc_name = row.get('PlanComponentName', '')
+                    pc_attr = row.get('PlanComponentResultAttribute', '')
+                    if pc_name and pc_attr:
+                        expressions[expr_name]['Expression'] = f"{pc_name}.{pc_attr}"
+                        detail_row = {
+                            "ExpressionDetailType": "PLANCOMPRESULT",
+                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
+                            "PlanComponentName": pc_name,
+                            "PlanComponentResultAttribute": pc_attr,
+                        }
+                    elif pc_name:
+                        expressions[expr_name]['Expression'] = pc_name
                 elif detail_type == 'Math operator':
                     operator = row.get('ExpressionOperator', '')
                     if operator:
                         expressions[expr_name]['Expression'] += f" {operator} "
+                        detail_row = {
+                            "ExpressionDetailType": "MATHOPERATOR",
+                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
+                            "ExpressionOperator": operator,
+                        }
                 elif detail_type == 'Constant':
                     constant = row.get('ConstantValue', '')
                     if constant and constant.strip():
                         expressions[expr_name]['Expression'] += constant.strip()
+                        detail_row = {
+                            "ExpressionDetailType": "CONSTANT",
+                            "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
+                            "ConstantValue": constant.strip(),
+                        }
+                elif detail_type in ('Calculation', 'Formula', 'Target', 'Lookup'):
+                    # Generic expression types from AI/LLM analysis — use description or name as formula
+                    desc = row.get('Description', '')
+                    if desc and desc.strip():
+                        expressions[expr_name]['Expression'] = desc.strip()
+                    else:
+                        expressions[expr_name]['Expression'] = expr_name
+
+                if detail_row:
+                    detail_rows_map[expr_name].append(detail_row)
 
                 if expressions[expr_name]['Expression'] and sequence > 0:
                     expressions[expr_name]['Expression'] = expressions[expr_name]['Expression'].strip()
+
+            # Attach detail rows to each expression for ExpressionDetails API
+            for expr_name, expr in expressions.items():
+                expr['_detail_rows'] = detail_rows_map.get(expr_name, [])
 
             result = [expr for expr in expressions.values() if expr['Expression']]
             if not result:
@@ -189,26 +193,44 @@ class ExpressionManager:
             self.logger.error(f"❌ Error loading Expressions: {str(e)}")
             return []
 
+    def _extract_uniq_id(self, expression_item: Dict[str, Any]) -> Optional[str]:
+        """Extract the incentiveCompensationExpressionsUniqID from the self link.
+
+        Oracle REST API requires this UniqID (not ExpressionId) in PATCH/GET-by-key
+        URLs:  .../incentiveCompensationExpressions/{uniqId}
+        """
+        for link in expression_item.get("links", []):
+            if link.get("rel") == "self":
+                href = link.get("href", "")
+                # href ends with .../incentiveCompensationExpressions/{uniqId}
+                parts = href.rstrip("/").split("/")
+                if parts:
+                    return parts[-1]
+        return None
+
     def get_expression_details(self, expression_name: str) -> Optional[Dict[str, Any]]:
         """
-        Retrieve Expression details by name.
+        Retrieve Expression details by name, scoped to the current OrgId.
 
         Args:
             expression_name: Name of the Expression
 
         Returns:
-            Expression details if found, None otherwise
+            Expression details dict (includes _uniq_id key) if found, None otherwise
         """
         self.logger.info(f"🔍 Retrieving Expression details for: {expression_name}")
         try:
             encoded_name = quote(expression_name)
-            endpoint = f"{self.expression_endpoint}?q=Name='{encoded_name}'"
+            endpoint = f"{self.expression_endpoint}?q=Name='{encoded_name}';OrgId={self.org_id}"
             response, status_code = self.api_client.get(endpoint)
             log_api_response(f"Get Expression by Name: {expression_name}",
                             {"status_code": status_code, "response": response}, self.log_file)
             if status_code == 200 and response.get("items"):
                 expression_details = response["items"][0]
-                self.logger.info(f"✅ Found Expression '{expression_name}' with ID: {expression_details['ExpressionId']}")
+                # Attach the UniqID for PATCH operations
+                uniq_id = self._extract_uniq_id(expression_details)
+                expression_details["_uniq_id"] = uniq_id
+                self.logger.info(f"✅ Found Expression '{expression_name}' with ID: {expression_details['ExpressionId']}, UniqID: {uniq_id}")
                 return expression_details
             self.logger.info(f"⚠ Expression '{expression_name}' not found.")
             return None
@@ -216,76 +238,303 @@ class ExpressionManager:
             self.logger.error(f"❌ Error retrieving Expression details for '{expression_name}': {e}")
             return None
 
+    def _patch_expression(self, uniq_id: str, expression_name: str,
+                          payload: Dict[str, Any]) -> bool:
+        """PATCH an expression using its UniqID (not ExpressionId).
+
+        Oracle requires the composite hash key (UniqID) from the self link,
+        NOT the numeric ExpressionId, in the URL path:
+            .../incentiveCompensationExpressions/{uniqId}
+
+        Oracle PATCH writable fields (per API schema):
+          - Name (string)
+          - Description (string)
+          - ExpressionDetails (array) — inline child detail rows
+          - ExpressionUsages (array) — inline child usage rows
+
+        Read-only fields (will cause 400 "Unable to parse the provided payload"):
+          - Expression, ExpressionType, ExpressionId, OrgId, Status,
+            CreatedBy, CreationDate, LastUpdateDate, LastUpdatedBy, etc.
+        """
+        # Filter payload to only Oracle-accepted PATCH fields
+        allowed_fields = {"Name", "Description", "ExpressionDetails", "ExpressionUsages"}
+        safe_payload = {k: v for k, v in payload.items() if k in allowed_fields}
+        if not safe_payload:
+            self.logger.info(f"ℹ No PATCH-able fields for Expression '{expression_name}'. Skipping PATCH.")
+            return True
+
+        endpoint = f"{self.expression_endpoint}/{uniq_id}"
+        response, status_code = self.api_client.patch(endpoint, safe_payload)
+        log_api_response(f"PATCH Expression: {expression_name}",
+                        {"status_code": status_code, "response": response}, self.log_file)
+        if status_code == 200:
+            self.logger.info(f"✅ PATCHed Expression '{expression_name}' via UniqID {uniq_id}")
+            return True
+        self.logger.warning(f"⚠ PATCH returned {status_code} for Expression '{expression_name}': {response}")
+        return False
+
+    def _set_expression_details(self, uniq_id: str, expression_name: str,
+                                detail_rows: List[Dict[str, Any]],
+                                description: str = "",
+                                force_replace: bool = False) -> bool:
+        """Set expression formula via inline ExpressionDetails in a single PATCH.
+
+        Oracle API supports inline ExpressionDetails in the PATCH payload:
+            PATCH .../incentiveCompensationExpressions/{uniqId}
+            {
+              "Description": "...",
+              "ExpressionDetails": [
+                {"ExpressionDetailType": "PRIMOBJATTR", "Sequence": 1, ...},
+                {"ExpressionDetailType": "MATHOPERATOR", "Sequence": 2, ...}
+              ]
+            }
+
+        This is the most efficient approach — a single API call sets both
+        metadata and all formula components at once.
+
+        Fallback: If inline PATCH fails, falls back to individual
+        POST/PATCH calls on the child ExpressionDetails endpoint.
+
+        Args:
+            uniq_id: The incentiveCompensationExpressionsUniqID
+            expression_name: Human-readable name for logging
+            detail_rows: List of ExpressionDetail payloads
+            description: Optional description to set alongside details
+            force_replace: If True, update even when details already exist
+        """
+        # Check if details already exist
+        child_endpoint = f"{self.expression_endpoint}/{uniq_id}/child/ExpressionDetails"
+        existing_resp, existing_status = self.api_client.get(child_endpoint)
+        existing_items = existing_resp.get("items", []) if existing_status == 200 else []
+
+        if existing_items and not force_replace:
+            self.logger.info(f"✅ ExpressionDetails already exist for '{expression_name}' ({len(existing_items)} rows). Skipping.")
+            return True
+
+        # ── Primary approach: Inline ExpressionDetails in a single PATCH ──
+        # Clean detail rows (remove None/empty values)
+        clean_details = []
+        for detail in detail_rows:
+            clean_detail = {k: v for k, v in detail.items() if v is not None and v != ''}
+            if clean_detail:
+                clean_details.append(clean_detail)
+
+        if clean_details:
+            patch_payload = {"ExpressionDetails": clean_details}
+            if description:
+                patch_payload["Description"] = description
+
+            self.logger.info(f"🔧 Setting {len(clean_details)} ExpressionDetails for '{expression_name}' via inline PATCH.")
+            if self._patch_expression(uniq_id, expression_name, patch_payload):
+                return True
+
+            # ── Fallback: individual POST/PATCH on child endpoint ──
+            self.logger.info(f"⚠ Inline PATCH failed for '{expression_name}'. Falling back to individual detail calls.")
+
+        if existing_items and force_replace:
+            # PATCH existing detail rows by ExpressionDetailId
+            self.logger.info(f"🔄 Updating {len(existing_items)} existing ExpressionDetails for '{expression_name}' via individual PATCH.")
+            success = True
+            for idx, existing_detail in enumerate(existing_items):
+                detail_id = existing_detail.get("ExpressionDetailId")
+                if not detail_id:
+                    continue
+                if idx < len(detail_rows):
+                    patch_payload = {k: v for k, v in detail_rows[idx].items()
+                                     if v is not None and v != ''}
+                    patch_endpoint = f"{child_endpoint}/{detail_id}"
+                    response, status_code = self.api_client.patch(patch_endpoint, patch_payload)
+                    log_api_response(f"PATCH ExpressionDetail #{idx+1} (ID:{detail_id}) for '{expression_name}'",
+                                    {"status_code": status_code, "response": response}, self.log_file)
+                    if status_code == 200:
+                        self.logger.info(f"✅ PATCHed ExpressionDetail #{idx+1} for '{expression_name}'")
+                    else:
+                        self.logger.warning(f"⚠ PATCH ExpressionDetail #{idx+1} failed for '{expression_name}': {status_code}")
+                        success = False
+            # POST any additional new rows beyond existing count
+            for idx in range(len(existing_items), len(detail_rows)):
+                detail_payload = {k: v for k, v in detail_rows[idx].items()
+                                 if v is not None and v != ''}
+                response, status_code = self.api_client.post(child_endpoint, detail_payload)
+                log_api_response(f"Create ExpressionDetail #{idx+1} for '{expression_name}'",
+                                {"status_code": status_code, "response": response}, self.log_file)
+                if status_code not in [200, 201]:
+                    self.logger.warning(f"⚠ ExpressionDetail #{idx+1} POST failed for '{expression_name}': {status_code}")
+                    success = False
+            return success
+
+        # No existing details — POST all new rows individually
+        success = True
+        for idx, detail in enumerate(detail_rows, start=1):
+            detail_payload = {k: v for k, v in detail.items() if v is not None and v != ''}
+            response, status_code = self.api_client.post(child_endpoint, detail_payload)
+            log_api_response(f"Create ExpressionDetail #{idx} for '{expression_name}'",
+                            {"status_code": status_code, "response": response}, self.log_file)
+            if status_code not in [200, 201]:
+                self.logger.warning(f"⚠ ExpressionDetail #{idx} failed for '{expression_name}': {status_code}")
+                success = False
+        return success
+
+    def _check_expression_usages(self, uniq_id: str, expression_name: str) -> bool:
+        """Check Expression Usages to verify an expression is valid.
+
+        Oracle auto-creates ExpressionUsages for valid expressions.
+        GET .../incentiveCompensationExpressions/{uniqId}/child/ExpressionUsages
+
+        Returns:
+            True if the expression has usages (is valid), False otherwise.
+            Note: A newly created expression may not have usages yet until it's
+            fully configured with details — this is informational, not blocking.
+        """
+        endpoint = f"{self.expression_endpoint}/{uniq_id}/child/ExpressionUsages"
+        try:
+            response, status_code = self.api_client.get(endpoint)
+            log_api_response(f"Check ExpressionUsages for '{expression_name}'",
+                            {"status_code": status_code, "response": response}, self.log_file)
+            if status_code == 200:
+                items = response.get("items", [])
+                if items:
+                    usage_types = [u.get("UsageType", "unknown") for u in items]
+                    self.logger.info(f"✅ Expression '{expression_name}' is valid with {len(items)} usage(s): {usage_types}")
+                    return True
+                else:
+                    self.logger.info(f"ℹ Expression '{expression_name}' has no usages yet (may need details or validation).")
+                    return False
+            else:
+                self.logger.warning(f"⚠ Could not check usages for '{expression_name}': status {status_code}")
+                return False
+        except Exception as e:
+            self.logger.warning(f"⚠ Error checking ExpressionUsages for '{expression_name}': {e}")
+            return False
+
+    def _build_expression_detail_rows(self, expression: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Build ExpressionDetails rows from the loaded expression data.
+
+        Returns the structured detail rows (PRIMOBJATTR, MEASURERESULT, MATHOPERATOR,
+        CONSTANT, PLANCOMPRESULT) parsed from the Excel during load_expressions().
+        If no structured detail rows are available, returns empty list — the expression
+        will be created as a shell only (formula must be set manually or via UI).
+        """
+        # Check if we have the original DataFrame rows with detail types
+        # These are stored during load_expressions if detail_type info is available
+        if "_detail_rows" in expression and expression["_detail_rows"]:
+            return expression["_detail_rows"]
+        return []
+
     def create_or_update_expression(self, expression: Dict[str, Any]) -> Optional[int]:
         """
         Create or update an Expression if it doesn't match the expected configuration.
 
+        Strategy:
+        1. Check if expression exists by name (scoped to OrgId).
+        2. If exists and formula matches: skip (idempotent).
+        3. If exists and formula differs: PATCH with Description + inline
+           ExpressionDetails array (single API call for metadata + formula).
+        4. If not exists: POST shell (Name+OrgId+Description), then
+           PATCH with inline ExpressionDetails to set formula.
+
+        Oracle REST API key facts (from schema):
+        - POST creates shell: Name, OrgId, Description.
+        - PATCH writable fields: Name, Description, ExpressionDetails (array),
+          ExpressionUsages (array).
+        - Read-only fields (400 if sent via PATCH): Expression, ExpressionType,
+          ExpressionId, OrgId, Status, CreatedBy, CreationDate, etc.
+        - ExpressionDetails can be sent inline in PATCH payload as an array,
+          OR individually via POST/PATCH on .../child/ExpressionDetails.
+        - ExpressionType defaults to CALCULATION; Status defaults to INVALID.
+        - PATCH and GET-by-key require UniqID (from self link), NOT ExpressionId.
+
         Args:
-            expression: Dictionary containing expression configuration (Name, OrgId, Expression, ExpressionType)
+            expression: Dictionary with Name, OrgId, Expression, ExpressionType, Description
 
         Returns:
-            Expression ID if created or updated, None if failed
+            ExpressionId if created or updated, None if failed
         """
         expression_name = expression["Name"]
-        expected_expression_value = expression.get("Expression", "Credit.Credit Amount + 100")
+        expected_expression_value = expression.get("Expression", "")
         org_id = int(expression.get("OrgId", self.org_id))
-        expression_type = expression.get("ExpressionType", "FORMULA")
         description = expression.get("Description", expression_name)
 
         self.logger.info(f"🔧 Processing Expression: {expression_name}")
+
+        # ── Check if already exists ──────────────────────────
         existing_expression = self.get_expression_details(expression_name)
         if existing_expression:
-            current_expression_value = existing_expression.get("Expression", "")
-            if current_expression_value == expected_expression_value:
-                self.logger.info(f"✅ Expression '{expression_name}' already matches expected value '{expected_expression_value}'. Skipping update.")
-                return existing_expression["ExpressionId"]
-
-            self.logger.info(f"⚠ Expression '{expression_name}' differs from expected value. Updating.")
             expression_id = existing_expression["ExpressionId"]
-            endpoint = f"{self.expression_endpoint}/{expression_id}"
-            payload = {
-                "Expression": expected_expression_value,
-                "ExpressionType": expression_type,
-                "Description": description
-            }
-            try:
-                response, status_code = self.api_client.patch(endpoint, payload)
-                log_api_response(f"Update Expression: {expression_name}",
-                               {"status_code": status_code, "response": response}, self.log_file)
-                if status_code == 200:
-                    self.logger.info(f"✅ Successfully updated Expression '{expression_name}' with ID: {expression_id}")
-                    return expression_id
-                elif status_code == 404:
-                    self.logger.warning(f"⚠ Expression '{expression_name}' (ID: {expression_id}) not found or not modifiable. Skipping update.")
-                    return expression_id  # Return existing ID to continue
-                else:
-                    self.logger.error(f"❌ Failed to update Expression '{expression_name}'. Status code: {status_code}")
-                    self.logger.error(f"❌ Response details: {response}")
-                    return None
-            except Exception as e:
-                self.logger.error(f"❌ Error updating Expression '{expression_name}': {e}")
-                return None
+            uniq_id = existing_expression.get("_uniq_id")
+            current_expression_value = existing_expression.get("Expression", "")
 
-        self.logger.info(f"⚠ Expression '{expression_name}' does not exist. Creating.")
-        payload = {
-            "Name": expression_name,
-            "OrgId": org_id,
-            "Expression": expected_expression_value,
-            "ExpressionType": expression_type,
-            "Description": description
-        }
-        try:
-            response, status_code = self.api_client.post(self.expression_endpoint, payload)
-            log_api_response(f"Create Expression: {expression_name}",
-                           {"status_code": status_code, "response": response}, self.log_file)
-            if status_code == 201 and "ExpressionId" in response:
-                expression_id = response["ExpressionId"]
-                self.logger.info(f"✅ Successfully created Expression '{expression_name}' with ID: {expression_id}")
+            if current_expression_value == expected_expression_value:
+                self.logger.info(f"✅ Expression '{expression_name}' already matches. Skipping.")
+                return expression_id
+
+            # Expression exists but formula differs — update via single PATCH
+            if uniq_id and expected_expression_value:
+                self.logger.info(f"⚠ Expression '{expression_name}' differs. Updating via UniqID {uniq_id}.")
+                detail_rows = self._build_expression_detail_rows(expression)
+                if detail_rows:
+                    self._set_expression_details(uniq_id, expression_name, detail_rows,
+                                                 description=description, force_replace=True)
+                else:
+                    # No structured detail rows — just update Description
+                    self._patch_expression(uniq_id, expression_name, {"Description": description})
+                    self.logger.info(f"ℹ No ExpressionDetail rows for '{expression_name}'. Only Description updated.")
+
                 return expression_id
             else:
-                self.logger.error(f"❌ Failed to create Expression '{expression_name}'. Status code: {status_code}")
-                self.logger.error(f"❌ Response details: {response}")
-                return None
+                self.logger.warning(f"⚠ No UniqID for Expression '{expression_name}'. Returning existing ID.")
+                return expression_id
+
+        # ── Create new expression ────────────────────────────
+        self.logger.info(f"⚠ Expression '{expression_name}' does not exist. Creating shell.")
+        create_payload = {
+            "Name": expression_name,
+            "OrgId": org_id,
+            "Description": description,
+        }
+        try:
+            response, status_code = self.api_client.post(self.expression_endpoint, create_payload)
+            log_api_response(f"Create Expression: {expression_name}",
+                           {"status_code": status_code, "response": response}, self.log_file)
+
+            if status_code == 201 and isinstance(response, dict) and "ExpressionId" in response:
+                expression_id = response["ExpressionId"]
+                uniq_id = self._extract_uniq_id(response)
+                self.logger.info(f"✅ Created Expression '{expression_name}' ID: {expression_id}, UniqID: {uniq_id}")
+
+                # Set formula via inline ExpressionDetails in PATCH (single call)
+                if uniq_id and expected_expression_value:
+                    detail_rows = self._build_expression_detail_rows(expression)
+                    if detail_rows:
+                        self._set_expression_details(uniq_id, expression_name, detail_rows,
+                                                     description=description)
+                    else:
+                        self.logger.info(f"ℹ No ExpressionDetail rows for '{expression_name}'. Expression created as shell only.")
+
+                    # Check Expression Usages to verify validity
+                    self._check_expression_usages(uniq_id, expression_name)
+                return expression_id
+
+            # Shell creation returned 400 — likely already exists (race condition or re-run)
+            if status_code == 400:
+                self.logger.warning(f"⚠ Shell create returned 400 for '{expression_name}'. Re-checking.")
+                re_check = self.get_expression_details(expression_name)
+                if re_check:
+                    expression_id = re_check["ExpressionId"]
+                    uniq_id = re_check.get("_uniq_id")
+                    self.logger.info(f"✅ Found existing Expression '{expression_name}' ID: {expression_id}")
+                    # Update formula via ExpressionDetails if needed
+                    current_value = re_check.get("Expression", "")
+                    if uniq_id and current_value != expected_expression_value and expected_expression_value:
+                        detail_rows = self._build_expression_detail_rows(expression)
+                        if detail_rows:
+                            self._set_expression_details(uniq_id, expression_name, detail_rows,
+                                                         description=description, force_replace=True)
+                    return expression_id
+
+            self.logger.error(f"❌ Failed to create Expression '{expression_name}'. Status: {status_code}")
+            self.logger.error(f"❌ Response: {response}")
+            return None
         except Exception as e:
             self.logger.error(f"❌ Error creating Expression '{expression_name}': {e}")
             return None
