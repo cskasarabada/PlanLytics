@@ -82,9 +82,10 @@ def infer_oracle_objects(
         pc.setdefault("include_indirect_credits", "None")
 
     # Backfill performance measure defaults
+    # Use Oracle API codes directly (CN_PROCESS_TXN lookup: GROUP / INDIVIDUAL)
     for pm in om.get("performance_measures", []):
-        pm.setdefault("process_transactions", "Yes")
-        pm.setdefault("performance_interval", "Quarterly")
+        pm.setdefault("process_transactions", "GROUP")
+        pm.setdefault("performance_interval", "-1001")  # Quarterly
         pm.setdefault("active_flag", "Y")
         pm.setdefault("use_external_formula_flag", "N")
         pm.setdefault("running_total_flag", "N")
