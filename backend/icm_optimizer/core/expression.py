@@ -164,13 +164,94 @@ class ExpressionManager:
                             "Sequence": int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1,
                             "ConstantValue": constant.strip(),
                         }
-                elif detail_type in ('Calculation', 'Formula', 'Target', 'Lookup'):
-                    # Generic expression types from AI/LLM analysis — use description or name as formula
-                    desc = row.get('Description', '')
-                    if desc and desc.strip():
-                        expressions[expr_name]['Expression'] = desc.strip()
+                elif detail_type in ('Calculation', 'Formula', 'Target', 'Lookup', 'PRIMOBJATTR', 'MEASURERESULT', 'PLANCOMPRESULT', 'MATHOPERATOR', 'CONSTANT'):
+                    # Generic expression types from AI/LLM analysis — infer Oracle
+                    # ExpressionDetailType from the available column data.
+                    # Also handles already-correct Oracle codes passed through.
+                    inferred_type = detail_type if detail_type in ('PRIMOBJATTR', 'MEASURERESULT', 'PLANCOMPRESULT', 'MATHOPERATOR', 'CONSTANT') else None
+
+                    measure_name = row.get('MeasureName', '')
+                    result_attr = row.get('MeasureResultAttribute', '')
+                    attr_group = row.get('BasicAttributesGroup', '')
+                    attr_name = row.get('BasicAttributeName', '')
+                    pc_name = row.get('PlanComponentName', '')
+                    pc_attr = row.get('PlanComponentResultAttribute', '')
+                    operator = row.get('ExpressionOperator', '')
+                    constant = row.get('ConstantValue', '')
+
+                    # Clean NaN values
+                    for _v in ('measure_name', 'result_attr', 'attr_group', 'attr_name', 'pc_name', 'pc_attr', 'operator', 'constant'):
+                        if pd.isna(locals()[_v]) or locals()[_v] is None:
+                            locals()[_v] = ''
+                    measure_name = '' if pd.isna(measure_name) else str(measure_name).strip()
+                    result_attr = '' if pd.isna(result_attr) else str(result_attr).strip()
+                    attr_group = '' if pd.isna(attr_group) else str(attr_group).strip()
+                    attr_name = '' if pd.isna(attr_name) else str(attr_name).strip()
+                    pc_name = '' if pd.isna(pc_name) else str(pc_name).strip()
+                    pc_attr = '' if pd.isna(pc_attr) else str(pc_attr).strip()
+                    operator = '' if pd.isna(operator) else str(operator).strip()
+                    constant = '' if pd.isna(constant) else str(constant).strip()
+
+                    # Infer detail type from available data
+                    if not inferred_type:
+                        if measure_name and result_attr:
+                            inferred_type = 'MEASURERESULT'
+                        elif attr_group and attr_name:
+                            inferred_type = 'PRIMOBJATTR'
+                        elif pc_name and pc_attr:
+                            inferred_type = 'PLANCOMPRESULT'
+                        elif operator:
+                            inferred_type = 'MATHOPERATOR'
+                        elif constant:
+                            inferred_type = 'CONSTANT'
+
+                    seq = int(sequence) if sequence > 0 else len(detail_rows_map[expr_name]) + 1
+
+                    if inferred_type == 'MEASURERESULT' and measure_name and result_attr:
+                        expressions[expr_name]['Expression'] = f"{measure_name}.{result_attr}"
+                        detail_row = {
+                            "ExpressionDetailType": "MEASURERESULT",
+                            "Sequence": seq,
+                            "MeasureName": measure_name,
+                            "MeasureResultAttribute": result_attr,
+                        }
+                    elif inferred_type == 'PRIMOBJATTR' and attr_group and attr_name:
+                        expressions[expr_name]['Expression'] = f"{attr_group}.{attr_name}"
+                        detail_row = {
+                            "ExpressionDetailType": "PRIMOBJATTR",
+                            "Sequence": seq,
+                            "BasicAttributesGroup": attr_group,
+                            "BasicAttributeName": attr_name,
+                        }
+                    elif inferred_type == 'PLANCOMPRESULT' and pc_name and pc_attr:
+                        expressions[expr_name]['Expression'] = f"{pc_name}.{pc_attr}"
+                        detail_row = {
+                            "ExpressionDetailType": "PLANCOMPRESULT",
+                            "Sequence": seq,
+                            "PlanComponentName": pc_name,
+                            "PlanComponentResultAttribute": pc_attr,
+                        }
+                    elif inferred_type == 'MATHOPERATOR' and operator:
+                        expressions[expr_name]['Expression'] += f" {operator} "
+                        detail_row = {
+                            "ExpressionDetailType": "MATHOPERATOR",
+                            "Sequence": seq,
+                            "ExpressionOperator": operator,
+                        }
+                    elif inferred_type == 'CONSTANT' and constant:
+                        expressions[expr_name]['Expression'] += constant
+                        detail_row = {
+                            "ExpressionDetailType": "CONSTANT",
+                            "Sequence": seq,
+                            "ConstantValue": constant,
+                        }
                     else:
-                        expressions[expr_name]['Expression'] = expr_name
+                        # Fallback: no structured detail rows — set expression text from description
+                        desc = row.get('Description', '')
+                        if desc and not pd.isna(desc) and str(desc).strip():
+                            expressions[expr_name]['Expression'] = str(desc).strip()
+                        else:
+                            expressions[expr_name]['Expression'] = expr_name
 
                 if detail_row:
                     detail_rows_map[expr_name].append(detail_row)
