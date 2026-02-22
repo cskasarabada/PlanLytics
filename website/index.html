@@ -6,189 +6,225 @@
     <title>ICM PlanLytics - Startup Plan Studio</title>
     <meta name="description" content="Launch your startup compensation plan with AI. Draft plans, model scenarios, assess risk, and generate ICM-ready outputs fast.">
     <meta name="keywords" content="ICM, compensation analysis, AI, incentive plans, ICM automation, implementation">
-    
-    <!-- Fonts & Styles -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
-        .feature-card { transition: all 0.3s ease; }
-        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .demo-output { font-family: 'Courier New', monospace; background: #f8fafc; }
-        .demo-output.expanded { max-height: none; }
-    </style>
+    <link rel="stylesheet" href="brand.css">
 </head>
-<body class="bg-gray-50">
+<body>
+<div class="page">
+
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">ICM</span>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="34" cy="34" r="26" stroke="#10b981" stroke-width="1" opacity="0.2" stroke-dasharray="4 3"/>
+                    <circle cx="34" cy="34" r="20" stroke="#10b981" stroke-width="1.5" opacity="0.4"/>
+                    <polyline points="16,46 24,40 32,42 40,32 48,28 54,18" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M16,46 L24,40 L32,42 L40,32 L48,28 L54,18 L54,50 L16,50 Z" fill="url(#icmNavGrad)" opacity="0.15"/>
+                    <circle cx="24" cy="40" r="3" fill="#10b981" opacity="0.8"/>
+                    <circle cx="40" cy="32" r="3" fill="#10b981"/>
+                    <circle cx="54" cy="18" r="4" fill="#10b981"/>
+                    <text x="54" y="21" text-anchor="middle" font-family="'Sora', sans-serif" font-size="7" font-weight="700" fill="#fff">$</text>
+                    <defs>
+                        <linearGradient id="icmNavGrad" x1="16" y1="18" x2="16" y2="50">
+                            <stop offset="0%" stop-color="#10b981"/>
+                            <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="logo-text">
+                    <span class="icm">ICM </span><span class="plan">Plan</span><span class="lytics">lytics</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="ai-plan-analytics.html">MicroPlan AI</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle">RevOps Studio</button>
+                    <div class="nav-dropdown-menu">
+                        <div class="nav-dropdown-label">RevOps Studio</div>
+                        <a href="ai-plan-studio.html">
+                            <span class="dropdown-icon" style="background:rgba(16,185,129,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);display:block;"></span></span>
+                            Plan Studio
+                        </a>
+                        <a href="sales-360-ai.html">
+                            <span class="dropdown-icon" style="background:rgba(6,182,212,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);display:block;"></span></span>
+                            Sales 360 AI
+                        </a>
                     </div>
-                    <div>
-                        <span class="text-xl font-bold text-gray-900">ICM PlanLytics</span>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
-                    </div>
                 </div>
-                <div class="hidden md:flex items-center space-x-6 whitespace-nowrap text-sm">
-                    <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">AI Plan Analytics</a>
-                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
-                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
-                    <a href="#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
-                    <a href="ai-plan-analytics.html#demo" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Try Demo</a>
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                    <button onclick="location.href='ai-plan-analytics.html#demo'" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap">
-                        Start Free Trial
-                    </button>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
-                        Menu
-                    </button>
-                </div>
+                <a href="#pricing">Pricing</a>
+                <a href="ai-plan-analytics.html#demo">Try Demo</a>
             </div>
+            <div class="nav-cta">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm">Start Free Trial</a>
+            </div>
+            <button class="nav-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
         </div>
-        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
-            <div class="px-4 pb-4 pt-3 space-y-3">
-                <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
-                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
-                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
-                <a href="#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
-                <a href="ai-plan-analytics.html#demo" class="block text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
-                <div class="flex items-center justify-between">
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
-                <button onclick="location.href='ai-plan-analytics.html#demo'" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    Start Free Trial
-                </button>
+        <div class="nav-mobile" id="mobile-menu">
+            <a href="ai-plan-analytics.html">MicroPlan AI</a>
+            <div class="nav-mobile-group-label">RevOps Studio</div>
+            <div class="nav-mobile-group">
+                <a href="ai-plan-studio.html">Plan Studio</a>
+                <a href="sales-360-ai.html">Sales 360 AI</a>
+            </div>
+            <a href="#pricing">Pricing</a>
+            <a href="ai-plan-analytics.html#demo">Try Demo</a>
+            <div style="display:flex;gap:10px;padding:10px 0;">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Start Free Trial</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="gradient-bg pt-24 pb-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="mb-8">
-                <span class="inline-block bg-white/20 text-white px-6 py-3 rounded-full text-sm font-medium mb-6">
-                    🚀 Now Live - Try Free Demo Below
-                </span>
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                    Plan your Startup's Journey<br>
-                    <span class="text-yellow-300">Sell - Plan - Pay</span>
-                </h1>
-                <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-                    PlanLytics is the AI suite for compensation intelligence, plan creation, and Sales 360 execution.
-                    Align revenue, payouts, and decisions in one stack.
-                </p>
+    <section class="hero" style="background: var(--gradient-hero);">
+        <div class="glow-orb glow-orb-emerald" style="width:500px;height:500px;top:-200px;left:50%;transform:translateX(-50%);"></div>
+        <div class="container" style="position:relative;">
+            <div class="label fade-up" style="margin-bottom:24px;">Now Live &mdash; Try Free Demo Below</div>
+            <h1 class="fade-up fade-up-1" style="font-size:56px;margin-bottom:16px;">
+                Plan your Startup's Journey<br>
+                <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Sell &mdash; Plan &mdash; Pay</span>
+            </h1>
+            <p class="subtitle fade-up fade-up-2">
+                PlanLytics is the AI suite for compensation intelligence, plan creation, and Sales 360 execution.
+                Align revenue, payouts, and decisions in one stack.
+            </p>
+            <div class="hero-actions fade-up fade-up-3">
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary">Try Free Demo Now</a>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-ghost">Watch Demo</a>
             </div>
-            
-            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-16">
-                <button onclick="location.href='ai-plan-analytics.html#demo'" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
-                    Try Free Demo Now
-                </button>
-                <button onclick="location.href='ai-plan-analytics.html#demo'" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors">
-                    ▶ Watch Demo
-                </button>
-            </div>
-            
+
             <!-- Hero Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto text-white">
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">95%</div>
-                    <div class="text-sm text-white/80">Analysis Accuracy</div>
+            <div class="stats-row fade-up fade-up-4">
+                <div class="stat-card">
+                    <div class="stat-value">95%</div>
+                    <div class="stat-label">Analysis Accuracy</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">5min</div>
-                    <div class="text-sm text-white/80">From Upload to Results</div>
+                <div class="stat-card">
+                    <div class="stat-value">5min</div>
+                    <div class="stat-label">From Upload to Results</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">50+</div>
-                    <div class="text-sm text-white/80">Risk Checks</div>
+                <div class="stat-card">
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Risk Checks</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold mb-2">100%</div>
-                    <div class="text-sm text-white/80">ICM Compatible</div>
+                <div class="stat-card">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">ICM Compatible</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Modules Section -->
-    <section id="features" class="py-20 px-4 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Three AI Modules. One Planning Stack.</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Diagnose with AI Plan Analytics, build with Plan Studio, and execute with Sales 360 AI.
+    <section class="section" id="features">
+        <div class="container">
+            <div style="text-align:center;margin-bottom:48px;">
+                <div class="label" style="margin-bottom:12px;">Product Modules</div>
+                <h2>Two Engines. One Planning Stack.</h2>
+                <p style="max-width:640px;margin:12px auto 0;font-size:17px;">
+                    Diagnose with MicroPlan AI. Build and execute with RevOps Studio.
                 </p>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-10">
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <div class="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-4">Module 01</div>
-                    <h3 class="text-3xl font-semibold text-gray-900 mb-4">AI Plan Analytics</h3>
-                    <p class="text-gray-600 mb-6 text-lg">
+            <div class="grid-2">
+                <!-- MicroPlan AI -->
+                <div class="card" style="border-top:3px solid var(--accent-primary);">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                        <span style="width:32px;height:32px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
+                            <svg viewBox="0 0 68 68" fill="none" style="width:20px;height:20px;">
+                                <circle cx="34" cy="34" r="20" stroke="#10b981" stroke-width="1.5" opacity="0.6"/>
+                                <polyline points="16,46 24,40 32,42 40,32 48,28 54,18" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <circle cx="40" cy="32" r="3" fill="#10b981"/>
+                                <circle cx="54" cy="18" r="3.5" fill="#10b981"/>
+                                <text x="54" y="21" text-anchor="middle" font-family="'Sora', sans-serif" font-size="7" font-weight="700" fill="#fff">$</text>
+                            </svg>
+                        </span>
+                        <div class="label" style="margin:0;">MicroPlan AI</div>
+                    </div>
+                    <h3 style="margin-bottom:8px;">Plan Analytics & Governance</h3>
+                    <p style="margin-bottom:20px;font-size:15px;">
                         Diagnose plans fast with AI extraction, risk radar, and ICM-ready outputs.
                     </p>
-                    <ul class="text-gray-600 space-y-3 mb-8">
-                        <li>Plan diagnostics and structure extraction</li>
-                        <li>Risk and compliance flags with recommendations</li>
-                        <li>ICM object blueprint and export pack</li>
-                        <li>Executive summary for finance + HR</li>
+                    <ul style="list-style:none;margin-bottom:24px;">
+                        <li style="padding:5px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                            <span style="position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                            Plan diagnostics and structure extraction
+                        </li>
+                        <li style="padding:5px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                            <span style="position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                            Risk and compliance flags with recommendations
+                        </li>
+                        <li style="padding:5px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                            <span style="position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                            ICM object blueprint and export pack
+                        </li>
+                        <li style="padding:5px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                            <span style="position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                            Executive summary for finance + HR
+                        </li>
                     </ul>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="ai-plan-analytics.html" class="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                            Explore AI Plan Analytics
-                        </a>
-                        <span class="text-xs text-gray-500">Best for plan review and governance</span>
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+                        <a href="ai-plan-analytics.html" class="btn btn-primary btn-sm">Explore MicroPlan AI</a>
+                        <span style="font-size:12px;color:var(--text-muted);">Best for plan review and governance</span>
                     </div>
                 </div>
 
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <div class="text-xs uppercase tracking-wide text-emerald-600 font-semibold mb-4">Module 02</div>
-                    <h3 class="text-3xl font-semibold text-gray-900 mb-4">AI Plan Studio</h3>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Build plans with agentic guidance, scenario modeling, and profit planning.
-                    </p>
-                    <ul class="text-gray-600 space-y-3 mb-8">
-                        <li>Plan draft builder with scenario simulation</li>
-                        <li>Founder journey and profit planner tools</li>
-                        <li>Market benchmarking + admin insights</li>
-                        <li>Exportable draft and plan artifacts</li>
-                    </ul>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="ai-plan-studio.html" class="bg-slate-900 text-white px-5 py-3 rounded-lg hover:bg-slate-800 transition-colors font-semibold">
-                            Explore Plan Studio
-                        </a>
-                        <span class="text-xs text-gray-500">Best for plan creation and iteration</span>
+                <!-- RevOps Studio -->
+                <div class="card" style="border-top:3px solid var(--accent-cyan);">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                        <span style="width:32px;height:32px;border-radius:10px;background:rgba(6,182,212,0.15);display:flex;align-items:center;justify-content:center;">
+                            <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#06b6d4" stroke-width="1.5"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#10b981" stroke-width="1.5"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#10b981" stroke-width="1.5"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#06b6d4" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="2" fill="#06b6d4" opacity="0.8"/>
+                            </svg>
+                        </span>
+                        <div class="label" style="margin:0;color:var(--accent-cyan);">RevOps Studio</div>
                     </div>
-                </div>
-
-                <div class="feature-card bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <div class="text-xs uppercase tracking-wide text-indigo-600 font-semibold mb-4">Module 03</div>
-                    <h3 class="text-3xl font-semibold text-gray-900 mb-4">Sales 360 AI</h3>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Align pipeline, comp exposure, and coaching in a single execution loop.
+                    <h3 style="margin-bottom:8px;">Plan Studio + Sales 360 AI</h3>
+                    <p style="margin-bottom:20px;font-size:15px;">
+                        Build plans with agentic guidance, then execute with pipeline intelligence and coaching.
                     </p>
-                    <ul class="text-gray-600 space-y-3 mb-8">
-                        <li>Pipeline health and forecast confidence</li>
-                        <li>Comp exposure and margin protection</li>
-                        <li>Coaching plays and rep readiness</li>
-                        <li>Board-ready revenue summaries</li>
-                    </ul>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="sales-360-ai.html" class="bg-indigo-600 text-white px-5 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
-                            Explore Sales 360 AI
-                        </a>
-                        <span class="text-xs text-gray-500">Best for revenue execution</span>
+
+                    <!-- Plan Studio features -->
+                    <div style="margin-bottom:16px;">
+                        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:8px;">Plan Studio</div>
+                        <ul style="list-style:none;margin-bottom:0;">
+                            <li style="padding:4px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                                <span style="position:absolute;left:0;top:10px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                                Plan draft builder with scenario simulation
+                            </li>
+                            <li style="padding:4px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                                <span style="position:absolute;left:0;top:10px;width:8px;height:8px;background:var(--accent-primary);border-radius:50%;opacity:0.6;"></span>
+                                Founder journey, profit planner, and market insights
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Sales 360 features -->
+                    <div style="margin-bottom:24px;">
+                        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent-cyan);margin-bottom:8px;">Sales 360 AI</div>
+                        <ul style="list-style:none;margin-bottom:0;">
+                            <li style="padding:4px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                                <span style="position:absolute;left:0;top:10px;width:8px;height:8px;background:var(--accent-cyan);border-radius:50%;opacity:0.6;"></span>
+                                Pipeline health, forecast confidence, and comp exposure
+                            </li>
+                            <li style="padding:4px 0;padding-left:20px;position:relative;font-size:14px;color:var(--text-secondary);">
+                                <span style="position:absolute;left:0;top:10px;width:8px;height:8px;background:var(--accent-cyan);border-radius:50%;opacity:0.6;"></span>
+                                Coaching plays, rep readiness, and revenue summaries
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+                        <a href="ai-plan-studio.html" class="btn btn-sm" style="background:var(--bg-dark);border-color:var(--border);">Explore Plan Studio</a>
+                        <a href="sales-360-ai.html" class="btn btn-sm" style="background:rgba(6,182,212,0.15);border-color:rgba(6,182,212,0.3);color:var(--accent-cyan);">Explore Sales 360 AI</a>
                     </div>
                 </div>
             </div>
@@ -196,308 +232,294 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="py-20 px-4 bg-white">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Flexible Pricing for Every Team</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+    <section id="pricing" class="section">
+        <div class="container">
+            <div style="text-align:center;margin-bottom:48px;">
+                <div class="label" style="margin-bottom:12px;">Plans</div>
+                <h2>Flexible Pricing for Every Team</h2>
+                <p style="max-width:640px;margin:12px auto 0;font-size:17px;">
                     Start free, then scale with advanced analysis and enterprise-grade governance.
                 </p>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="border border-gray-200 rounded-2xl p-8 text-center">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Free Preview</h3>
-                    <p class="text-gray-600 mb-6">Perfect for quick validations.</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-6">$0</div>
-                    <ul class="text-gray-600 space-y-3 mb-8">
+            <div class="grid-3">
+                <div class="pricing-card">
+                    <h4>Free Preview</h4>
+                    <p style="font-size:14px;margin-top:4px;">Perfect for quick validations.</p>
+                    <div class="price">$0</div>
+                    <ul>
                         <li>Preview first 10 lines</li>
                         <li>Single document upload</li>
                         <li>Basic risk highlights</li>
                     </ul>
-                    <button onclick="location.href='ai-plan-analytics.html#demo'" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Try Free Demo
-                    </button>
+                    <a href="ai-plan-analytics.html#demo" class="btn btn-primary" style="width:100%;justify-content:center;">Try Free Demo</a>
                 </div>
 
-                <div class="border-2 border-blue-600 rounded-2xl p-8 text-center shadow-lg">
-                    <div class="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-3">Most Popular</div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Pro Trial</h3>
-                    <p class="text-gray-600 mb-6">Full analysis for fast-moving teams.</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-6">$39<span class="text-lg text-gray-500">/mo</span></div>
-                    <ul class="text-gray-600 space-y-3 mb-8">
+                <div class="pricing-card featured">
+                    <div class="label" style="margin-bottom:8px;font-size:10px;">Most Popular</div>
+                    <h4>Pro Trial</h4>
+                    <p style="font-size:14px;margin-top:4px;">Full analysis for fast-moving teams.</p>
+                    <div class="price">$39<span class="price-period">/mo</span></div>
+                    <ul>
                         <li>Unlimited plan analysis</li>
                         <li>ICM object mapping</li>
                         <li>Export to PDF/Excel</li>
                     </ul>
-                    <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Start Pro Trial
-                    </button>
+                    <button onclick="showUpgradeModal()" class="btn btn-primary" style="width:100%;justify-content:center;">Start Pro Trial</button>
                 </div>
 
-                <div class="border border-gray-200 rounded-2xl p-8 text-center">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Enterprise</h3>
-                    <p class="text-gray-600 mb-6">Custom governance and security.</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-6">Let’s Talk</div>
-                    <ul class="text-gray-600 space-y-3 mb-8">
+                <div class="pricing-card">
+                    <h4>Enterprise</h4>
+                    <p style="font-size:14px;margin-top:4px;">Custom governance and security.</p>
+                    <div class="price" style="font-size:32px;">Let's Talk</div>
+                    <ul>
                         <li>Private model training</li>
                         <li>SSO and audit trails</li>
                         <li>Dedicated success team</li>
                     </ul>
-                    <a href="mailto:sales@icm-planlytics.com" class="block w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                        Contact Sales
-                    </a>
+                    <a href="mailto:sales@icm-planlytics.com" class="btn" style="width:100%;justify-content:center;background:var(--bg-dark);">Contact Sales</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-16 px-4 bg-gray-50">
-        <div class="max-w-6xl mx-auto text-center">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Try AI PlanLytics Now</h2>
-            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Run the full analytics demo in AI Plan Analytics and see the output pack in minutes.
+    <!-- CTA Section -->
+    <section class="section" style="padding:48px 0;">
+        <div class="container" style="text-align:center;">
+            <h2 style="margin-bottom:12px;">Try MicroPlan AI Now</h2>
+            <p style="max-width:640px;margin:0 auto 24px;font-size:17px;">
+                Run the full analytics demo in MicroPlan AI and see the output pack in minutes.
             </p>
-            <a href="ai-plan-analytics.html#demo" class="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                Go to AI Plan Analytics Demo
-            </a>
+            <a href="ai-plan-analytics.html#demo" class="btn btn-primary">Go to MicroPlan AI Demo</a>
         </div>
     </section>
 
-    <section class="py-12 px-4">
-        <div class="max-w-6xl mx-auto bg-white border border-gray-200 rounded-3xl p-8 md:p-10 shadow-sm">
-            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-                <div class="flex-1">
-                    <div class="text-xs uppercase tracking-[0.3em] text-gray-500 mb-2">Workspace upgrade</div>
-                    <h2 class="text-3xl md:text-4xl font-semibold text-gray-900">Ready for your own workspace?</h2>
-                    <p class="text-gray-600 mt-2 max-w-2xl">
-                        Loved the trial? Unlock a dedicated workspace and we will build your Founder Journey with you,
-                        tailored to your product, pricing, and hiring plan.
-                    </p>
-                    <div class="flex flex-wrap gap-3 mt-5">
-                        <a href="mailto:sales@icm-planlytics.com?subject=PlanLytics%20Workspace%20Setup" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                            Request Workspace
-                        </a>
-                        <a href="ai-plan-studio.html" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-500 transition-colors">
-                            See Plan Studio Flow
-                        </a>
-                    </div>
-                </div>
-                <div class="w-full lg:w-[360px]">
-                    <div class="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-                        <div class="px-4 py-3 border-b border-gray-200 flex items-center gap-2 text-xs text-gray-500">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                            <span class="ml-2 font-semibold text-gray-700">Founder Workspace</span>
-                        </div>
-                        <div class="p-4 space-y-3">
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="text-[11px] uppercase tracking-wide text-gray-500">End-to-end roadmap</div>
-                                <div class="text-sm font-semibold text-gray-900 mt-1">Founder Journey Flow</div>
-                                <div class="mt-3 space-y-2 text-xs text-gray-600">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                                        <span class="font-semibold text-gray-700">Trial</span>
-                                        <span class="text-gray-400">Upload + preview</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                        <span class="font-semibold text-gray-700">Workspace setup</span>
-                                        <span class="text-gray-400">Team + assumptions</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-                                        <span>Sales 360</span>
-                                        <span class="text-gray-400">Pipeline + coverage</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-                                        <span>Plan Studio</span>
-                                        <span class="text-gray-400">Draft + simulate</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-                                        <span>PlanLytics</span>
-                                        <span class="text-gray-400">Risk + readiness</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
-                                        <span>Launch + iterate</span>
-                                        <span class="text-gray-400">ICM outputs</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="flex items-center justify-between text-[11px] uppercase tracking-wide text-gray-500">
-                                    <span>Current build</span>
-                                    <span>Workspace</span>
-                                </div>
-                                <div class="mt-2 text-xs text-gray-600">
-                                    We configure roles, quotas, and plan assumptions inside your dedicated workspace.
-                                </div>
-                            </div>
+    <!-- Workspace Upgrade Section -->
+    <section class="section" style="padding:48px 0;">
+        <div class="container">
+            <div class="card-glass" style="padding:40px;">
+                <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:300px;">
+                        <div class="label" style="margin-bottom:8px;">Workspace upgrade</div>
+                        <h2 style="font-size:32px;margin-bottom:8px;">Ready for your own workspace?</h2>
+                        <p style="max-width:520px;">
+                            Loved the trial? Unlock a dedicated workspace and we will build your Founder Journey with you,
+                            tailored to your product, pricing, and hiring plan.
+                        </p>
+                        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+                            <a href="mailto:sales@icm-planlytics.com?subject=PlanLytics%20Workspace%20Setup" class="btn btn-primary">Request Workspace</a>
+                            <a href="ai-plan-studio.html" class="btn btn-ghost">See RevOps Studio Flow</a>
                         </div>
                     </div>
-                    <div class="mt-3 text-xs text-gray-500 text-center">Preview of your dedicated workspace</div>
+                    <div style="width:360px;flex-shrink:0;">
+                        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                            <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);">
+                                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                <span style="margin-left:6px;font-weight:600;color:var(--text-secondary);">Founder Workspace</span>
+                            </div>
+                            <div style="padding:16px;">
+                                <div style="background:var(--bg-dark);border-radius:10px;padding:14px;margin-bottom:12px;">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">End-to-end roadmap</div>
+                                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-top:4px;">Founder Journey Flow</div>
+                                    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                            <span style="font-weight:600;color:var(--text-primary);">Trial</span>
+                                            <span style="color:var(--text-muted);">Upload + preview</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-blue);"></span>
+                                            <span style="font-weight:600;color:var(--text-primary);">Workspace setup</span>
+                                            <span style="color:var(--text-muted);">Team + assumptions</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                            <span style="color:var(--text-secondary);">Sales 360</span>
+                                            <span style="color:var(--text-muted);">Pipeline + coverage</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                            <span style="color:var(--text-secondary);">Plan Studio</span>
+                                            <span style="color:var(--text-muted);">Draft + simulate</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                            <span style="color:var(--text-secondary);">PlanLytics</span>
+                                            <span style="color:var(--text-muted);">Risk + readiness</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                            <span style="color:var(--text-secondary);">Launch + iterate</span>
+                                            <span style="color:var(--text-muted);">ICM outputs</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="background:var(--bg-dark);border-radius:10px;padding:14px;">
+                                    <div style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">
+                                        <span>Current build</span>
+                                        <span>Workspace</span>
+                                    </div>
+                                    <p style="margin-top:6px;font-size:12px;">
+                                        We configure roles, quotas, and plan assumptions inside your dedicated workspace.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="text-align:center;font-size:12px;margin-top:8px;color:var(--text-muted);">Preview of your dedicated workspace</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">ICM</span>
-                </div>
-                <span class="text-2xl font-bold">ICM PlanLytics</span>
+    <footer class="footer">
+        <div class="container">
+            <div class="powered-by">
+                <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;">
+                    <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                    <circle cx="36" cy="36" r="8" fill="url(#mpFooterGrad)" opacity="0.9"/>
+                    <text x="36" y="40" text-anchor="middle" font-family="'Sora', sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                    <defs>
+                        <radialGradient id="mpFooterGrad">
+                            <stop offset="0%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#3b82f6"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+                <span>Powered by <span class="mp-cyan">Micro</span><span class="mp-white">Plan</span> AI</span>
             </div>
-            <p class="text-gray-300 mb-6 max-w-md mx-auto">
-                Built for founders: turn product assumptions into sell-plan-pay decisions with AI guidance.
-            </p>
-            <div class="text-gray-400 text-sm">
-                © 2025 ICM PlanLytics. All rights reserved.<br>
-                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a><br>
-                <span class="text-gray-500 text-xs">Build: 2026-01-09-01</span>
-            </div>
+            <p style="margin-bottom:4px;">Built for founders: turn product assumptions into sell-plan-pay decisions with AI guidance.</p>
+            <p>&copy; 2025 ICM PlanLytics. All rights reserved.</p>
+            <p style="margin-top:4px;">Contact us: <a href="mailto:sales@icm-planlytics.com">sales@icm-planlytics.com</a></p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Build: 2026-01-09-01</p>
         </div>
     </footer>
 
     <!-- Role Modal -->
-    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
-            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
-            <form id="role-form" class="space-y-4">
-                <div>
-                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <div>
-                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                    Sign in
-                </button>
+    <div id="role-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Select your access level</h3>
+            <p style="margin-bottom:20px;">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Username</label>
+                <input id="role-username" type="text" autocomplete="username" placeholder="Enter username">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Password</label>
+                <input id="role-password" type="password" autocomplete="current-password" placeholder="Enter password">
+                <p id="role-error" style="display:none;font-size:13px;color:var(--accent-rose);margin-bottom:12px;">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Sign in</button>
             </form>
-            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+            <button id="role-close" style="display:block;width:100%;margin-top:16px;padding:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;">Cancel</button>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script>
-        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-        let activeRole = 'demo';
-        const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
-        };
+</div><!-- /.page -->
 
-        function showUpgradeModal() {
-            alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
-        }
+<!-- JavaScript -->
+<script>
+    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+    let activeRole = 'demo';
+    const ROLE_CREDENTIALS = {
+        demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+        paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+    };
 
-        function applyRole(role) {
-            activeRole = role;
-            localStorage.setItem(ROLE_STORAGE_KEY, role);
-            document.querySelectorAll('[data-role-badge]').forEach((badge) => {
-                badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
-            });
+    function showUpgradeModal() {
+        alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
+    }
 
-            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'demo');
-            });
-            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'paid');
-            });
-
-            const analyzeBtn = document.getElementById('analyze-btn');
-            if (analyzeBtn) {
-                analyzeBtn.textContent = role === 'paid'
-                    ? 'Analyze Document (Full Analysis)'
-                    : 'Analyze Document (Free Preview)';
-            }
-        }
-
-        function initRoleControls() {
-            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
-
-            const roleModal = document.getElementById('role-modal');
-            const roleClose = document.getElementById('role-close');
-            const roleForm = document.getElementById('role-form');
-            const roleError = document.getElementById('role-error');
-            const roleUsername = document.getElementById('role-username');
-            const rolePassword = document.getElementById('role-password');
-            const roleToggles = document.querySelectorAll('[data-role-toggle]');
-
-            roleToggles.forEach((toggle) => {
-                toggle.addEventListener('click', () => {
-                    roleModal.classList.remove('hidden');
-                    roleModal.classList.add('flex');
-                    roleError.classList.add('hidden');
-                    roleForm.reset();
-                });
-            });
-
-            roleClose.addEventListener('click', () => {
-                roleModal.classList.add('hidden');
-                roleModal.classList.remove('flex');
-            });
-
-            roleModal.addEventListener('click', (event) => {
-                if (event.target === roleModal) {
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                }
-            });
-
-            roleForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = roleUsername.value.trim();
-                const password = rolePassword.value.trim();
-                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
-                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
-
-                if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                } else {
-                    roleError.classList.remove('hidden');
-                }
-            });
-        }
-
-        function initMobileNav() {
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (!menuToggle || !mobileMenu) {
-                return;
-            }
-
-            menuToggle.addEventListener('click', () => {
-                const isOpen = !mobileMenu.classList.contains('hidden');
-                mobileMenu.classList.toggle('hidden');
-                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
-            });
-
-            mobileMenu.querySelectorAll('a, button').forEach((item) => {
-                item.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                });
-            });
-        }
-
-        window.addEventListener('load', () => {
-            initRoleControls();
-            initMobileNav();
+    function applyRole(role) {
+        activeRole = role;
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+        document.querySelectorAll('[data-role-badge]').forEach((badge) => {
+            badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
         });
-    </script>
+        document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+            el.classList.toggle('hidden', role !== 'demo');
+        });
+        document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+            el.classList.toggle('hidden', role !== 'paid');
+        });
+        const analyzeBtn = document.getElementById('analyze-btn');
+        if (analyzeBtn) {
+            analyzeBtn.textContent = role === 'paid'
+                ? 'Analyze Document (Full Analysis)'
+                : 'Analyze Document (Free Preview)';
+        }
+    }
+
+    function initRoleControls() {
+        const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+        applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+        const roleModal = document.getElementById('role-modal');
+        const roleClose = document.getElementById('role-close');
+        const roleForm = document.getElementById('role-form');
+        const roleError = document.getElementById('role-error');
+        const roleUsername = document.getElementById('role-username');
+        const rolePassword = document.getElementById('role-password');
+        const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+        roleToggles.forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                roleModal.classList.add('active');
+                roleError.style.display = 'none';
+                roleForm.reset();
+            });
+        });
+
+        roleClose.addEventListener('click', () => {
+            roleModal.classList.remove('active');
+        });
+
+        roleModal.addEventListener('click', (event) => {
+            if (event.target === roleModal) {
+                roleModal.classList.remove('active');
+            }
+        });
+
+        roleForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const username = roleUsername.value.trim();
+            const password = rolePassword.value.trim();
+            const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+            const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+
+            if (isDemo || isPaid) {
+                applyRole(isPaid ? 'paid' : 'demo');
+                roleModal.classList.remove('active');
+            } else {
+                roleError.style.display = 'block';
+            }
+        });
+    }
+
+    function initMobileNav() {
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (!menuToggle || !mobileMenu) return;
+
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.contains('active');
+            mobileMenu.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+        });
+
+        mobileMenu.querySelectorAll('a, button').forEach((item) => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
+
+    window.addEventListener('load', () => {
+        initRoleControls();
+        initMobileNav();
+    });
+</script>
 </body>
 </html>

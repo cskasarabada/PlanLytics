@@ -3,175 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan Studio - ICM PlanLytics</title>
-    <meta name="description" content="Explore Plan Studio features from ICM PlanLytics for startup-ready compensation planning.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Plan Studio - RevOps Studio - ICM PlanLytics</title>
+    <meta name="description" content="Explore Plan Studio (RevOps Studio) features from ICM PlanLytics for startup-ready compensation planning.">
+    <link rel="stylesheet" href="brand.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
-        .feature-card { transition: all 0.3s ease; }
-        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .challenge-card { border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer; }
-        .challenge-card.is-active { background: #ffffff; border-color: #c7d2fe; box-shadow: 0 16px 30px rgba(37, 99, 235, 0.12); }
-        .market-chip { border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; color: #475569; background: #ffffff; transition: all 0.2s ease; }
-        .market-chip.is-active { background: #111827; color: #ffffff; border-color: #111827; }
-        .philosophy-toggle .indicator { transition: transform 0.2s ease; }
-        .philosophy-toggle.is-open .indicator { transform: rotate(45deg); }
+        .challenge-card {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            width: 100%;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .challenge-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+        .challenge-card.is-active {
+            border-color: var(--accent-primary);
+            background: var(--bg-card-hover);
+            box-shadow: 0 8px 24px rgba(16,185,129,0.15);
+        }
+        .info-card {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <a href="#features" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
-        Skip to main content
-    </a>
+<body>
+<div class="page">
+    <a href="#features" class="sr-only">Skip to main content</a>
+
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">ICM</span>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="34" cy="34" r="26" stroke="#10b981" stroke-width="1" opacity="0.2" stroke-dasharray="4 3"/>
+                    <circle cx="34" cy="34" r="20" stroke="#10b981" stroke-width="1.5" opacity="0.4"/>
+                    <polyline points="16,46 24,40 32,42 40,32 48,28 54,18" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M16,46 L24,40 L32,42 L40,32 L48,28 L54,18 L54,50 L16,50 Z" fill="url(#icmNavGrad4)" opacity="0.15"/>
+                    <circle cx="40" cy="32" r="3" fill="#10b981"/>
+                    <circle cx="54" cy="18" r="4" fill="#10b981"/>
+                    <text x="54" y="21" text-anchor="middle" font-family="'Sora', sans-serif" font-size="7" font-weight="700" fill="#fff">$</text>
+                    <defs><linearGradient id="icmNavGrad4" x1="16" y1="18" x2="16" y2="50"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+                </svg>
+                <div class="logo-text">
+                    <span class="icm">ICM </span><span class="plan">Plan</span><span class="lytics">lytics</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="ai-plan-analytics.html">MicroPlan AI</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle active">RevOps Studio</button>
+                    <div class="nav-dropdown-menu">
+                        <div class="nav-dropdown-label">RevOps Studio</div>
+                        <a href="ai-plan-studio.html" class="active">
+                            <span class="dropdown-icon" style="background:rgba(16,185,129,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);display:block;"></span></span>
+                            Plan Studio
+                        </a>
+                        <a href="sales-360-ai.html">
+                            <span class="dropdown-icon" style="background:rgba(6,182,212,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);display:block;"></span></span>
+                            Sales 360 AI
+                        </a>
                     </div>
-                    <div>
-                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
-                    </div>
                 </div>
-                <div class="hidden md:flex items-center space-x-6 whitespace-nowrap text-sm">
-                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Home</a>
-                    <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">AI Plan Analytics</a>
-                    <a href="ai-plan-studio.html" class="text-blue-600 font-medium whitespace-nowrap">Plan Studio</a>
-                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
-                        Menu
-                    </button>
-                </div>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="ai-plan-analytics.html#demo">Try Demo</a>
             </div>
+            <div class="nav-cta">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm">Start Free Trial</a>
+            </div>
+            <button class="nav-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
         </div>
-        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
-            <div class="px-4 pb-4 pt-3 space-y-3">
-                <a href="index.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Home</a>
-                <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
-                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
-                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
-                <div class="flex items-center justify-between">
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
+        <div class="nav-mobile" id="mobile-menu">
+            <a href="ai-plan-analytics.html">MicroPlan AI</a>
+            <div class="nav-mobile-group-label">RevOps Studio</div>
+            <div class="nav-mobile-group">
+                <a href="ai-plan-studio.html" class="active">Plan Studio</a>
+                <a href="sales-360-ai.html">Sales 360 AI</a>
+            </div>
+            <a href="index.html#pricing">Pricing</a>
+            <a href="ai-plan-analytics.html#demo">Try Demo</a>
+            <div style="display:flex;gap:10px;padding:10px 0;">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Start Free Trial</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="gradient-bg pt-24 pb-16 px-4">
-        <div class="max-w-4xl mx-auto text-center text-white">
-            <h1 class="text-5xl font-bold mb-6">Plan Studio</h1>
-            <p class="text-xl text-white/90">
-                Build, model, and optimize compensation plans with intelligent Plan Studio guidance.
-            </p>
-        </div>
-    </section>
-
-    <!-- Plan Studio Features -->
-    <main id="features" class="py-20 px-4 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Startup Planning Challenges, Solved</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Plan Studio turns early-stage uncertainty into a credible, fundable compensation plan.
+    <main>
+        <!-- Hero -->
+        <section class="hero" style="background:var(--gradient-hero);">
+            <div class="glow-orb glow-orb-emerald" style="width:400px;height:400px;top:-150px;left:50%;transform:translateX(-50%);" aria-hidden="true"></div>
+            <div class="container" style="position:relative;text-align:center;">
+                <div class="label fade-up" style="margin-bottom:20px;"><span style="color:var(--accent-cyan);">RevOps Studio</span> <span style="color:var(--text-muted);margin:0 6px;">/</span> Plan Studio</div>
+                <h1 class="fade-up fade-up-1" style="font-size:48px;margin-bottom:16px;">
+                    <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Plan Studio</span>
+                </h1>
+                <p class="subtitle fade-up fade-up-2" style="max-width:640px;margin:0 auto;">
+                    Build, model, and optimize compensation plans with intelligent Plan Studio guidance.
                 </p>
             </div>
+        </section>
 
-            <div class="grid lg:grid-cols-2 gap-12">
-                <!-- Challenge 1 -->
-                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="quotas" aria-pressed="true">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Unclear quotas and OTE</h3>
-                    </div>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Plan Studio converts product economics into role-based quotas, OTE, and pay mix in minutes.
+        <!-- Challenges Section -->
+        <section id="features" class="section">
+            <div class="container">
+                <div style="text-align:center;margin-bottom:48px;">
+                    <h2 style="margin-bottom:12px;">Startup Planning Challenges, Solved</h2>
+                    <p style="max-width:640px;margin:0 auto;font-size:17px;">
+                        Plan Studio turns early-stage uncertainty into a credible, fundable compensation plan.
                     </p>
-                </button>
+                </div>
 
-                <!-- Challenge 2 -->
-                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="burn" aria-pressed="false">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
+                <div class="grid-2">
+                    <button type="button" class="challenge-card is-active" data-challenge="quotas" aria-pressed="true">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <h3 style="font-size:18px;color:var(--text-primary);">Unclear quotas and OTE</h3>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Cash burn vs commission risk</h3>
-                    </div>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Model commission cost by sales volume and see margin impact before you hire.
-                    </p>
-                </button>
-
-                <!-- Challenge 3 -->
-                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="ramp" aria-pressed="false">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
+                        <p style="font-size:14px;">Plan Studio converts product economics into role-based quotas, OTE, and pay mix in minutes.</p>
+                    </button>
+                    <button type="button" class="challenge-card" data-challenge="burn" aria-pressed="false">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-amber)" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+                            </div>
+                            <h3 style="font-size:18px;color:var(--text-primary);">Cash burn vs commission risk</h3>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Hiring and ramp uncertainty</h3>
-                    </div>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Estimate reps needed, ramp timelines, and coverage based on your target growth.
-                    </p>
-                </button>
-
-                <!-- Benefit 4 -->
-                <button type="button" class="feature-card challenge-card p-8 rounded-2xl text-left" data-challenge="investor" aria-pressed="false">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
+                        <p style="font-size:14px;">Model commission cost by sales volume and see margin impact before you hire.</p>
+                    </button>
+                    <button type="button" class="challenge-card" data-challenge="ramp" aria-pressed="false">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            </div>
+                            <h3 style="font-size:18px;color:var(--text-primary);">Hiring and ramp uncertainty</h3>
                         </div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Investor-ready plan story</h3>
-                    </div>
-                    <p class="text-gray-600 mb-6 text-lg">
-                        Produce a credible plan draft, scenarios, and benchmarks you can share with investors.
-                    </p>
-                </button>
-            </div>
+                        <p style="font-size:14px;">Estimate reps needed, ramp timelines, and coverage based on your target growth.</p>
+                    </button>
+                    <button type="button" class="challenge-card" data-challenge="investor" aria-pressed="false">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-violet)" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            </div>
+                            <h3 style="font-size:18px;color:var(--text-primary);">Investor-ready plan story</h3>
+                        </div>
+                        <p style="font-size:14px;">Produce a credible plan draft, scenarios, and benchmarks you can share with investors.</p>
+                    </button>
+                </div>
 
-            <div class="mt-10 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                <div class="text-xs uppercase tracking-wide text-gray-400 mb-2">Plan Studio benefit</div>
-                <div class="space-y-6">
+                <!-- Challenge panels -->
+                <div class="card-glass" style="margin-top:24px;">
+                    <div class="label" style="margin-bottom:12px;">Plan Studio benefit</div>
                     <div class="challenge-panel" data-challenge-panel="quotas">
-                        <div class="grid md:grid-cols-3 gap-5">
-                            <div class="md:col-span-2">
-                                <div class="text-lg font-semibold text-gray-900">Quota and OTE guidance</div>
-                                <p class="text-gray-600 mt-2">
-                                    Auto-suggested quotas, pay mix, and OTE based on pricing, sales cycle, and ramp assumptions.
-                                </p>
-                                <div class="mt-4 grid sm:grid-cols-2 gap-3">
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Outputs</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
-                                            <li>Quota band: $500k–$650k</li>
+                        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                            <div style="flex:2;min-width:280px;">
+                                <h4 style="margin-bottom:6px;">Quota and OTE guidance</h4>
+                                <p style="font-size:14px;margin-bottom:16px;">Auto-suggested quotas, pay mix, and OTE based on pricing, sales cycle, and ramp assumptions.</p>
+                                <div class="grid-2">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Outputs</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
+                                            <li>Quota band: $500k-$650k</li>
                                             <li>OTE: $140k with 50/50 mix</li>
                                             <li>Ramp curve: 3 months</li>
                                         </ul>
                                     </div>
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Plan artifacts</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Plan artifacts</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Role leveling + pay bands</li>
                                             <li>Offer range guidance</li>
                                             <li>Plan draft summary</li>
@@ -179,37 +191,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-indigo-600 mb-1">Decision unlocked</div>
-                                    <div class="text-sm text-indigo-900">Set hiring offers with confidence.</div>
+                            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;">
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Decision unlocked</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Set hiring offers with confidence.</div>
                                 </div>
-                                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-emerald-600 mb-1">Confidence signal</div>
-                                    <div class="text-sm text-emerald-900">Aligned to market benchmarks.</div>
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Confidence signal</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Aligned to market benchmarks.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="challenge-panel hidden" data-challenge-panel="burn">
-                        <div class="grid md:grid-cols-3 gap-5">
-                            <div class="md:col-span-2">
-                                <div class="text-lg font-semibold text-gray-900">Burn-aware commission modeling</div>
-                                <p class="text-gray-600 mt-2">
-                                    Live scenarios show commission cost, margin impact, and break-even targets before you scale.
-                                </p>
-                                <div class="mt-4 grid sm:grid-cols-2 gap-3">
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Outputs</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                    <div style="display:none;" class="challenge-panel" data-challenge-panel="burn">
+                        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                            <div style="flex:2;min-width:280px;">
+                                <h4 style="margin-bottom:6px;">Burn-aware commission modeling</h4>
+                                <p style="font-size:14px;margin-bottom:16px;">Live scenarios show commission cost, margin impact, and break-even targets before you scale.</p>
+                                <div class="grid-2">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Outputs</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Commission cost by volume</li>
                                             <li>Margin impact by tier</li>
                                             <li>Break-even revenue target</li>
                                         </ul>
                                     </div>
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Plan safeguards</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Plan safeguards</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Accelerator thresholds</li>
                                             <li>Cap and clawback guidance</li>
                                             <li>Risk flags summary</li>
@@ -217,37 +227,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-indigo-600 mb-1">Decision unlocked</div>
-                                    <div class="text-sm text-indigo-900">Choose a safe commission rate.</div>
+                            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;">
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Decision unlocked</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Choose a safe commission rate.</div>
                                 </div>
-                                <div class="bg-amber-50 border border-amber-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-amber-600 mb-1">Real-time risk</div>
-                                    <div class="text-sm text-amber-900">Overpayment alerts flagged.</div>
+                                <div style="padding:12px;border-radius:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-amber);margin-bottom:4px;">Real-time risk</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Overpayment alerts flagged.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="challenge-panel hidden" data-challenge-panel="ramp">
-                        <div class="grid md:grid-cols-3 gap-5">
-                            <div class="md:col-span-2">
-                                <div class="text-lg font-semibold text-gray-900">Hiring and coverage planning</div>
-                                <p class="text-gray-600 mt-2">
-                                    Plan rep count, ramp curves, and territory coverage to hit revenue goals on time.
-                                </p>
-                                <div class="mt-4 grid sm:grid-cols-2 gap-3">
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Outputs</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                    <div style="display:none;" class="challenge-panel" data-challenge-panel="ramp">
+                        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                            <div style="flex:2;min-width:280px;">
+                                <h4 style="margin-bottom:6px;">Hiring and coverage planning</h4>
+                                <p style="font-size:14px;margin-bottom:16px;">Plan rep count, ramp curves, and territory coverage to hit revenue goals on time.</p>
+                                <div class="grid-2">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Outputs</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Rep count per quarter</li>
                                             <li>Ramp timeline by role</li>
                                             <li>Coverage map by region</li>
                                         </ul>
                                     </div>
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Team plan</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Team plan</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Hiring sequence</li>
                                             <li>Territory splits</li>
                                             <li>Quota distribution</li>
@@ -255,37 +263,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-indigo-600 mb-1">Decision unlocked</div>
-                                    <div class="text-sm text-indigo-900">Hire the right team size.</div>
+                            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;">
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Decision unlocked</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Hire the right team size.</div>
                                 </div>
-                                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-emerald-600 mb-1">Timing signal</div>
-                                    <div class="text-sm text-emerald-900">Ramp risk reduced.</div>
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Timing signal</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Ramp risk reduced.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="challenge-panel hidden" data-challenge-panel="investor">
-                        <div class="grid md:grid-cols-3 gap-5">
-                            <div class="md:col-span-2">
-                                <div class="text-lg font-semibold text-gray-900">Investor-ready narrative</div>
-                                <p class="text-gray-600 mt-2">
-                                    Generate a shareable plan summary with assumptions, scenarios, and benchmarks.
-                                </p>
-                                <div class="mt-4 grid sm:grid-cols-2 gap-3">
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Outputs</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                    <div style="display:none;" class="challenge-panel" data-challenge-panel="investor">
+                        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                            <div style="flex:2;min-width:280px;">
+                                <h4 style="margin-bottom:6px;">Investor-ready narrative</h4>
+                                <p style="font-size:14px;margin-bottom:16px;">Generate a shareable plan summary with assumptions, scenarios, and benchmarks.</p>
+                                <div class="grid-2">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Outputs</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Plan memo + assumptions</li>
                                             <li>Scenario table + margins</li>
                                             <li>Benchmark comparison</li>
                                         </ul>
                                     </div>
-                                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Shareables</div>
-                                        <ul class="text-sm text-slate-700 space-y-1">
+                                    <div class="info-card">
+                                        <div class="label" style="font-size:10px;margin-bottom:6px;">Shareables</div>
+                                        <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                             <li>Board-ready summary</li>
                                             <li>Investor Q&amp;A prep</li>
                                             <li>Exportable packet</li>
@@ -293,256 +299,202 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-indigo-600 mb-1">Decision unlocked</div>
-                                    <div class="text-sm text-indigo-900">Defend the plan in diligence.</div>
+                            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;">
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-primary);margin-bottom:4px;">Decision unlocked</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Defend the plan in diligence.</div>
                                 </div>
-                                <div class="bg-sky-50 border border-sky-100 rounded-lg p-3">
-                                    <div class="text-xs uppercase tracking-wide text-sky-600 mb-1">Confidence signal</div>
-                                    <div class="text-sm text-sky-900">Story matches market data.</div>
+                                <div style="padding:12px;border-radius:10px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-violet);margin-bottom:4px;">Confidence signal</div>
+                                    <div style="font-size:13px;color:var(--text-primary);">Story matches market data.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div style="margin-top:16px;font-size:12px;color:var(--text-muted);">Tip: click a challenge above to reveal outputs, artifacts, and decisions.</div>
                 </div>
-                <div class="mt-4 text-xs text-gray-500">Tip: click a challenge above to reveal outputs, artifacts, and decisions.</div>
             </div>
-        </div>
+        </section>
+
+        <!-- Planning Guidelines -->
+        <section class="section" style="padding-top:0;">
+            <div class="container" style="max-width:800px;">
+                <div class="card-glass" style="text-align:center;">
+                    <h2 style="margin-bottom:16px;">Planning Guidelines</h2>
+                    <ul style="list-style:disc;text-align:left;padding-left:24px;font-size:16px;color:var(--text-secondary);display:flex;flex-direction:column;gap:12px;">
+                        <li>Check current salary surveys to benchmark compensation levels.</li>
+                        <li>Model plans using performance and payout data from the previous three years.</li>
+                        <li>Follow a structured compensation plan design process for consistent outcomes.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Outputs -->
+        <section class="section" style="padding-top:0;">
+            <div class="container">
+                <div style="text-align:center;margin-bottom:48px;">
+                    <h2 style="margin-bottom:12px;">Detailed Outputs</h2>
+                    <p style="max-width:640px;margin:0 auto;font-size:17px;">
+                        Paid access unlocks full ICM and compensation planning deliverables.
+                    </p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:12px;">ICM Output Package</h3>
+                        <div data-role="demo">
+                            <p style="font-size:14px;margin-bottom:12px;">Preview mode shows summary only.</p>
+                            <ul style="list-style:disc;padding-left:20px;font-size:14px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;">
+                                <li>High-level object count</li>
+                                <li>Top 3 risk flags</li>
+                                <li>Sample mapping snippet</li>
+                            </ul>
+                        </div>
+                        <div style="display:none;" data-role="paid">
+                            <p style="font-size:14px;margin-bottom:12px;">Full output includes implementation-ready artifacts.</p>
+                            <ul style="list-style:disc;padding-left:20px;font-size:14px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;">
+                                <li>Complete object inventory with dependencies</li>
+                                <li>Crediting and eligibility rules by role and region</li>
+                                <li>Payout schedule, caps, and clawback logic</li>
+                                <li>Exportable ICM configuration package</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-bottom:12px;">Compensation Plan Output</h3>
+                        <div data-role="demo">
+                            <p style="font-size:14px;margin-bottom:12px;">Preview mode shows summary only.</p>
+                            <ul style="list-style:disc;padding-left:20px;font-size:14px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;">
+                                <li>Plan complexity score</li>
+                                <li>Top 2 scenarios simulated</li>
+                                <li>Sample payout curve</li>
+                            </ul>
+                        </div>
+                        <div style="display:none;" data-role="paid">
+                            <p style="font-size:14px;margin-bottom:12px;">Full output with detailed modeling results.</p>
+                            <ul style="list-style:disc;padding-left:20px;font-size:14px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;">
+                                <li>Scenario simulation results with variance breakdown</li>
+                                <li>Quota and territory alignment diagnostics</li>
+                                <li>Accelerator and decelerator impact analysis</li>
+                                <li>Workflow-ready approval checklist</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- Planning Guidelines -->
-    <section class="py-20 px-4 bg-gray-50">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Planning Guidelines</h2>
-            <ul class="list-disc text-lg text-gray-700 space-y-4 pl-5">
-                <li>Check current salary surveys to benchmark compensation levels.</li>
-                <li>Model plans using performance and payout data from the previous three years.</li>
-                <li>Follow a structured compensation plan design process for consistent outcomes.</li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- Detailed Outputs -->
-    <section class="py-20 px-4 bg-white">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Detailed Outputs</h2>
-                <p class="text-lg text-gray-600">Paid access unlocks full ICM and compensation planning deliverables.</p>
-            </div>
-
-            <div class="grid lg:grid-cols-2 gap-10">
-                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">ICM Output Package</h3>
-                    <div data-role="demo">
-                        <p class="text-gray-600 mb-4">Preview mode shows summary only.</p>
-                        <ul class="list-disc text-gray-600 space-y-2 pl-5">
-                            <li>High-level object count</li>
-                            <li>Top 3 risk flags</li>
-                            <li>Sample mapping snippet</li>
-                        </ul>
-                    </div>
-                    <div class="hidden" data-role="paid">
-                        <p class="text-gray-600 mb-4">Full output includes implementation-ready artifacts.</p>
-                        <ul class="list-disc text-gray-700 space-y-2 pl-5">
-                            <li>Complete object inventory with dependencies</li>
-                            <li>Crediting and eligibility rules by role and region</li>
-                            <li>Payout schedule, caps, and clawback logic</li>
-                            <li>Exportable ICM configuration package</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Compensation Plan Output</h3>
-                    <div data-role="demo">
-                        <p class="text-gray-600 mb-4">Preview mode shows summary only.</p>
-                        <ul class="list-disc text-gray-600 space-y-2 pl-5">
-                            <li>Plan complexity score</li>
-                            <li>Top 2 scenarios simulated</li>
-                            <li>Sample payout curve</li>
-                        </ul>
-                    </div>
-                    <div class="hidden" data-role="paid">
-                        <p class="text-gray-600 mb-4">Full output with detailed modeling results.</p>
-                        <ul class="list-disc text-gray-700 space-y-2 pl-5">
-                            <li>Scenario simulation results with variance breakdown</li>
-                            <li>Quota and territory alignment diagnostics</li>
-                            <li>Accelerator and decelerator impact analysis</li>
-                            <li>Workflow-ready approval checklist</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">ICM</span>
-                </div>
-                <span class="text-2xl font-bold">ICM PlanLytics</span>
+    <footer class="footer">
+        <div class="container">
+            <div class="powered-by">
+                <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;">
+                    <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                    <circle cx="36" cy="36" r="8" fill="url(#mpFtGrad4)" opacity="0.9"/>
+                    <text x="36" y="40" text-anchor="middle" font-family="'Sora', sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                    <defs><radialGradient id="mpFtGrad4"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#3b82f6"/></radialGradient></defs>
+                </svg>
+                <span>Powered by <span class="mp-cyan">Micro</span><span class="mp-white">Plan</span> AI</span>
             </div>
-            <p class="text-gray-300 mb-6 max-w-md mx-auto">
-                AI-powered ICM analysis platform. Transform your compensation plans with intelligent automation.
-            </p>
-            <div class="text-gray-400 text-sm">
-                © 2025 ICM PlanLytics. All rights reserved.<br>
-                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a><br>
-                <span class="text-gray-500 text-xs">Build: 2026-01-09-01</span>
-            </div>
+            <p style="margin-bottom:4px;">AI-powered ICM analysis platform. Transform your compensation plans with intelligent automation.</p>
+            <p>&copy; 2025 ICM PlanLytics. All rights reserved.</p>
+            <p style="margin-top:4px;">Contact us: <a href="mailto:sales@icm-planlytics.com">sales@icm-planlytics.com</a></p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Build: 2026-01-09-01</p>
         </div>
     </footer>
 
     <!-- Role Modal -->
-    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
-            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
-            <form id="role-form" class="space-y-4">
-                <div>
-                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <div>
-                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                    Sign in
-                </button>
+    <div id="role-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Select your access level</h3>
+            <p style="margin-bottom:20px;">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Username</label>
+                <input id="role-username" type="text" autocomplete="username" placeholder="Enter username">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Password</label>
+                <input id="role-password" type="password" autocomplete="current-password" placeholder="Enter password">
+                <p id="role-error" style="display:none;font-size:13px;color:var(--accent-rose);margin-bottom:12px;">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Sign in</button>
             </form>
-            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+            <button id="role-close" style="display:block;width:100%;margin-top:16px;padding:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;">Cancel</button>
         </div>
     </div>
+</div>
 
-    <script>
-        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-        let activeRole = 'demo';
-        const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
-        };
+<script>
+    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+    let activeRole = 'demo';
+    const ROLE_CREDENTIALS = {
+        demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+        paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+    };
 
-        function applyRole(role) {
-            activeRole = role;
-            localStorage.setItem(ROLE_STORAGE_KEY, role);
-            document.querySelectorAll('[data-role-badge]').forEach((badge) => {
-                badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
-            });
+    function applyRole(role) {
+        activeRole = role;
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+        document.querySelectorAll('[data-role="demo"]').forEach(el => el.style.display = role === 'demo' ? '' : 'none');
+        document.querySelectorAll('[data-role="paid"]').forEach(el => el.style.display = role === 'paid' ? '' : 'none');
+    }
 
-            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'demo');
-            });
-            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'paid');
-            });
-        }
-
-        function initRoleControls() {
-            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
-
-            const roleModal = document.getElementById('role-modal');
-            const roleClose = document.getElementById('role-close');
-            const roleForm = document.getElementById('role-form');
-            const roleError = document.getElementById('role-error');
-            const roleUsername = document.getElementById('role-username');
-            const rolePassword = document.getElementById('role-password');
-            const roleToggles = document.querySelectorAll('[data-role-toggle]');
-
-            roleToggles.forEach((toggle) => {
-                toggle.addEventListener('click', () => {
-                    roleModal.classList.remove('hidden');
-                    roleModal.classList.add('flex');
-                    roleError.classList.add('hidden');
-                    roleForm.reset();
-                });
-            });
-
-            roleClose.addEventListener('click', () => {
-                roleModal.classList.add('hidden');
-                roleModal.classList.remove('flex');
-            });
-
-            roleModal.addEventListener('click', (event) => {
-                if (event.target === roleModal) {
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                }
-            });
-
-            roleForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = roleUsername.value.trim();
-                const password = rolePassword.value.trim();
-                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
-                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
-
-                if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                } else {
-                    roleError.classList.remove('hidden');
-                }
-            });
-        }
-
-        function initMobileNav() {
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (!menuToggle || !mobileMenu) {
-                return;
-            }
-
-            menuToggle.addEventListener('click', () => {
-                const isOpen = !mobileMenu.classList.contains('hidden');
-                mobileMenu.classList.toggle('hidden');
-                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
-            });
-
-            mobileMenu.querySelectorAll('a, button').forEach((item) => {
-                item.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                });
-            });
-        }
-
-        function initChallengeNavigator() {
-            const cards = Array.from(document.querySelectorAll('.challenge-card'));
-            const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
-            if (!cards.length || !panels.length) {
-                return;
-            }
-
-            const activate = (target) => {
-                cards.forEach((card) => {
-                    const isActive = card === target;
-                    card.classList.toggle('is-active', isActive);
-                    card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-                });
-                panels.forEach((panel) => {
-                    panel.classList.toggle('hidden', panel.getAttribute('data-challenge-panel') !== target.getAttribute('data-challenge'));
-                });
-            };
-
-            activate(cards[0]);
-            cards.forEach((card) => {
-                card.addEventListener('click', () => activate(card));
-            });
-        }
-
-        window.addEventListener('load', () => {
-            initRoleControls();
-            initMobileNav();
-            initChallengeNavigator();
+    function initRoleControls() {
+        const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+        applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+        const roleModal = document.getElementById('role-modal');
+        const roleClose = document.getElementById('role-close');
+        const roleForm = document.getElementById('role-form');
+        const roleError = document.getElementById('role-error');
+        document.querySelectorAll('[data-role-toggle]').forEach(toggle => {
+            toggle.addEventListener('click', () => { roleModal.classList.add('active'); roleError.style.display = 'none'; roleForm.reset(); });
         });
-    </script>
+        roleClose.addEventListener('click', () => roleModal.classList.remove('active'));
+        roleModal.addEventListener('click', e => { if (e.target === roleModal) roleModal.classList.remove('active'); });
+        roleForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const u = document.getElementById('role-username').value.trim();
+            const p = document.getElementById('role-password').value.trim();
+            const isDemo = u === ROLE_CREDENTIALS.demo.username && p === ROLE_CREDENTIALS.demo.password;
+            const isPaid = u === ROLE_CREDENTIALS.paid.username && p === ROLE_CREDENTIALS.paid.password;
+            if (isDemo || isPaid) { applyRole(isPaid ? 'paid' : 'demo'); roleModal.classList.remove('active'); }
+            else { roleError.style.display = 'block'; }
+        });
+    }
+
+    function initMobileNav() {
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (!menuToggle || !mobileMenu) return;
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.contains('active');
+            mobileMenu.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+        });
+        mobileMenu.querySelectorAll('a, button').forEach(item => {
+            item.addEventListener('click', () => { mobileMenu.classList.remove('active'); menuToggle.setAttribute('aria-expanded', 'false'); });
+        });
+    }
+
+    function initChallengeNavigator() {
+        const cards = Array.from(document.querySelectorAll('.challenge-card'));
+        const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
+        if (!cards.length || !panels.length) return;
+        const activate = (target) => {
+            cards.forEach(card => {
+                const isActive = card === target;
+                card.classList.toggle('is-active', isActive);
+                card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            panels.forEach(panel => {
+                panel.style.display = panel.getAttribute('data-challenge-panel') === target.getAttribute('data-challenge') ? 'block' : 'none';
+            });
+        };
+        activate(cards[0]);
+        cards.forEach(card => card.addEventListener('click', () => activate(card)));
+    }
+
+    window.addEventListener('load', () => { initRoleControls(); initMobileNav(); initChallengeNavigator(); });
+</script>
 </body>
 </html>

@@ -3,242 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Plan Analytics - ICM PlanLytics</title>
-    <meta name="description" content="AI Plan Analytics turns compensation plans into deployment-ready insights: diagnostics, risk radar, and ICM-ready outputs.">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>MicroPlan AI - ICM PlanLytics</title>
+    <meta name="description" content="MicroPlan AI turns compensation plans into deployment-ready insights: diagnostics, risk radar, and ICM-ready outputs.">
+    <link rel="stylesheet" href="brand.css">
     <style>
-        :root {
-            --ink: #0f172a;
-            --slate: #334155;
-            --mist: #f8fafc;
-            --accent: #0ea5e9;
-            --accent-2: #22c55e;
-        }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            color: var(--ink);
-            background: radial-gradient(circle at top right, #e0f2fe 0%, #f8fafc 40%, #e2e8f0 100%);
-        }
-        h1, h2, h3, .display-font {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-        }
-        .glow-orb {
-            position: absolute;
-            border-radius: 999px;
-            filter: blur(60px);
-            opacity: 0.45;
-            animation: float 12s ease-in-out infinite;
-        }
-        .glow-1 { width: 260px; height: 260px; background: rgba(14, 165, 233, 0.35); top: -120px; left: 5%; }
-        .glow-2 { width: 320px; height: 320px; background: rgba(34, 197, 94, 0.25); bottom: -160px; right: 10%; animation-delay: 1.5s; }
-        .glow-3 { width: 220px; height: 220px; background: rgba(59, 130, 246, 0.25); top: 35%; right: -80px; animation-delay: 2.5s; }
+        /* Page-specific: analytics tab pills */
         .analytics-tab {
-            border: 1px solid rgba(148, 163, 184, 0.45);
-            background: rgba(255, 255, 255, 0.7);
-            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            width: 100%;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
         }
+        .analytics-tab:hover { border-color: rgba(16,185,129,0.3); }
         .analytics-tab.is-active {
-            background: var(--ink);
-            color: #ffffff;
-            border-color: var(--ink);
-            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.2);
+            background: var(--accent-primary);
+            color: #fff;
+            border-color: var(--accent-primary);
+            box-shadow: 0 8px 24px rgba(16,185,129,0.25);
         }
-        .analytics-tab.is-active .tab-subtext {
-            color: #e2e8f0;
+        .analytics-tab.is-active .tab-subtext { color: rgba(255,255,255,0.8); }
+        .analytics-tab .tab-subtext { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Console output */
+        .analysis-console {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent-primary-light);
+            line-height: 1.7;
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .demo-output {
-            font-family: 'Courier New', monospace;
-            background: #f8fafc;
+        .analysis-console.expanded { max-height: none; }
+
+        /* Info cards */
+        .info-card {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 16px;
         }
-        .demo-output.expanded {
-            max-height: none;
+
+        /* Progress bar */
+        .progress-bar {
+            height: 6px;
+            border-radius: 6px;
+            background: var(--border);
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(12px); }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: var(--accent-amber);
         }
+
+        /* Hero grid layout */
+        @media (min-width: 1024px) {
+            .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
+        }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <a href="#analytics-loop" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
-        Skip to main content
-    </a>
-    <nav class="bg-white/90 backdrop-blur shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">ICM</span>
+<body>
+<div class="page">
+
+    <!-- Skip link -->
+    <a href="#analytics-loop" class="sr-only">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="34" cy="34" r="26" stroke="#10b981" stroke-width="1" opacity="0.2" stroke-dasharray="4 3"/>
+                    <circle cx="34" cy="34" r="20" stroke="#10b981" stroke-width="1.5" opacity="0.4"/>
+                    <polyline points="16,46 24,40 32,42 40,32 48,28 54,18" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M16,46 L24,40 L32,42 L40,32 L48,28 L54,18 L54,50 L16,50 Z" fill="url(#icmNavGrad2)" opacity="0.15"/>
+                    <circle cx="40" cy="32" r="3" fill="#10b981"/>
+                    <circle cx="54" cy="18" r="4" fill="#10b981"/>
+                    <text x="54" y="21" text-anchor="middle" font-family="'Sora', sans-serif" font-size="7" font-weight="700" fill="#fff">$</text>
+                    <defs><linearGradient id="icmNavGrad2" x1="16" y1="18" x2="16" y2="50"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+                </svg>
+                <div class="logo-text">
+                    <span class="icm">ICM </span><span class="plan">Plan</span><span class="lytics">lytics</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="ai-plan-analytics.html" class="active">MicroPlan AI</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle">RevOps Studio</button>
+                    <div class="nav-dropdown-menu">
+                        <div class="nav-dropdown-label">RevOps Studio</div>
+                        <a href="ai-plan-studio.html">
+                            <span class="dropdown-icon" style="background:rgba(16,185,129,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);display:block;"></span></span>
+                            Plan Studio
+                        </a>
+                        <a href="sales-360-ai.html">
+                            <span class="dropdown-icon" style="background:rgba(6,182,212,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);display:block;"></span></span>
+                            Sales 360 AI
+                        </a>
                     </div>
-                    <div>
-                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
-                    </div>
                 </div>
-                <div class="hidden md:flex items-center space-x-5 whitespace-nowrap text-sm">
-                    <a href="ai-plan-analytics.html" class="text-blue-600 font-medium whitespace-nowrap">AI Plan Analytics</a>
-                    <a href="ai-plan-studio.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Plan Studio</a>
-                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
-                    <a href="index.html#pricing" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Pricing</a>
-                    <a href="#demo" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Try Demo</a>
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                    <button onclick="location.href='#demo'" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap">
-                        Start Free Trial
-                    </button>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
-                        Menu
-                    </button>
-                </div>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="#demo">Try Demo</a>
             </div>
+            <div class="nav-cta">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="#demo" class="btn btn-primary btn-sm">Start Free Trial</a>
+            </div>
+            <button class="nav-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
         </div>
-        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
-            <div class="px-4 pb-4 pt-3 space-y-3">
-                <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
-                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
-                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
-                <a href="index.html#pricing" class="block text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
-                <a href="#demo" class="block text-gray-600 hover:text-blue-600 transition-colors">Try Demo</a>
-                <div class="flex items-center justify-between">
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
-                <button onclick="location.href='#demo'" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    Start Free Trial
-                </button>
+        <div class="nav-mobile" id="mobile-menu">
+            <a href="ai-plan-analytics.html" class="active">MicroPlan AI</a>
+            <div class="nav-mobile-group-label">RevOps Studio</div>
+            <div class="nav-mobile-group">
+                <a href="ai-plan-studio.html">Plan Studio</a>
+                <a href="sales-360-ai.html">Sales 360 AI</a>
+            </div>
+            <a href="index.html#pricing">Pricing</a>
+            <a href="#demo">Try Demo</a>
+            <div style="display:flex;gap:10px;padding:10px 0;">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="#demo" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Start Free Trial</a>
             </div>
         </div>
     </nav>
 
-    <main class="pt-24">
-        <section class="relative overflow-hidden px-4 pb-16">
-            <div class="glow-orb glow-1" aria-hidden="true"></div>
-            <div class="glow-orb glow-2" aria-hidden="true"></div>
-            <div class="glow-orb glow-3" aria-hidden="true"></div>
-            <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-                <div class="space-y-6">
-                    <div class="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-500">
-                        AI Plan Analytics
-                    </div>
-                    <h1 class="text-4xl md:text-6xl font-semibold leading-tight text-slate-900">
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" style="background:var(--gradient-hero);padding-bottom:60px;">
+            <div class="glow-orb glow-orb-emerald" style="width:400px;height:400px;top:-150px;left:5%;" aria-hidden="true"></div>
+            <div class="glow-orb glow-orb-cyan" style="width:320px;height:320px;bottom:-100px;right:10%;" aria-hidden="true"></div>
+            <div class="container hero-grid" style="position:relative;">
+                <div>
+                    <div class="label fade-up" style="margin-bottom:20px;">MicroPlan AI</div>
+                    <h1 class="fade-up fade-up-1" style="font-size:44px;margin-bottom:16px;">
                         Turn compensation plans into deployment-ready intelligence.
                     </h1>
-                    <p class="text-lg text-slate-600 max-w-2xl">
+                    <p class="subtitle fade-up fade-up-2" style="margin:0 0 24px;">
                         Analyze plan documents, uncover compliance risk, and generate ICM-ready outputs in minutes.
-                        AI Plan Analytics keeps every stakeholder aligned with the same source of truth.
+                        MicroPlan AI keeps every stakeholder aligned with the same source of truth.
                     </p>
-                    <div class="flex flex-wrap gap-3">
-                        <button class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition-colors font-semibold">
-                            View sample analytics
-                        </button>
-                        <button class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg hover:border-slate-500 transition-colors font-semibold">
-                            Book an analytics walk-through
-                        </button>
+                    <div class="hero-actions fade-up fade-up-3" style="justify-content:flex-start;">
+                        <a href="#demo" class="btn btn-primary">View sample analytics</a>
+                        <a href="mailto:sales@icm-planlytics.com" class="btn btn-ghost">Book a walk-through</a>
                     </div>
-                    <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-600">
-                        <div class="glass-card rounded-2xl p-4">
-                            <div class="text-slate-900 font-semibold text-xl">95%</div>
-                            Extraction accuracy
+                    <div class="stats-row fade-up fade-up-4" style="justify-content:flex-start;margin-top:32px;">
+                        <div class="stat-card">
+                            <div class="stat-value">95%</div>
+                            <div class="stat-label">Extraction accuracy</div>
                         </div>
-                        <div class="glass-card rounded-2xl p-4">
-                            <div class="text-slate-900 font-semibold text-xl">12 mins</div>
-                            From upload to outputs
+                        <div class="stat-card">
+                            <div class="stat-value">12min</div>
+                            <div class="stat-label">Upload to outputs</div>
                         </div>
-                        <div class="glass-card rounded-2xl p-4">
-                            <div class="text-slate-900 font-semibold text-xl">50+</div>
-                            Risk checks per plan
+                        <div class="stat-card">
+                            <div class="stat-value">50+</div>
+                            <div class="stat-label">Risk checks per plan</div>
                         </div>
                     </div>
                 </div>
-                <div class="glass-card rounded-3xl p-6 md:p-8">
-                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-4">Analytics console</div>
-                    <div class="space-y-4">
-                        <div class="bg-slate-50 rounded-2xl p-4">
-                            <div class="flex items-center justify-between text-sm text-slate-500">
-                                <span>Plan summary</span>
-                                <span class="text-emerald-600 font-semibold">Healthy</span>
+
+                <!-- Analytics console preview -->
+                <div class="card-glass fade-up fade-up-3" style="padding:24px;">
+                    <div class="label" style="margin-bottom:16px;">Analytics console</div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div class="info-card">
+                            <div style="display:flex;justify-content:space-between;font-size:13px;">
+                                <span style="color:var(--text-muted);">Plan summary</span>
+                                <span style="color:var(--accent-primary);font-weight:600;">Healthy</span>
                             </div>
-                            <div class="mt-3 space-y-1 text-sm text-slate-700">
+                            <div style="margin-top:10px;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                 <div>Plan type: Base + commission</div>
                                 <div>Eligible roles: AE, SDR, Manager</div>
                                 <div>Quota mix: 50/50</div>
                             </div>
                         </div>
-                        <div class="bg-slate-50 rounded-2xl p-4">
-                            <div class="text-sm font-semibold text-slate-900">Risk radar</div>
-                            <div class="mt-2 text-sm text-slate-600">3 compliance flags to review.</div>
-                            <div class="mt-3 h-2 rounded-full bg-slate-200">
-                                <div class="h-2 rounded-full bg-amber-400" style="width: 42%;"></div>
+                        <div class="info-card">
+                            <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Risk radar</div>
+                            <div style="margin-top:6px;font-size:13px;color:var(--text-secondary);">3 compliance flags to review.</div>
+                            <div class="progress-bar" style="margin-top:10px;">
+                                <div class="progress-bar-fill" style="width:42%;"></div>
                             </div>
                         </div>
-                        <div class="bg-slate-50 rounded-2xl p-4">
-                            <div class="text-sm font-semibold text-slate-900">ICM blueprint</div>
-                            <p class="text-sm text-slate-600 mt-2">11 objects created with crediting rules + deposits.</p>
+                        <div class="info-card">
+                            <div style="font-size:14px;font-weight:600;color:var(--text-primary);">ICM blueprint</div>
+                            <p style="margin-top:6px;font-size:13px;">11 objects created with crediting rules + deposits.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="analytics-loop" class="px-4 py-16 bg-white">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
-                <div class="lg:w-2/5 space-y-4">
-                    <div class="text-xs uppercase tracking-[0.35em] text-slate-500">Analytics loop</div>
-                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">
-                        Diagnose, de-risk, deploy.
-                    </h2>
-                    <p class="text-slate-600 text-lg">
+        <!-- Analytics Loop -->
+        <section id="analytics-loop" class="section">
+            <div class="container" style="display:flex;gap:40px;flex-wrap:wrap;">
+                <div style="flex:0 0 340px;">
+                    <div class="label" style="margin-bottom:12px;">Analytics loop</div>
+                    <h2 style="margin-bottom:8px;">Diagnose, de-risk, deploy.</h2>
+                    <p style="font-size:16px;margin-bottom:24px;">
                         Each stage produces tangible outputs you can share with finance, HR, and sales leaders.
                     </p>
-                    <div class="grid gap-3 mt-6">
-                        <button type="button" class="analytics-tab is-active rounded-2xl px-4 py-3 text-left" data-analytics-step="diagnose" aria-pressed="true">
-                            <div class="text-sm font-semibold">Plan diagnostics</div>
-                            <div class="tab-subtext text-xs text-slate-500 mt-1">Extract structure and intent.</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <button type="button" class="analytics-tab is-active" data-analytics-step="diagnose" aria-pressed="true">
+                            <div style="font-size:14px;font-weight:600;">Plan diagnostics</div>
+                            <div class="tab-subtext">Extract structure and intent.</div>
                         </button>
-                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="risk" aria-pressed="false">
-                            <div class="text-sm font-semibold">Risk radar</div>
-                            <div class="tab-subtext text-xs text-slate-500 mt-1">Identify compliance gaps.</div>
+                        <button type="button" class="analytics-tab" data-analytics-step="risk" aria-pressed="false">
+                            <div style="font-size:14px;font-weight:600;">Risk radar</div>
+                            <div class="tab-subtext">Identify compliance gaps.</div>
                         </button>
-                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="icm" aria-pressed="false">
-                            <div class="text-sm font-semibold">ICM blueprint</div>
-                            <div class="tab-subtext text-xs text-slate-500 mt-1">Map objects to deploy.</div>
+                        <button type="button" class="analytics-tab" data-analytics-step="icm" aria-pressed="false">
+                            <div style="font-size:14px;font-weight:600;">ICM blueprint</div>
+                            <div class="tab-subtext">Map objects to deploy.</div>
                         </button>
-                        <button type="button" class="analytics-tab rounded-2xl px-4 py-3 text-left" data-analytics-step="report" aria-pressed="false">
-                            <div class="text-sm font-semibold">Executive brief</div>
-                            <div class="tab-subtext text-xs text-slate-500 mt-1">Summaries ready for board decks.</div>
+                        <button type="button" class="analytics-tab" data-analytics-step="report" aria-pressed="false">
+                            <div style="font-size:14px;font-weight:600;">Executive brief</div>
+                            <div class="tab-subtext">Summaries ready for board decks.</div>
                         </button>
                     </div>
                 </div>
-                <div class="lg:w-3/5">
-                    <div class="glass-card rounded-3xl p-8 min-h-[320px]">
-                        <div class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-4">AI output preview</div>
-                        <div class="space-y-4" data-analytics-panel="diagnose">
-                            <h3 class="text-2xl font-semibold text-slate-900">Plan diagnostics</h3>
-                            <p class="text-slate-600">
+                <div style="flex:1;min-width:300px;">
+                    <div class="card-glass" style="min-height:320px;">
+                        <div class="label" style="margin-bottom:16px;">AI output preview</div>
+
+                        <div data-analytics-panel="diagnose">
+                            <h3 style="margin-bottom:8px;">Plan diagnostics</h3>
+                            <p style="font-size:15px;margin-bottom:16px;">
                                 Extract pay mix, quota logic, eligibility rules, and payout cadence in one pass.
                             </p>
-                            <div class="grid sm:grid-cols-2 gap-4 text-sm">
-                                <div class="bg-slate-50 rounded-xl p-4">
-                                    <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">Detected</div>
-                                    <ul class="text-slate-700 space-y-1">
+                            <div class="grid-2">
+                                <div class="info-card">
+                                    <div class="label" style="font-size:10px;margin-bottom:8px;">Detected</div>
+                                    <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                         <li>Tiered accelerators after 110%</li>
                                         <li>Quarterly true-ups</li>
                                         <li>SPIFFs for multi-year deals</li>
                                     </ul>
                                 </div>
-                                <div class="bg-slate-50 rounded-xl p-4">
-                                    <div class="text-slate-500 text-xs uppercase tracking-[0.2em] mb-2">Missing</div>
-                                    <ul class="text-slate-700 space-y-1">
+                                <div class="info-card">
+                                    <div class="label" style="font-size:10px;margin-bottom:8px;color:var(--accent-amber);">Missing</div>
+                                    <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
                                         <li>Clawback language</li>
                                         <li>Ramp guarantee definition</li>
                                         <li>Policy references</li>
@@ -246,37 +262,40 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="space-y-4 hidden" data-analytics-panel="risk">
-                            <h3 class="text-2xl font-semibold text-slate-900">Risk radar</h3>
-                            <p class="text-slate-600">
+
+                        <div style="display:none;" data-analytics-panel="risk">
+                            <h3 style="margin-bottom:8px;">Risk radar</h3>
+                            <p style="font-size:15px;margin-bottom:16px;">
                                 Prioritize compliance, finance, and operational risks before launch.
                             </p>
-                            <div class="grid sm:grid-cols-3 gap-4 text-sm text-slate-700">
-                                <div class="bg-slate-50 rounded-xl p-4">2 overpayment risks</div>
-                                <div class="bg-slate-50 rounded-xl p-4">3 policy gaps</div>
-                                <div class="bg-slate-50 rounded-xl p-4">1 approval dependency</div>
+                            <div class="grid-3">
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">2 overpayment risks</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">3 policy gaps</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">1 approval dependency</div>
                             </div>
                         </div>
-                        <div class="space-y-4 hidden" data-analytics-panel="icm">
-                            <h3 class="text-2xl font-semibold text-slate-900">ICM blueprint</h3>
-                            <p class="text-slate-600">
+
+                        <div style="display:none;" data-analytics-panel="icm">
+                            <h3 style="margin-bottom:8px;">ICM blueprint</h3>
+                            <p style="font-size:15px;margin-bottom:16px;">
                                 Generate object mapping, rate tables, and crediting rules ready for implementation.
                             </p>
-                            <div class="grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
-                                <div class="bg-slate-50 rounded-xl p-4">11 ICM objects generated</div>
-                                <div class="bg-slate-50 rounded-xl p-4">4 crediting rules mapped</div>
-                                <div class="bg-slate-50 rounded-xl p-4">2 territory models</div>
-                                <div class="bg-slate-50 rounded-xl p-4">Export ready in Excel + JSON</div>
+                            <div class="grid-2">
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">11 ICM objects generated</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">4 crediting rules mapped</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">2 territory models</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">Export ready in Excel + JSON</div>
                             </div>
                         </div>
-                        <div class="space-y-4 hidden" data-analytics-panel="report">
-                            <h3 class="text-2xl font-semibold text-slate-900">Executive brief</h3>
-                            <p class="text-slate-600">
+
+                        <div style="display:none;" data-analytics-panel="report">
+                            <h3 style="margin-bottom:8px;">Executive brief</h3>
+                            <p style="font-size:15px;margin-bottom:16px;">
                                 Deliver a board-ready summary with risks, assumptions, and next steps.
                             </p>
-                            <div class="grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
-                                <div class="bg-slate-50 rounded-xl p-4">Plan summary + financial impact</div>
-                                <div class="bg-slate-50 rounded-xl p-4">Risk register + mitigation plan</div>
+                            <div class="grid-2">
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">Plan summary + financial impact</div>
+                                <div class="info-card" style="font-size:13px;color:var(--text-secondary);">Risk register + mitigation plan</div>
                             </div>
                         </div>
                     </div>
@@ -284,586 +303,497 @@
             </div>
         </section>
 
-        <section class="px-4 py-16">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid lg:grid-cols-3 gap-6">
-                    <div class="glass-card rounded-3xl p-6">
-                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Plan diagnostics pack</h3>
-                        <p class="text-slate-600">
+        <!-- Deliverables -->
+        <section class="section" style="padding-top:0;">
+            <div class="container">
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="label" style="margin-bottom:8px;">Deliverable</div>
+                        <h3 style="margin-bottom:8px;">Plan diagnostics pack</h3>
+                        <p style="font-size:14px;">
                             Structured summary, pay mix, quota logic, and exception list for quick review.
                         </p>
                     </div>
-                    <div class="glass-card rounded-3xl p-6">
-                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">Risk & compliance report</h3>
-                        <p class="text-slate-600">
+                    <div class="card">
+                        <div class="label" style="margin-bottom:8px;">Deliverable</div>
+                        <h3 style="margin-bottom:8px;">Risk &amp; compliance report</h3>
+                        <p style="font-size:14px;">
                             Highlight overpayment, governance, and operational risks with recommended fixes.
                         </p>
                     </div>
-                    <div class="glass-card rounded-3xl p-6">
-                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-3">Deliverable</div>
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-3">ICM output blueprint</h3>
-                        <p class="text-slate-600">
+                    <div class="card">
+                        <div class="label" style="margin-bottom:8px;">Deliverable</div>
+                        <h3 style="margin-bottom:8px;">ICM output blueprint</h3>
+                        <p style="font-size:14px;">
                             Object mapping, rate tables, and crediting rules ready for implementation.
                         </p>
                     </div>
                 </div>
-                <div class="mt-10 glass-card rounded-3xl p-8 grid lg:grid-cols-2 gap-6 items-center">
-                    <div>
-                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Before vs after</div>
-                        <h3 class="text-3xl font-semibold text-slate-900">From manual review to instant answers.</h3>
-                        <p class="text-slate-600 mt-2">
+
+                <!-- Before vs After -->
+                <div class="card-glass" style="margin-top:32px;display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
+                    <div style="flex:1;min-width:280px;">
+                        <div class="label" style="margin-bottom:8px;">Before vs after</div>
+                        <h3 style="font-size:28px;margin-bottom:8px;">From manual review to instant answers.</h3>
+                        <p style="font-size:15px;">
                             Replace weeks of manual plan review with an AI summary, risk checklist, and deployment plan.
                         </p>
                     </div>
-                    <div class="grid gap-3 text-sm text-slate-600">
-                        <div class="bg-white border border-slate-200 rounded-xl p-4">Before: 3-4 weeks of plan review and alignment</div>
-                        <div class="bg-white border border-slate-200 rounded-xl p-4">After: diagnostics + output pack in under 15 minutes</div>
+                    <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:10px;">
+                        <div class="info-card" style="font-size:14px;color:var(--text-secondary);">Before: 3-4 weeks of plan review and alignment</div>
+                        <div class="info-card" style="font-size:14px;color:var(--accent-primary);">After: diagnostics + output pack in under 15 minutes</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="demo" class="py-20 px-4 bg-slate-50">
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Try AI PlanLytics Now</h2>
-                    <p class="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
+        <!-- Demo Upload Section -->
+        <section id="demo" class="section">
+            <div class="container" style="max-width:1000px;">
+                <div style="text-align:center;margin-bottom:40px;">
+                    <div class="label" style="margin-bottom:12px;">Live Demo</div>
+                    <h2 style="margin-bottom:12px;">Try AI PlanLytics Now</h2>
+                    <p style="max-width:640px;margin:0 auto 20px;font-size:17px;">
                         Upload a compensation document and see the analytics pack in action.
                         Free users get a preview of the first 10 lines of analysis.
                     </p>
-                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-2xl mx-auto" data-role="demo">
-                        <div class="flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-amber-800 font-medium">Free Preview: See first 10 lines • Upgrade for full results</span>
-                        </div>
+                    <!-- Demo role banner -->
+                    <div style="max-width:520px;margin:0 auto;padding:12px 16px;border-radius:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);font-size:14px;font-weight:500;color:var(--accent-amber);" data-role="demo">
+                        Free Preview: See first 10 lines &bull; Upgrade for full results
                     </div>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto hidden" data-role="paid">
-                        <div class="flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-blue-800 font-medium">Full Analysis Enabled: Detailed ICM + Compensation outputs</span>
-                        </div>
+                    <div style="max-width:520px;margin:0 auto;padding:12px 16px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:14px;font-weight:500;color:var(--accent-primary);display:none;" data-role="paid">
+                        Full Analysis Enabled: Detailed ICM + Compensation outputs
                     </div>
                 </div>
 
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <div class="bg-white p-8 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-6">Upload Your Document</h3>
-
-                        <div id="upload-area" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
-                            <svg class="mx-auto h-12 w-12 text-slate-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <div class="grid-2">
+                    <!-- Upload Card -->
+                    <div class="card">
+                        <h4 style="margin-bottom:20px;">Upload Your Document</h4>
+                        <div class="upload-zone" id="upload-area">
+                            <svg style="width:48px;height:48px;margin:0 auto 12px;display:block;color:var(--text-muted);" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
-                            <div class="text-lg font-medium text-slate-900 mb-2">Drop your compensation document here</div>
-                            <div class="text-sm text-slate-500 mb-4">or click to browse files</div>
-                            <div class="text-xs text-slate-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
-                            <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
+                            <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Drop your compensation document here</div>
+                            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">or click to browse files</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
+                            <input type="file" id="file-input" accept=".pdf,.docx,.xlsx,.txt">
                         </div>
 
-                        <div id="file-info" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-emerald-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span id="file-name" class="text-emerald-700 font-medium"></span>
-                            </div>
+                        <div id="file-info" style="display:none;margin-top:16px;padding:12px 16px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                            <span style="color:var(--accent-primary);font-weight:500;" id="file-name"></span>
                         </div>
 
-                        <button id="analyze-btn" onclick="startAnalysis()" disabled class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors">
+                        <button id="analyze-btn" onclick="startAnalysis()" disabled class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;opacity:0.5;cursor:not-allowed;">
                             Analyze Document (Free Preview)
                         </button>
                     </div>
 
-                    <div class="bg-white p-8 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-slate-900 mb-6">Analysis Results</h3>
+                    <!-- Results Card -->
+                    <div class="card">
+                        <h4 style="margin-bottom:20px;">Analysis Results</h4>
 
-                        <div id="demo-results" class="hidden">
-                            <div class="bg-emerald-50 p-4 rounded-lg mb-6">
-                                <div class="flex items-center text-emerald-600">
-                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="font-medium">Analysis Complete - 94% Confidence</span>
-                                </div>
+                        <div id="demo-results" style="display:none;">
+                            <div style="padding:12px 16px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);margin-bottom:16px;font-size:14px;font-weight:500;color:var(--accent-primary);">
+                                Analysis Complete &mdash; 94% Confidence
                             </div>
 
-                            <div class="bg-slate-900 text-emerald-300 p-4 rounded-lg demo-output text-sm mb-6" id="analysis-console">
+                            <div class="analysis-console" id="analysis-console">
                                 <div id="analysis-output">
                                     <div data-role="demo">
-                                        <div class="mb-2">📊 ICM PLANLYTICS ANALYSIS PREVIEW</div>
-                                        <div class="mb-2">═══════════════════════════════════════</div>
+                                        <div style="margin-bottom:6px;">ICM PLANLYTICS ANALYSIS PREVIEW</div>
+                                        <div style="margin-bottom:6px;color:var(--text-muted);">======================================</div>
                                         <div>Document Type: Sales Commission Plan</div>
                                         <div>Plan Complexity: High (Score: 8.2/10)</div>
                                         <div>Key Components: 7 identified</div>
                                         <div>Risk Level: Medium (3 issues found)</div>
                                         <div>ICM Objects: 12 required</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
+                                        <div style="margin:6px 0;color:var(--text-muted);">--------------------------------------</div>
                                         <div>PLAN STRUCTURE:</div>
-                                        <div>• Base Commission: 2% on all sales</div>
-                                        <div>• Tier 1 Accelerator: 0.5% above $50K</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
+                                        <div>  Base Commission: 2% on all sales</div>
+                                        <div>  Tier 1 Accelerator: 0.5% above $50K</div>
+                                        <div style="margin:6px 0;color:var(--text-muted);">--------------------------------------</div>
                                         <div>RISK CHECKS:</div>
-                                        <div>• Overpayment risk flagged at 140%+</div>
-                                        <div>• Clawback policy missing on cancellations</div>
-                                        <div>• Territory overlap risk detected</div>
-                                        <div class="mt-4 p-3 bg-amber-900 text-amber-200 rounded">
-                                            ⚠️ PREVIEW MODE - Upgrade for full analysis
+                                        <div>  Overpayment risk flagged at 140%+</div>
+                                        <div>  Clawback policy missing on cancellations</div>
+                                        <div>  Territory overlap risk detected</div>
+                                        <div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(245,158,11,0.15);color:var(--accent-amber);font-size:12px;">
+                                            PREVIEW MODE &mdash; Upgrade for full analysis
                                         </div>
                                     </div>
-                                    <div class="hidden" data-role="paid">
-                                        <div class="mb-2">📊 ICM PLANLYTICS FULL ANALYSIS</div>
-                                        <div class="mb-2">═══════════════════════════════════════</div>
+                                    <div style="display:none;" data-role="paid">
+                                        <div style="margin-bottom:6px;">ICM PLANLYTICS FULL ANALYSIS</div>
+                                        <div style="margin-bottom:6px;color:var(--text-muted);">======================================</div>
                                         <div>Document Type: Sales Commission Plan</div>
                                         <div>Plan Complexity: High (Score: 8.2/10)</div>
                                         <div>Key Components: 7 identified</div>
                                         <div>Risk Level: Medium (3 issues found)</div>
                                         <div>ICM Objects: 12 required</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
+                                        <div style="margin:6px 0;color:var(--text-muted);">--------------------------------------</div>
                                         <div>ICM OUTPUTS:</div>
-                                        <div>• Crediting Rules: 4 (Direct, Overlay, Split, House)</div>
-                                        <div>• Rates: 6 with step-up tiers + accelerators</div>
-                                        <div>• Deposits: 3 schedule types (Monthly/Quarterly/Annual)</div>
-                                        <div>• Eligibility: 5 rules + territory overrides</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
+                                        <div>  Crediting Rules: 4 (Direct, Overlay, Split, House)</div>
+                                        <div>  Rates: 6 with step-up tiers + accelerators</div>
+                                        <div>  Deposits: 3 schedule types (Monthly/Quarterly/Annual)</div>
+                                        <div>  Eligibility: 5 rules + territory overrides</div>
+                                        <div style="margin:6px 0;color:var(--text-muted);">--------------------------------------</div>
                                         <div>COMP PLAN OUTPUTS:</div>
-                                        <div>• Quota Policy: 3 segments with attainment thresholds</div>
-                                        <div>• Payout Curves: 5 tiers with caps and clawbacks</div>
-                                        <div>• Exceptions: 2 approvals with audit notes</div>
-                                        <div class="my-2">─────────────────────────────────────</div>
+                                        <div>  Quota Policy: 3 segments with attainment thresholds</div>
+                                        <div>  Payout Curves: 5 tiers with caps and clawbacks</div>
+                                        <div>  Exceptions: 2 approvals with audit notes</div>
+                                        <div style="margin:6px 0;color:var(--text-muted);">--------------------------------------</div>
                                         <div>RISK CHECKS:</div>
-                                        <div>• Overpayment risk flagged at 140%+</div>
-                                        <div>• Clawback policy missing on cancellations</div>
-                                        <div>• Territory overlap risk detected</div>
-                                        <div>• SPIFF conflicts with margin guardrail</div>
-                                        <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
-                                            ✅ FULL MODE - Exportable ICM package ready
+                                        <div>  Overpayment risk flagged at 140%+</div>
+                                        <div>  Clawback policy missing on cancellations</div>
+                                        <div>  Territory overlap risk detected</div>
+                                        <div>  SPIFF conflicts with margin guardrail</div>
+                                        <div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(16,185,129,0.15);color:var(--accent-primary);font-size:12px;">
+                                            FULL MODE &mdash; Exportable ICM package ready
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="bg-white border border-slate-200 rounded-xl p-4 mb-6">
-                                <div class="flex items-center justify-between">
+                            <!-- Risk assessment expandable -->
+                            <div style="margin-top:16px;padding:16px;background:var(--bg-dark);border:1px solid var(--border);border-radius:12px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <div>
-                                        <div class="text-sm font-semibold text-slate-900">Risk Assessment — Real Time</div>
-                                        <div class="text-xs text-slate-500">Click to expand what the agent checks as it analyzes.</div>
+                                        <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Risk Assessment &mdash; Real Time</div>
+                                        <div style="font-size:12px;color:var(--text-muted);">Click to expand what the agent checks as it analyzes.</div>
                                     </div>
-                                    <button id="risk-toggle" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
-                                        View checks
-                                    </button>
+                                    <button id="risk-toggle" class="btn btn-sm" style="font-size:12px;">View checks</button>
                                 </div>
-                                <div id="risk-details" class="hidden mt-4 text-sm text-slate-700">
-                                    <ul class="list-disc pl-5 space-y-2">
+                                <div id="risk-details" style="display:none;margin-top:12px;font-size:13px;color:var(--text-secondary);">
+                                    <ul style="list-style:disc;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
                                         <li>Compliance coverage: payout timing, local labor rules, and clawback triggers.</li>
                                         <li>Plan leakage: overpayment risk, crediting overlaps, and double counting.</li>
                                         <li>Behavioral alignment: accelerator thresholds and quota fairness.</li>
                                         <li>Audit readiness: approvals, exceptions, and version traceability.</li>
                                     </ul>
-                                    <div class="mt-3 text-xs text-slate-500">
-                                        Example: “Territory overlap risk detected for North America overlay.”
-                                    </div>
+                                    <p style="margin-top:10px;font-size:12px;color:var(--text-muted);">
+                                        Example: "Territory overlap risk detected for North America overlay."
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="space-y-3">
-                                <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors" data-role="demo">
-                                    Get Full Analysis - Start Pro Trial
+                            <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+                                <button onclick="showUpgradeModal()" class="btn btn-primary" style="width:100%;justify-content:center;" data-role="demo">
+                                    Get Full Analysis &mdash; Start Pro Trial
                                 </button>
-                                <button onclick="showUpgradeModal()" class="w-full bg-slate-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-slate-800 transition-colors hidden" data-role="paid">
+                                <button onclick="showUpgradeModal()" class="btn" style="width:100%;justify-content:center;background:var(--bg-dark);display:none;" data-role="paid">
                                     Download Full Report
                                 </button>
                             </div>
                         </div>
 
-                        <div id="demo-placeholder" class="text-center py-12">
-                            <svg class="mx-auto h-16 w-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div id="demo-placeholder" style="text-align:center;padding:48px 0;">
+                            <svg style="width:64px;height:64px;margin:0 auto 12px;display:block;color:var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
-                            <h3 class="text-lg font-medium text-slate-900 mb-2">Upload a document to see AI analysis</h3>
-                            <p class="text-slate-500">Your analysis results will appear here</p>
+                            <h4 style="margin-bottom:6px;">Upload a document to see AI analysis</h4>
+                            <p style="font-size:14px;">Your analysis results will appear here</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="px-4 pb-16">
-            <div class="max-w-6xl mx-auto glass-card rounded-3xl p-8 md:p-10">
-                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-                    <div class="flex-1">
-                        <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Workspace upgrade</div>
-                        <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">Ready for your own workspace?</h2>
-                        <p class="text-slate-600 mt-2 max-w-2xl">
-                            Loved the trial? Unlock a dedicated workspace and we will build your Founder Journey with you,
-                            tailored to your product, pricing, and hiring plan.
+        <!-- Workspace Upgrade -->
+        <section class="section" style="padding-top:0;">
+            <div class="container">
+                <div class="card-glass" style="padding:40px;">
+                    <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:300px;">
+                            <div class="label" style="margin-bottom:8px;">Workspace upgrade</div>
+                            <h2 style="font-size:32px;margin-bottom:8px;">Ready for your own workspace?</h2>
+                            <p style="max-width:520px;">
+                                Loved the trial? Unlock a dedicated workspace and we will build your Founder Journey with you,
+                                tailored to your product, pricing, and hiring plan.
+                            </p>
+                            <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+                                <a href="mailto:sales@icm-planlytics.com?subject=PlanLytics%20Workspace%20Setup" class="btn btn-primary">Request Workspace</a>
+                                <a href="ai-plan-studio.html" class="btn btn-ghost">See RevOps Studio Flow</a>
+                            </div>
+                        </div>
+                        <div style="width:360px;flex-shrink:0;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="margin-left:6px;font-weight:600;color:var(--text-secondary);">Founder Workspace</span>
+                                </div>
+                                <div style="padding:16px;">
+                                    <div class="info-card">
+                                        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">End-to-end roadmap</div>
+                                        <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-top:4px;">Founder Journey Flow</div>
+                                        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+                                            <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                                <span style="font-weight:600;color:var(--text-primary);">Trial</span>
+                                                <span style="color:var(--text-muted);">Upload + preview</span>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                                <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-blue);"></span>
+                                                <span style="font-weight:600;color:var(--text-primary);">Workspace setup</span>
+                                                <span style="color:var(--text-muted);">Team + assumptions</span>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                                <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                                <span style="color:var(--text-secondary);">Sales 360</span>
+                                                <span style="color:var(--text-muted);">Pipeline + coverage</span>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                                                <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+                                                <span style="color:var(--text-secondary);">Plan Studio</span>
+                                                <span style="color:var(--text-muted);">Draft + simulate</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Next Step CTA -->
+        <section class="section" style="padding-top:0;padding-bottom:48px;">
+            <div class="container">
+                <div class="card-glass" style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
+                    <div style="flex:1;min-width:280px;">
+                        <div class="label" style="margin-bottom:8px;">Next step</div>
+                        <h2 style="font-size:28px;margin-bottom:8px;">Ready to connect analytics to RevOps Studio?</h2>
+                        <p style="font-size:15px;max-width:500px;">
+                            Use MicroPlan AI to diagnose and de-risk. Then move straight into RevOps Studio to draft, simulate,
+                            and launch the new plan.
                         </p>
-                        <div class="flex flex-wrap gap-3 mt-5">
-                            <a href="mailto:sales@icm-planlytics.com?subject=PlanLytics%20Workspace%20Setup" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                                Request Workspace
-                            </a>
-                            <a href="ai-plan-studio.html" class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:border-slate-500 transition-colors">
-                                See Plan Studio Flow
-                            </a>
-                        </div>
                     </div>
-                    <div class="w-full lg:w-[360px]">
-                        <div class="bg-white/90 border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
-                            <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-xs text-slate-500">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                                <span class="ml-2 font-semibold text-slate-700">Founder Workspace</span>
-                            </div>
-                            <div class="p-4 space-y-3">
-                                <div class="bg-slate-50 rounded-lg p-3">
-                                    <div class="text-[11px] uppercase tracking-wide text-slate-500">End-to-end roadmap</div>
-                                    <div class="text-sm font-semibold text-slate-900 mt-1">Founder Journey Flow</div>
-                                    <div class="mt-3 space-y-2 text-xs text-slate-600">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                                            <span class="font-semibold text-slate-700">Trial</span>
-                                            <span class="text-slate-400">Upload + preview</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                            <span class="font-semibold text-slate-700">Workspace setup</span>
-                                            <span class="text-slate-400">Team + assumptions</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-                                            <span>Sales 360</span>
-                                            <span class="text-slate-400">Pipeline + coverage</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-                                            <span>Plan Studio</span>
-                                            <span class="text-slate-400">Draft + simulate</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-                                            <span>PlanLytics</span>
-                                            <span class="text-slate-400">Risk + readiness</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-                                            <span>Launch + iterate</span>
-                                            <span class="text-slate-400">ICM outputs</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-slate-50 rounded-lg p-3">
-                                    <div class="flex items-center justify-between text-[11px] uppercase tracking-wide text-slate-500">
-                                        <span>Current build</span>
-                                        <span>Workspace</span>
-                                    </div>
-                                    <div class="mt-2 text-xs text-slate-600">
-                                        We configure roles, quotas, and plan assumptions inside your dedicated workspace.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3 text-xs text-slate-500 text-center">Preview of your dedicated workspace</div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <a href="ai-plan-studio.html" class="btn btn-primary">Go to Plan Studio</a>
+                        <a href="sales-360-ai.html" class="btn btn-ghost">Explore Sales 360 AI</a>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="px-4 pb-20">
-            <div class="max-w-7xl mx-auto glass-card rounded-3xl p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-                <div>
-                    <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Next step</div>
-                    <h2 class="text-3xl md:text-4xl font-semibold text-slate-900">Ready to connect analytics to Plan Studio?</h2>
-                    <p class="text-slate-600 mt-2 max-w-xl">
-                        Use AI Plan Analytics to diagnose and de-risk. Then move straight into Plan Studio to draft, simulate,
-                        and launch the new plan.
-                    </p>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="ai-plan-studio.html" class="bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">
-                        Go to Plan Studio
-                    </a>
-                    <a href="sales-360-ai.html" class="border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:border-slate-500 transition-colors">
-                        Explore Sales 360 AI
-                    </a>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-white py-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">ICM</span>
-                </div>
-                <span class="text-2xl font-bold">ICM PlanLytics</span>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="powered-by">
+                <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;">
+                    <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                    <circle cx="36" cy="36" r="8" fill="url(#mpFtGrad2)" opacity="0.9"/>
+                    <text x="36" y="40" text-anchor="middle" font-family="'Sora', sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                    <defs><radialGradient id="mpFtGrad2"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#3b82f6"/></radialGradient></defs>
+                </svg>
+                <span>Powered by <span class="mp-cyan">Micro</span><span class="mp-white">Plan</span> AI</span>
             </div>
-            <p class="text-slate-300 mb-6 max-w-md mx-auto">
-                AI Plan Analytics keeps every compensation plan ready for launch.
-            </p>
-            <div class="text-slate-400 text-sm">
-                (c) 2025 ICM PlanLytics. All rights reserved.<br>
-                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a><br>
-                <span class="text-slate-500 text-xs">Build: 2026-01-09-01</span>
-            </div>
+            <p style="margin-bottom:4px;">MicroPlan AI keeps every compensation plan ready for launch.</p>
+            <p>&copy; 2025 ICM PlanLytics. All rights reserved.</p>
+            <p style="margin-top:4px;">Contact us: <a href="mailto:sales@icm-planlytics.com">sales@icm-planlytics.com</a></p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Build: 2026-01-09-01</p>
         </div>
     </footer>
 
-    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
-            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
-            <form id="role-form" class="space-y-4">
-                <div>
-                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <div>
-                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                    Sign in
-                </button>
+    <!-- Role Modal -->
+    <div id="role-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Select your access level</h3>
+            <p style="margin-bottom:20px;">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Username</label>
+                <input id="role-username" type="text" autocomplete="username" placeholder="Enter username">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Password</label>
+                <input id="role-password" type="password" autocomplete="current-password" placeholder="Enter password">
+                <p id="role-error" style="display:none;font-size:13px;color:var(--accent-rose);margin-bottom:12px;">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Sign in</button>
             </form>
-            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+            <button id="role-close" style="display:block;width:100%;margin-top:16px;padding:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;">Cancel</button>
         </div>
     </div>
+</div><!-- /.page -->
 
-    <script>
-        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-        const API_BASE_URL = 'https://icm-planlytics.onrender.com';
-        let selectedFile = null;
-        let activeRole = 'demo';
-        const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
-        };
+<script>
+    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+    const API_BASE_URL = 'https://icm-planlytics.onrender.com';
+    let selectedFile = null;
+    let activeRole = 'demo';
+    const ROLE_CREDENTIALS = {
+        demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
+        paid: { username: 'ChandraK', password: 'ICMPlan6631' }
+    };
 
-        function showUpgradeModal() {
-            alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
-        }
+    function showUpgradeModal() {
+        alert('Upgrade functionality coming soon! This will redirect to the subscription page.');
+    }
 
-        function applyRole(role) {
-            activeRole = role;
-            localStorage.setItem(ROLE_STORAGE_KEY, role);
-            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'demo');
-            });
-            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'paid');
-            });
-
-            const analyzeBtn = document.getElementById('analyze-btn');
-            if (analyzeBtn) {
-                analyzeBtn.textContent = role === 'paid'
-                    ? 'Analyze Document (Full Analysis)'
-                    : 'Analyze Document (Free Preview)';
-            }
-        }
-
-        function initRoleControls() {
-            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
-
-            const roleModal = document.getElementById('role-modal');
-            const roleClose = document.getElementById('role-close');
-            const roleForm = document.getElementById('role-form');
-            const roleError = document.getElementById('role-error');
-            const roleUsername = document.getElementById('role-username');
-            const rolePassword = document.getElementById('role-password');
-            const roleToggles = document.querySelectorAll('[data-role-toggle]');
-
-            roleToggles.forEach((toggle) => {
-                toggle.addEventListener('click', () => {
-                    roleModal.classList.remove('hidden');
-                    roleModal.classList.add('flex');
-                    roleError.classList.add('hidden');
-                    roleForm.reset();
-                });
-            });
-
-            roleClose.addEventListener('click', () => {
-                roleModal.classList.add('hidden');
-                roleModal.classList.remove('flex');
-            });
-
-            roleModal.addEventListener('click', (event) => {
-                if (event.target === roleModal) {
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                }
-            });
-
-            roleForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = roleUsername.value.trim();
-                const password = rolePassword.value.trim();
-                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
-                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
-
-                if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                } else {
-                    roleError.classList.remove('hidden');
-                }
-            });
-        }
-
-        function initMobileNav() {
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (!menuToggle || !mobileMenu) {
-                return;
-            }
-
-            menuToggle.addEventListener('click', () => {
-                const isOpen = !mobileMenu.classList.contains('hidden');
-                mobileMenu.classList.toggle('hidden');
-                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
-            });
-
-            mobileMenu.querySelectorAll('a, button').forEach((item) => {
-                item.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                });
-            });
-        }
-
-        function initDemo() {
-            const uploadArea = document.getElementById('upload-area');
-            const fileInput = document.getElementById('file-input');
-            const fileInfo = document.getElementById('file-info');
-            const fileName = document.getElementById('file-name');
-            const analyzeBtn = document.getElementById('analyze-btn');
-            if (!uploadArea || !fileInput || !fileInfo || !fileName || !analyzeBtn) {
-                return;
-            }
-
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    selectedFile = file;
-                    fileName.textContent = file.name;
-                    fileInfo.classList.remove('hidden');
-                    analyzeBtn.disabled = false;
-                }
-            });
-
-            const riskToggle = document.getElementById('risk-toggle');
-            const riskDetails = document.getElementById('risk-details');
-            const analysisConsole = document.getElementById('analysis-console');
-            if (riskToggle && riskDetails && analysisConsole) {
-                riskToggle.addEventListener('click', () => {
-                    const isHidden = riskDetails.classList.contains('hidden');
-                    riskDetails.classList.toggle('hidden');
-                    analysisConsole.classList.toggle('expanded', isHidden);
-                    riskToggle.textContent = isHidden ? 'Hide checks' : 'View checks';
-                });
-            }
-        }
-
-        async function startAnalysis() {
-            if (!selectedFile) {
-                alert('Please select a file first');
-                return;
-            }
-
-            const btn = document.getElementById('analyze-btn');
-            if (!btn) {
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Analyzing...';
-
-            try {
-                await simulateAnalysis();
-                const placeholder = document.getElementById('demo-placeholder');
-                const results = document.getElementById('demo-results');
-                if (placeholder) {
-                    placeholder.classList.add('hidden');
-                }
-                if (results) {
-                    results.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Analysis failed:', error);
-                alert('Analysis failed. Please try again.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = activeRole === 'paid'
-                    ? 'Analyze Document (Full Analysis)'
-                    : 'Analyze Document (Free Preview)';
-            }
-        }
-
-        async function simulateAnalysis() {
-            return new Promise((resolve) => {
-                setTimeout(resolve, 3000);
-            });
-        }
-
-        async function callRenderAPI(file, analysisType) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('template', analysisType || 'quick');
-
-            const response = await fetch(`${API_BASE_URL}/analyze/enhanced`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return response.json();
-        }
-
-        function initAnalyticsTabs() {
-            const tabs = Array.from(document.querySelectorAll('[data-analytics-step]'));
-            const panels = Array.from(document.querySelectorAll('[data-analytics-panel]'));
-            if (!tabs.length || !panels.length) {
-                return;
-            }
-
-            const activate = (step) => {
-                tabs.forEach((tab) => {
-                    const isActive = tab.getAttribute('data-analytics-step') === step;
-                    tab.classList.toggle('is-active', isActive);
-                    tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-                });
-                panels.forEach((panel) => {
-                    panel.classList.toggle('hidden', panel.getAttribute('data-analytics-panel') !== step);
-                });
-            };
-
-            activate(tabs[0].getAttribute('data-analytics-step'));
-            tabs.forEach((tab) => {
-                tab.addEventListener('click', () => activate(tab.getAttribute('data-analytics-step')));
-            });
-        }
-
-        window.addEventListener('load', () => {
-            initRoleControls();
-            initMobileNav();
-            initDemo();
-            initAnalyticsTabs();
+    function applyRole(role) {
+        activeRole = role;
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+        document.querySelectorAll('[data-role="demo"]').forEach((el) => {
+            el.style.display = role === 'demo' ? '' : 'none';
         });
-    </script>
+        document.querySelectorAll('[data-role="paid"]').forEach((el) => {
+            el.style.display = role === 'paid' ? '' : 'none';
+        });
+        const analyzeBtn = document.getElementById('analyze-btn');
+        if (analyzeBtn) {
+            analyzeBtn.textContent = role === 'paid'
+                ? 'Analyze Document (Full Analysis)'
+                : 'Analyze Document (Free Preview)';
+        }
+    }
+
+    function initRoleControls() {
+        const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+        applyRole(savedRole === 'paid' ? 'paid' : 'demo');
+
+        const roleModal = document.getElementById('role-modal');
+        const roleClose = document.getElementById('role-close');
+        const roleForm = document.getElementById('role-form');
+        const roleError = document.getElementById('role-error');
+        const roleUsername = document.getElementById('role-username');
+        const rolePassword = document.getElementById('role-password');
+        const roleToggles = document.querySelectorAll('[data-role-toggle]');
+
+        roleToggles.forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                roleModal.classList.add('active');
+                roleError.style.display = 'none';
+                roleForm.reset();
+            });
+        });
+
+        roleClose.addEventListener('click', () => { roleModal.classList.remove('active'); });
+        roleModal.addEventListener('click', (event) => {
+            if (event.target === roleModal) roleModal.classList.remove('active');
+        });
+
+        roleForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const username = roleUsername.value.trim();
+            const password = rolePassword.value.trim();
+            const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
+            const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
+            if (isDemo || isPaid) {
+                applyRole(isPaid ? 'paid' : 'demo');
+                roleModal.classList.remove('active');
+            } else {
+                roleError.style.display = 'block';
+            }
+        });
+    }
+
+    function initMobileNav() {
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (!menuToggle || !mobileMenu) return;
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.contains('active');
+            mobileMenu.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
+        });
+        mobileMenu.querySelectorAll('a, button').forEach((item) => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
+
+    function initDemo() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        if (!uploadArea || !fileInput || !fileInfo || !fileName || !analyzeBtn) return;
+
+        uploadArea.addEventListener('click', () => { fileInput.click(); });
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+                analyzeBtn.disabled = false;
+                analyzeBtn.style.opacity = '1';
+                analyzeBtn.style.cursor = 'pointer';
+            }
+        });
+
+        const riskToggle = document.getElementById('risk-toggle');
+        const riskDetails = document.getElementById('risk-details');
+        const analysisConsole = document.getElementById('analysis-console');
+        if (riskToggle && riskDetails && analysisConsole) {
+            riskToggle.addEventListener('click', () => {
+                const isHidden = riskDetails.style.display === 'none' || !riskDetails.style.display;
+                riskDetails.style.display = isHidden ? 'block' : 'none';
+                analysisConsole.classList.toggle('expanded', isHidden);
+                riskToggle.textContent = isHidden ? 'Hide checks' : 'View checks';
+            });
+        }
+    }
+
+    async function startAnalysis() {
+        if (!selectedFile) { alert('Please select a file first'); return; }
+        const btn = document.getElementById('analyze-btn');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            const placeholder = document.getElementById('demo-placeholder');
+            const results = document.getElementById('demo-results');
+            if (placeholder) placeholder.style.display = 'none';
+            if (results) results.style.display = 'block';
+        } catch (error) {
+            console.error('Analysis failed:', error);
+            alert('Analysis failed. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = activeRole === 'paid' ? 'Analyze Document (Full Analysis)' : 'Analyze Document (Free Preview)';
+        }
+    }
+
+    async function callRenderAPI(file, analysisType) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('template', analysisType || 'quick');
+        const response = await fetch(`${API_BASE_URL}/analyze/enhanced`, { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    }
+
+    function initAnalyticsTabs() {
+        const tabs = Array.from(document.querySelectorAll('[data-analytics-step]'));
+        const panels = Array.from(document.querySelectorAll('[data-analytics-panel]'));
+        if (!tabs.length || !panels.length) return;
+        const activate = (step) => {
+            tabs.forEach((tab) => {
+                const isActive = tab.getAttribute('data-analytics-step') === step;
+                tab.classList.toggle('is-active', isActive);
+                tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            panels.forEach((panel) => {
+                panel.style.display = panel.getAttribute('data-analytics-panel') === step ? 'block' : 'none';
+            });
+        };
+        activate(tabs[0].getAttribute('data-analytics-step'));
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => activate(tab.getAttribute('data-analytics-step')));
+        });
+    }
+
+    window.addEventListener('load', () => {
+        initRoleControls();
+        initMobileNav();
+        initDemo();
+        initAnalyticsTabs();
+    });
+</script>
 </body>
 </html>
