@@ -3,1595 +3,853 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Plan Studio - ICM PlanLytics</title>
-    <meta name="description" content="Build compensation plans with AI Plan Studio: plan drafts, scenarios, and market insights in minutes.">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Plan Studio - RevOps Studio - ICM PlanLytics</title>
+    <meta name="description" content="Build compensation plans with Plan Studio (RevOps Studio): plan drafts, scenarios, and market insights in minutes.">
+    <link rel="stylesheet" href="brand.css">
     <style>
-        body { font-family: 'Manrope', sans-serif; color: #0f172a; }
-        h1, h2, h3, .display-font { font-family: 'Space Grotesk', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
-        .studio-tab { border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; text-align: left; background: rgba(255, 255, 255, 0.9); transition: all 0.25s ease; }
-        .studio-tab:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12); }
-        .studio-tab.is-active { background: #0f172a; border-color: #0f172a; color: #ffffff; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.25); }
-        .studio-tab.is-active .tab-desc { color: #e2e8f0; }
-        .tab-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.28em; color: #6366f1; }
-        .studio-tab.is-active .tab-eyebrow { color: #a5b4fc; }
-        .studio-module { animation: fadeUp 0.4s ease; }
-        .module-card { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 24px; }
-        .journey-map { background: linear-gradient(120deg, #0f766e 0%, #0b7285 45%, #1e3a8a 100%); border-radius: 32px; padding: 28px; color: #e0f2fe; position: relative; overflow: hidden; }
-        .journey-map::before { content: ""; position: absolute; top: -40%; right: -10%; width: 320px; height: 320px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; }
-        .journey-map::after { content: ""; position: absolute; bottom: -30%; left: -15%; width: 280px; height: 280px; background: rgba(255, 255, 255, 0.06); border-radius: 50%; }
+        .studio-tab {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            width: 100%;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 120px;
+            position: relative;
+        }
+        .studio-tab:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+        .studio-tab.is-active {
+            background: var(--accent-primary);
+            color: #fff;
+            border-color: var(--accent-primary);
+            box-shadow: 0 8px 24px rgba(16,185,129,0.25);
+        }
+        .studio-tab.is-active .tab-desc { color: rgba(255,255,255,0.8); }
+        .studio-tab .tab-eyebrow {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            color: var(--accent-primary);
+        }
+        .studio-tab.is-active .tab-eyebrow { color: rgba(255,255,255,0.7); }
+        .studio-tab .tab-desc { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+        .journey-map {
+            background: linear-gradient(120deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.08) 45%, rgba(59,130,246,0.06) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
         .journey-track { position: relative; margin-top: 24px; padding: 32px 0 6px; }
         .journey-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.6; z-index: 0; }
-        .journey-steps { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
-        .journey-flag { position: absolute; top: 6px; right: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.85); color: #ffffff; padding: 6px 12px; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; }
-        .journey-flag svg { width: 14px; height: 14px; }
-        .journey-map .studio-tab { background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; padding: 18px; text-align: left; min-height: 150px; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; --step-offset: 0px; transform: translateY(var(--step-offset)); }
-        .journey-map .studio-tab::before { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 999px; background: #14b8a6; border: 3px solid #ffffff; top: -18px; left: 20px; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2); }
-        .journey-map .studio-tab:hover { transform: translateY(calc(var(--step-offset) - 4px)); box-shadow: 0 18px 35px rgba(15, 23, 42, 0.2); }
-        .journey-map .studio-tab.is-active { background: #0f172a; color: #ffffff; border-color: #0f172a; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35); transform: translateY(calc(var(--step-offset) - 6px)); }
-        .journey-map .studio-tab.is-active::before { background: #22c55e; border-color: #0f172a; }
-        .journey-map .tab-eyebrow { color: #0f766e; }
-        .journey-map .studio-tab.is-active .tab-eyebrow { color: #c7d2fe; }
-        .journey-map .tab-desc { color: #475569; }
-        .journey-map .studio-tab.is-active .tab-desc { color: #e2e8f0; }
-        .journey-map .step-1 { --step-offset: 8px; }
-        .journey-map .step-2 { --step-offset: -12px; }
-        .journey-map .step-3 { --step-offset: 6px; }
-        .journey-map .step-4 { --step-offset: -8px; }
-        .journey-map .step-5 { --step-offset: 12px; }
-        .market-chip { border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; color: #475569; background: #ffffff; transition: all 0.2s ease; }
-        .market-chip.is-active { background: #111827; color: #ffffff; border-color: #111827; }
-        .philosophy-toggle .indicator { transition: transform 0.2s ease; }
-        .philosophy-toggle.is-open .indicator { transform: rotate(45deg); }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        .journey-steps { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+        .journey-flag {
+            position: absolute; top: 6px; right: 18px; z-index: 2;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(10,11,15,0.85); color: #ffffff;
+            padding: 6px 12px; border-radius: 999px;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
         }
+        .journey-map .studio-tab {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            --step-offset: 0px;
+            transform: translateY(var(--step-offset));
+        }
+        .journey-map .studio-tab::before {
+            content: ""; position: absolute; width: 12px; height: 12px; border-radius: 999px;
+            background: var(--accent-primary); border: 3px solid var(--bg-dark);
+            top: -16px; left: 20px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        .journey-map .studio-tab:hover { transform: translateY(calc(var(--step-offset) - 4px)); }
+        .journey-map .studio-tab.is-active {
+            background: var(--accent-primary); color: #fff;
+            border-color: var(--accent-primary);
+            transform: translateY(calc(var(--step-offset) - 6px));
+        }
+        .journey-map .studio-tab.is-active::before { background: #22c55e; border-color: var(--accent-primary); }
+        .step-1 { --step-offset: 8px; }
+        .step-2 { --step-offset: -12px; }
+        .step-3 { --step-offset: 6px; }
+        .step-4 { --step-offset: -8px; }
+        .step-5 { --step-offset: 12px; }
+
+        .market-chip {
+            border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px;
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em;
+            color: var(--text-secondary); background: var(--bg-card); cursor: pointer;
+            transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+        }
+        .market-chip:hover { border-color: rgba(16,185,129,0.3); }
+        .market-chip.is-active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
+
+        .philosophy-toggle .indicator { transition: transform 0.2s; }
+        .philosophy-toggle.is-open .indicator { transform: rotate(45deg); }
+
+        .info-card { background: var(--bg-dark); border-radius: 12px; padding: 16px; }
+        .studio-module { animation: fadeUp 0.4s ease; }
+        .demo-output {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+            color: var(--accent-primary-light); line-height: 1.7;
+        }
+
+        /* Chat bubbles */
+        .chat-bubble { border-radius: 12px; padding: 12px; max-width: 360px; font-size: 14px; }
+        .chat-user { background: var(--bg-dark); border: 1px solid var(--border); }
+        .chat-agent { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); }
+
         @media (max-width: 1024px) {
             .journey-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .journey-line { display: none; }
-            .journey-map .studio-tab { transform: none; }
+            .journey-map .studio-tab { transform: none !important; }
         }
         @media (max-width: 640px) {
             .journey-steps { grid-template-columns: 1fr; }
         }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <a href="#ai-planning" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-blue-600">
-        Skip to main content
-    </a>
+<body>
+<div class="page">
+    <a href="#ai-planning" class="sr-only">Skip to main content</a>
+
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm fixed w-full top-0 z-50" aria-label="Primary">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">ICM</span>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="34" cy="34" r="26" stroke="#10b981" stroke-width="1" opacity="0.2" stroke-dasharray="4 3"/>
+                    <circle cx="34" cy="34" r="20" stroke="#10b981" stroke-width="1.5" opacity="0.4"/>
+                    <polyline points="16,46 24,40 32,42 40,32 48,28 54,18" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M16,46 L24,40 L32,42 L40,32 L48,28 L54,18 L54,50 L16,50 Z" fill="url(#icmNavGrad5)" opacity="0.15"/>
+                    <circle cx="40" cy="32" r="3" fill="#10b981"/>
+                    <circle cx="54" cy="18" r="4" fill="#10b981"/>
+                    <text x="54" y="21" text-anchor="middle" font-family="'Sora', sans-serif" font-size="7" font-weight="700" fill="#fff">$</text>
+                    <defs><linearGradient id="icmNavGrad5" x1="16" y1="18" x2="16" y2="50"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+                </svg>
+                <div class="logo-text">
+                    <span class="icm">ICM </span><span class="plan">Plan</span><span class="lytics">lytics</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="ai-plan-analytics.html">MicroPlan AI</a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle active">RevOps Studio</button>
+                    <div class="nav-dropdown-menu">
+                        <div class="nav-dropdown-label">RevOps Studio</div>
+                        <a href="ai-plan-studio.html" class="active">
+                            <span class="dropdown-icon" style="background:rgba(16,185,129,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);display:block;"></span></span>
+                            Plan Studio
+                        </a>
+                        <a href="sales-360-ai.html">
+                            <span class="dropdown-icon" style="background:rgba(6,182,212,0.15);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);display:block;"></span></span>
+                            Sales 360 AI
+                        </a>
                     </div>
-                    <div>
-                        <a href="index.html" class="text-xl font-bold text-gray-900">ICM PlanLytics</a>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">AI BETA</span>
-                    </div>
                 </div>
-                <div class="hidden md:flex items-center space-x-6 whitespace-nowrap text-sm">
-                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Home</a>
-                    <a href="ai-plan-analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">AI Plan Analytics</a>
-                    <a href="ai-plan-studio.html" class="text-blue-600 font-medium whitespace-nowrap">Plan Studio</a>
-                    <a href="sales-360-ai.html" class="text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Sales 360 AI</a>
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-toggle" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors" aria-expanded="false" aria-controls="mobile-menu">
-                        Menu
-                    </button>
-                </div>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="ai-plan-analytics.html#demo">Try Demo</a>
             </div>
+            <div class="nav-cta">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm">Start Free Trial</a>
+            </div>
+            <button class="nav-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
         </div>
-        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-100 bg-white">
-            <div class="px-4 pb-4 pt-3 space-y-3">
-                <a href="index.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Home</a>
-                <a href="ai-plan-analytics.html" class="block text-gray-600 hover:text-blue-600 transition-colors">AI Plan Analytics</a>
-                <a href="ai-plan-studio.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Plan Studio</a>
-                <a href="sales-360-ai.html" class="block text-gray-600 hover:text-blue-600 transition-colors">Sales 360 AI</a>
-                <div class="flex items-center justify-between">
-                    <button data-role-toggle class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
-                        Sign in
-                    </button>
-                </div>
+        <div class="nav-mobile" id="mobile-menu">
+            <a href="ai-plan-analytics.html">MicroPlan AI</a>
+            <div class="nav-mobile-group-label">RevOps Studio</div>
+            <div class="nav-mobile-group">
+                <a href="ai-plan-studio.html" class="active">Plan Studio</a>
+                <a href="sales-360-ai.html">Sales 360 AI</a>
+            </div>
+            <a href="index.html#pricing">Pricing</a>
+            <a href="ai-plan-analytics.html#demo">Try Demo</a>
+            <div style="display:flex;gap:10px;padding:10px 0;">
+                <button class="btn btn-ghost btn-sm" data-role-toggle>Sign in</button>
+                <a href="ai-plan-analytics.html#demo" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Start Free Trial</a>
             </div>
         </div>
     </nav>
 
-    <!-- AI Compensation Plan Studio -->
-    <section id="ai-planning" class="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-indigo-50 relative overflow-hidden">
-        <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-100/70 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-24 -left-16 w-72 h-72 bg-sky-100/70 rounded-full blur-3xl"></div>
-        <div class="max-w-7xl mx-auto relative">
-            <div class="text-center mb-12">
-                <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-indigo-100 text-xs uppercase tracking-[0.2em] text-indigo-700 mb-4">
-                    Plan Studio
-                </div>
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">AI Compensation Plan Studio</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+    <!-- Hero -->
+    <section id="ai-planning" class="hero" style="background:var(--gradient-hero);padding-bottom:40px;">
+        <div class="glow-orb glow-orb-emerald" style="width:400px;height:400px;top:-150px;right:5%;" aria-hidden="true"></div>
+        <div class="container" style="position:relative;">
+            <div style="text-align:center;margin-bottom:32px;">
+                <div class="label fade-up" style="margin-bottom:20px;"><span style="color:var(--accent-cyan);">RevOps Studio</span> <span style="color:var(--text-muted);margin:0 6px;">/</span> Plan Studio</div>
+                <h1 class="fade-up fade-up-1" style="font-size:44px;margin-bottom:16px;">AI Compensation Plan Studio</h1>
+                <p class="subtitle fade-up fade-up-2" style="max-width:720px;margin:0 auto 20px;">
                     Bring the same AI experience from ICM analysis into compensation planning. Upload a brief or share your
                     goals to generate a plan draft with modeled scenarios.
                 </p>
-                <div class="mt-6 max-w-3xl mx-auto bg-white/90 border border-white/70 rounded-2xl px-8 py-6 text-gray-700 shadow-lg shadow-indigo-100">
-                    <div class="text-xs uppercase tracking-wide text-indigo-500 mb-2">Founder moment</div>
-                    <div class="flex items-start gap-3">
-                        <div class="text-3xl leading-none text-indigo-200">“</div>
-                        <p class="text-base italic">Sure, let's build. With what you suggested, I'm living the startup journey with the rewarding experience at my fingertips.</p>
+                <div class="card-glass fade-up fade-up-3" style="max-width:720px;margin:0 auto 24px;padding:20px;">
+                    <div class="label" style="font-size:10px;margin-bottom:8px;">Founder moment</div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                        <div style="font-size:28px;line-height:1;color:var(--text-muted);">&ldquo;</div>
+                        <p style="font-size:15px;font-style:italic;">Sure, let&rsquo;s build. With what you suggested, I&rsquo;m living the startup journey with the rewarding experience at my fingertips.</p>
                     </div>
                 </div>
-                <div class="mt-8 max-w-4xl mx-auto">
-                    <div class="text-sm font-semibold text-gray-900 mb-3">Unique Plan Build and Plan Experience</div>
-                    <div class="grid sm:grid-cols-2 gap-4 text-left">
-                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
-                            Startup speed: turn product context into a plan draft in minutes.
-                        </div>
-                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
-                            Enterprise rigor: benchmark, govern, and audit every change.
-                        </div>
-                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
-                            One AI flow: draft, simulate, and export across ICM and payroll.
-                        </div>
-                        <div class="bg-white/90 border border-white/70 rounded-2xl p-5 text-gray-700 shadow-sm shadow-indigo-100/70">
-                            Admin-ready outputs: guardrails, compliance checks, and reporting.
-                        </div>
+                <div style="max-width:800px;margin:0 auto;">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Unique Plan Build and Plan Experience</div>
+                    <div class="grid-2">
+                        <div class="info-card" style="font-size:14px;">Startup speed: turn product context into a plan draft in minutes.</div>
+                        <div class="info-card" style="font-size:14px;">Enterprise rigor: benchmark, govern, and audit every change.</div>
+                        <div class="info-card" style="font-size:14px;">One AI flow: draft, simulate, and export across ICM and payroll.</div>
+                        <div class="info-card" style="font-size:14px;">Admin-ready outputs: guardrails, compliance checks, and reporting.</div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-10 journey-map">
-                <div class="relative z-10">
-                    <div class="text-xs uppercase tracking-[0.3em] text-white/70">Founder journey roadmap</div>
-                    <h3 class="text-3xl md:text-4xl font-semibold text-white mt-2">End-to-end Plan Studio path</h3>
-                    <p class="text-white/80 mt-3 max-w-3xl">
-                        Follow the curve from first inputs to launch-ready outputs. Tap a milestone to focus the page.
-                    </p>
+            <!-- Journey Map -->
+            <div class="journey-map fade-up fade-up-4">
+                <div style="position:relative;z-index:1;">
+                    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Founder journey roadmap</div>
+                    <h3 style="font-size:28px;margin-top:8px;">End-to-end Plan Studio path</h3>
+                    <p style="margin-top:8px;max-width:600px;">Follow the curve from first inputs to launch-ready outputs. Tap a milestone to focus the page.</p>
                 </div>
                 <div class="journey-track">
                     <svg class="journey-line" viewBox="0 0 1200 240" preserveAspectRatio="none" aria-hidden="true">
-                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="26" stroke-linecap="round"></path>
-                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6" stroke-linecap="round"></path>
-                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-dasharray="6 10" stroke-linecap="round"></path>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(16,185,129,0.12)" stroke-width="26" stroke-linecap="round"/>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(16,185,129,0.25)" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M20 170 C 220 40, 420 40, 620 170 S 1020 300, 1180 120" fill="none" stroke="rgba(16,185,129,0.6)" stroke-width="2" stroke-dasharray="6 10" stroke-linecap="round"/>
                     </svg>
                     <div class="journey-flag">
-                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path d="M4 2a1 1 0 011 1v13a1 1 0 11-2 0V3a1 1 0 011-1zm2.5 1.5a1 1 0 011-1h7.793a1 1 0 01.707 1.707L13.414 6l2.586 2.793A1 1 0 0115.293 10H7.5a1 1 0 01-1-1V3.5z"></path>
-                        </svg>
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M4 2a1 1 0 011 1v13a1 1 0 11-2 0V3a1 1 0 011-1zm2.5 1.5a1 1 0 011-1h7.793a1 1 0 01.707 1.707L13.414 6l2.586 2.793A1 1 0 0115.293 10H7.5a1 1 0 01-1-1V3.5z"/></svg>
                         Launch success
                     </div>
                     <div class="journey-steps">
-                        <button type="button" class="studio-tab journey-step step-1 is-active" data-module-tab="draft" aria-pressed="true">
-                            <div class="tab-eyebrow mb-2">Module 01</div>
-                            <div class="text-lg font-semibold">Draft Builder</div>
-                            <p class="tab-desc text-sm mt-2">Upload context and generate a plan draft with scenarios.</p>
+                        <button type="button" class="studio-tab step-1 is-active" data-module-tab="draft" aria-pressed="true">
+                            <div class="tab-eyebrow" style="margin-bottom:4px;">Module 01</div>
+                            <div style="font-size:16px;font-weight:600;">Draft Builder</div>
+                            <p class="tab-desc">Upload context and generate a plan draft with scenarios.</p>
                         </button>
-                        <button type="button" class="studio-tab journey-step step-2" data-module-tab="journey" aria-pressed="false">
-                            <div class="tab-eyebrow mb-2">Module 02</div>
-                            <div class="text-lg font-semibold">Founder Journey</div>
-                            <p class="tab-desc text-sm mt-2">See the guided conversation that turns inputs into decisions.</p>
+                        <button type="button" class="studio-tab step-2" data-module-tab="journey" aria-pressed="false">
+                            <div class="tab-eyebrow" style="margin-bottom:4px;">Module 02</div>
+                            <div style="font-size:16px;font-weight:600;">Founder Journey</div>
+                            <p class="tab-desc">See the guided conversation that turns inputs into decisions.</p>
                         </button>
-                        <button type="button" class="studio-tab journey-step step-3" data-module-tab="profit" aria-pressed="false">
-                            <div class="tab-eyebrow mb-2">Module 03</div>
-                            <div class="text-lg font-semibold">Profit Planner</div>
-                            <p class="tab-desc text-sm mt-2">Stress-test margin, commission budget, and rep capacity.</p>
+                        <button type="button" class="studio-tab step-3" data-module-tab="profit" aria-pressed="false">
+                            <div class="tab-eyebrow" style="margin-bottom:4px;">Module 03</div>
+                            <div style="font-size:16px;font-weight:600;">Profit Planner</div>
+                            <p class="tab-desc">Stress-test margin, commission budget, and rep capacity.</p>
                         </button>
-                        <button type="button" class="studio-tab journey-step step-4" data-module-tab="admin" aria-pressed="false">
-                            <div class="tab-eyebrow mb-2">Module 04</div>
-                            <div class="text-lg font-semibold">Admin Insights</div>
-                            <p class="tab-desc text-sm mt-2">Benchmark philosophy and market data with agentic inputs.</p>
+                        <button type="button" class="studio-tab step-4" data-module-tab="admin" aria-pressed="false">
+                            <div class="tab-eyebrow" style="margin-bottom:4px;">Module 04</div>
+                            <div style="font-size:16px;font-weight:600;">Admin Insights</div>
+                            <p class="tab-desc">Benchmark philosophy and market data with agentic inputs.</p>
                         </button>
-                        <button type="button" class="studio-tab journey-step step-5" data-module-tab="sales360" aria-pressed="false">
-                            <div class="tab-eyebrow mb-2">Module 05</div>
-                            <div class="text-lg font-semibold">Sales 360 AI</div>
-                            <p class="tab-desc text-sm mt-2">Pipeline, comp, and coaching in one AI loop.</p>
+                        <button type="button" class="studio-tab step-5" data-module-tab="sales360" aria-pressed="false">
+                            <div class="tab-eyebrow" style="margin-bottom:4px;">Module 05</div>
+                            <div style="font-size:16px;font-weight:600;">Sales 360 AI</div>
+                            <p class="tab-desc">Pipeline, comp, and coaching in one AI loop.</p>
                         </button>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center gap-2 text-xs text-white/70">
-                    <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
                     Focus the page by selecting a module.
                 </div>
             </div>
-
-            <div id="studio-modules" class="mt-12">
-                <div class="studio-module" data-module-panel="draft">
-                    <div class="grid lg:grid-cols-2 gap-12">
-                <div class="bg-white p-8 rounded-2xl shadow-lg">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Provide your inputs</h3>
-
-                    <div id="plan-upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors cursor-pointer mb-6">
-                        <div class="text-lg font-medium text-gray-900 mb-2">Upload your product brief or plan notes</div>
-                        <div class="text-sm text-gray-500 mb-4">or click to browse files</div>
-                        <div class="text-xs text-gray-400">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
-                        <input type="file" id="plan-file-input" class="hidden" accept=".pdf,.docx,.xlsx,.txt">
-                    </div>
-
-                    <div id="plan-file-info" class="hidden mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span id="plan-file-name" class="text-green-700 font-medium"></span>
-                        </div>
-                    </div>
-
-                    <label for="plan-notes" class="block text-sm font-medium text-gray-700 mb-2">Business context</label>
-                    <textarea id="plan-notes" rows="4" class="w-full rounded-lg border border-gray-200 px-4 py-3 focus:border-blue-500 focus:outline-none mb-6" placeholder="Example: $25k ACV, 75-day cycle, hiring 4 AEs, target 20% margin."></textarea>
-
-                    <button id="plan-analyze-btn" onclick="startPlanBuild()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        Generate Plan Draft
-                    </button>
-                </div>
-
-                <div class="bg-white p-8 rounded-2xl shadow-lg">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">AI Output</h3>
-
-                    <div id="plan-results" class="hidden">
-                        <div class="bg-green-50 p-4 rounded-lg mb-6">
-                            <div class="flex items-center text-green-600">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span class="font-medium">Plan Draft Complete</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg demo-output text-sm mb-6">
-                            <div data-role="demo">
-                                <div class="mb-2">📌 COMP PLAN DRAFT PREVIEW</div>
-                                <div class="mb-2">═══════════════════════════════════════</div>
-                                <div>Role Mix: 4 AEs, 2 SDRs</div>
-                                <div>Quota Guidance: $600k per AE</div>
-                                <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
-                                <div>Commission Rate: 8% to 100%</div>
-                                <div class="my-2">─────────────────────────────────────</div>
-                                <div>Scenario Summary:</div>
-                                <div>• $1.2M revenue → 42% margin</div>
-                                <div>• $2.0M revenue → 45% margin</div>
-                                <div class="mt-4 p-3 bg-yellow-900 text-yellow-200 rounded">
-                                    ⚠️ PREVIEW MODE - Upgrade for full plan package
-                                </div>
-                            </div>
-                            <div class="hidden" data-role="paid">
-                                <div class="mb-2">📌 COMP PLAN DRAFT + ICM OUTPUT</div>
-                                <div class="mb-2">═══════════════════════════════════════</div>
-                                <div>Role Mix: 4 AEs, 2 SDRs, 1 Manager</div>
-                                <div>Quota Guidance: $600k per AE</div>
-                                <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
-                                <div>Commission Rate: 8% to 100% + 1.3x at 120%</div>
-                                <div class="my-2">─────────────────────────────────────</div>
-                                <div>Scenario Summary:</div>
-                                <div>• $1.2M revenue → 42% margin</div>
-                                <div>• $2.0M revenue → 45% margin</div>
-                                <div>• $3.0M revenue → 47% margin</div>
-                                <div class="my-2">─────────────────────────────────────</div>
-                                <div>ICM Objects: 12 with crediting, rates, and deposits</div>
-                                <div class="mt-4 p-3 bg-emerald-900 text-emerald-200 rounded">
-                                    ✅ FULL MODE - Exportable plan package ready
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <button onclick="showUpgradeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors" data-role="demo">
-                                Get Full Plan Package
-                            </button>
-                            <button onclick="showUpgradeModal()" class="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors hidden" data-role="paid">
-                                Download Plan Draft
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="plan-placeholder" class="text-center py-12">
-                        <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Generate a plan draft</h3>
-                        <p class="text-gray-500">Your AI-generated compensation plan will appear here</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    <!-- Founder Journey Module -->
-    <section class="studio-module hidden" data-module-panel="journey">
-        <div class="module-card px-8 py-10 md:px-12">
-            <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Entrepreneur Journey: From Product to Profitable Plan</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    You have a product and need help hiring reps and designing a selling plan. The agent holds your hand
-                    through plan selection, estimates commission cost by sales volume, and shows profit margin impact.
-                </p>
-            </div>
-
-            <div class="grid lg:grid-cols-2 gap-12">
-                <div class="space-y-6">
-                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                        <div class="flex items-center mb-3">
-                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">1</span>
-                            <h3 class="text-xl font-semibold text-gray-900">Describe your product and sales motion</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Share your product, ICP, pricing, ACV, and sales cycle so the agent understands the motion.
-                        </p>
-                    </div>
-
-                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                        <div class="flex items-center mb-3">
-                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">2</span>
-                            <h3 class="text-xl font-semibold text-gray-900">Identify plan options</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Compare base-plus-commission, tiered accelerators, and SPIFFs aligned to your product.
-                        </p>
-                    </div>
-
-                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                        <div class="flex items-center mb-3">
-                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">3</span>
-                            <h3 class="text-xl font-semibold text-gray-900">Model cost scenarios</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Estimate commission cost by sales volume and see profit margin impact before launch.
-                        </p>
-                    </div>
-
-                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                        <div class="flex items-center mb-3">
-                            <span class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center mr-3">4</span>
-                            <h3 class="text-xl font-semibold text-gray-900">Plan draft and simulation</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            Receive a draft plan, run scenarios, and refine before launch.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 rounded-2xl border border-gray-200 p-6">
-                    <div class="text-sm font-semibold text-gray-900 mb-4">Agentic Conversation</div>
-                    <div class="space-y-4 max-h-[420px] overflow-y-auto pr-2" data-role="demo">
-                        <div class="flex">
-                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
-                                <div class="text-sm text-gray-700">
-                                    We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-end">
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
-                                <div class="text-sm text-gray-700">
-                                    Great. What are ACV, sales cycle length, and target quota per AE?
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
-                                <div class="text-sm text-gray-700">
-                                    ACV is $25k, 75-day cycle, $600k annual quota, 50/50 pay mix.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-end">
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
-                                <div class="text-sm text-gray-700">
-                                    Drafting a plan with 8% commission to 100% and a 1.2x accelerator after 110%.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-900 text-gray-100 rounded-xl p-4 text-sm">
-                            <div class="font-semibold mb-2">Preview Plan Snapshot</div>
-                            <div>AE OTE: $140k (50/50)</div>
-                            <div>SDR OTE: $70k (60/40)</div>
-                            <div>Accelerator: 1.2x after 110%</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-sm">
-                            <div class="font-semibold text-gray-900 mb-2">Scenario Snapshot (Preview)</div>
-                            <div class="text-gray-600 mb-3">Estimated commission cost by sales volume.</div>
-                            <div class="grid grid-cols-3 gap-3 text-gray-700 text-xs uppercase tracking-wide">
-                                <div>Volume</div>
-                                <div>Comm Cost</div>
-                                <div>Margin</div>
-                            </div>
-                            <div class="mt-2 grid grid-cols-3 gap-3 text-gray-900">
-                                <div>$1.2M</div>
-                                <div>$96k</div>
-                                <div>42%</div>
-                            </div>
-                            <div class="mt-2 grid grid-cols-3 gap-3 text-gray-900">
-                                <div>$2.0M</div>
-                                <div>$174k</div>
-                                <div>45%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 max-h-[420px] overflow-y-auto pr-2 hidden" data-role="paid">
-                        <div class="flex">
-                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
-                                <div class="text-sm text-gray-700">
-                                    We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-end">
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
-                                <div class="text-sm text-gray-700">
-                                    What ACV, sales cycle, and target attainment curve should we model?
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
-                                <div class="text-sm text-gray-700">
-                                    ACV $25k, 75-day cycle, 60% of reps hit 90% quota by month 6.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-end">
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
-                                <div class="text-sm text-gray-700">
-                                    I will set a 3-month ramp, monthly quota schedule, and a draw with clawback.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="bg-white border border-gray-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-gray-500 mb-1">You</div>
-                                <div class="text-sm text-gray-700">
-                                    Add a 1.3x accelerator after 120% and a SPIFF for multi-year deals.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-end">
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md">
-                                <div class="text-xs font-semibold text-blue-700 mb-1">PlanLytics Agent</div>
-                                <div class="text-sm text-gray-700">
-                                    Done. Generating full ICM objects and compensation plan outputs.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">
-                            <div class="font-semibold mb-2">Full Plan Draft</div>
-                            <div>AE OTE: $140k (50/50), quota: $600k</div>
-                            <div>Accelerators: 1.1x at 105%, 1.3x at 120%</div>
-                            <div>SPIFF: 1% bonus for multi-year deals</div>
-                            <div>ICM Outputs: 12 objects, 4 crediting rules, 3 deposits</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 text-sm">
-                            <div class="font-semibold text-gray-900 mb-2">Scenario Snapshot (Full)</div>
-                            <div class="text-gray-600 mb-3">Commission cost and profit margin by sales volume.</div>
-                            <div class="grid grid-cols-4 gap-3 text-gray-700 text-xs uppercase tracking-wide">
-                                <div>Volume</div>
-                                <div>Comm Cost</div>
-                                <div>Margin</div>
-                                <div>Cost/Sale</div>
-                            </div>
-                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
-                                <div>$1.2M</div>
-                                <div>$96k</div>
-                                <div>42%</div>
-                                <div>$800</div>
-                            </div>
-                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
-                                <div>$2.0M</div>
-                                <div>$174k</div>
-                                <div>45%</div>
-                                <div>$725</div>
-                            </div>
-                            <div class="mt-2 grid grid-cols-4 gap-3 text-gray-900">
-                                <div>$3.0M</div>
-                                <div>$285k</div>
-                                <div>47%</div>
-                                <div>$675</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            </div>
         </div>
     </section>
 
-    <section class="studio-module hidden" data-module-panel="profit">
-        <div class="module-card px-8 py-10 md:px-12">
-            <div class="max-w-7xl mx-auto">
-            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Founder Profit Planner</h3>
-                        <p class="text-gray-600">Plug in unit economics and profit targets to size your sales plan.</p>
+    <!-- Studio Modules -->
+    <section class="section" id="studio-modules">
+        <div class="container">
+
+            <!-- Module 1: Draft Builder -->
+            <div class="studio-module" data-module-panel="draft">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:20px;">Provide your inputs</h3>
+                        <div class="upload-zone" id="plan-upload-area">
+                            <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Upload your product brief or plan notes</div>
+                            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">or click to browse files</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Supports PDF, DOCX, XLSX, TXT up to 10MB</div>
+                            <input type="file" id="plan-file-input" accept=".pdf,.docx,.xlsx,.txt">
+                        </div>
+                        <div id="plan-file-info" style="display:none;margin-top:16px;padding:12px 16px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+                            <span style="color:var(--accent-primary);font-weight:500;" id="plan-file-name"></span>
+                        </div>
+                        <label for="plan-notes" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin:16px 0 6px;">Business context</label>
+                        <textarea id="plan-notes" rows="4" placeholder="Example: $25k ACV, 75-day cycle, hiring 4 AEs, target 20% margin."></textarea>
+                        <button id="plan-analyze-btn" onclick="startPlanBuild()" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;">Generate Plan Draft</button>
                     </div>
-                    <div class="text-xs text-gray-500 uppercase tracking-wide">Commission as % of revenue</div>
-                </div>
-                <div class="flex flex-wrap gap-2 mb-6">
-                    <button type="button" class="market-chip is-active" data-planner-preset="startup">SaaS Starter</button>
-                    <button type="button" class="market-chip" data-planner-preset="growth">Growth Motion</button>
-                    <button type="button" class="market-chip" data-planner-preset="enterprise">Enterprise Motion</button>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <form id="profit-form" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="input-price" class="block text-sm font-medium text-gray-700 mb-2">Product price ($)</label>
-                                <input id="input-price" type="number" min="0" step="0.01" value="10" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="input-cost" class="block text-sm font-medium text-gray-700 mb-2">Product cost ($)</label>
-                                <input id="input-cost" type="number" min="0" step="0.01" value="4" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="input-expenses" class="block text-sm font-medium text-gray-700 mb-2">Annual fixed expenses ($)</label>
-                            <input id="input-expenses" type="number" min="0" step="1000" value="100000" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="input-margin" class="block text-sm font-medium text-gray-700 mb-2">Target profit margin (%)</label>
-                                <input id="input-margin" type="number" min="0" max="80" step="0.1" value="20" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="input-commission" class="block text-sm font-medium text-gray-700 mb-2">Commission rate (%)</label>
-                                <input id="input-commission" type="number" min="0" max="40" step="0.1" value="8" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="input-sales-per-rep" class="block text-sm font-medium text-gray-700 mb-2">Annual sales per rep ($)</label>
-                                <input id="input-sales-per-rep" type="number" min="0" step="1000" value="600000" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="input-reps" class="block text-sm font-medium text-gray-700 mb-2">Planned reps (optional)</label>
-                                <input id="input-reps" type="number" min="0" step="1" placeholder="e.g. 4" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                        </div>
-                    </form>
-
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Required revenue</div>
-                            <div id="output-revenue" class="text-2xl font-semibold text-gray-900">$0</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Units to sell</div>
-                            <div id="output-units" class="text-2xl font-semibold text-gray-900">0</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Commission budget</div>
-                            <div id="output-commission" class="text-2xl font-semibold text-gray-900">$0</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Commission per sale</div>
-                            <div id="output-commission-per-sale" class="text-2xl font-semibold text-gray-900">$0</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Reps needed</div>
-                            <div id="output-reps" class="text-2xl font-semibold text-gray-900">0</div>
-                            <div class="text-xs text-gray-500 mt-1">Based on sales per rep</div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Sales per rep needed</div>
-                            <div id="output-sales-per-rep" class="text-2xl font-semibold text-gray-900">$0</div>
-                            <div class="text-xs text-gray-500 mt-1">Based on planned reps</div>
-                        </div>
-                    </div>
-                </div>
-
-                <p id="calc-error" class="hidden text-sm text-red-600 mt-4">
-                    Check inputs. Target margin + commission rate must be less than gross margin.
-                </p>
-
-                <div class="mt-8">
-                    <div class="text-sm font-semibold text-gray-900 mb-2">Scenario by sales volume</div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm">
-                            <thead>
-                                <tr class="text-left text-gray-500 uppercase tracking-wide text-xs">
-                                    <th class="py-2 pr-4">Revenue</th>
-                                    <th class="py-2 pr-4">Commission cost</th>
-                                    <th class="py-2 pr-4">Profit margin</th>
-                                    <th class="py-2">Profit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scenario-body" class="text-gray-700"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section class="studio-module hidden" data-module-panel="admin">
-        <div class="module-card px-8 py-10 md:px-12">
-            <div class="max-w-7xl mx-auto space-y-12">
-            <div class="bg-white border border-gray-200 rounded-2xl p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Compensation Philosophy Framework</h3>
-                        <p class="text-gray-600">A structured way to build plans that are fair, competitive, and scalable.</p>
-                    </div>
-                    <div class="text-xs text-gray-500 uppercase tracking-wide">Your philosophy</div>
-                </div>
-
-                <div class="grid lg:grid-cols-3 gap-6">
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-1">
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm font-semibold text-gray-900">1. Job Analysis and Evaluation</div>
-                                <span class="indicator text-indigo-500 text-lg">+</span>
-                            </div>
-                            <p class="text-gray-600 mt-2">
-                                Define roles, responsibilities, and impact. Map levels and career paths to ensure internal equity.
-                            </p>
-                        </button>
-                        <div id="philosophy-1" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Role clarity and scope alignment</li>
-                                <li>Leveling and career progression</li>
-                                <li>Internal equity checkpoints</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-2">
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm font-semibold text-gray-900">2. Market Data Benchmarking</div>
-                                <span class="indicator text-indigo-500 text-lg">+</span>
-                            </div>
-                            <p class="text-gray-600 mt-2">
-                                Gather salary data for similar roles by industry, location, and company size to set competitive ranges.
-                            </p>
-                        </button>
-                        <div id="philosophy-2" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Percentile bands by role and region</li>
-                                <li>Pay mix alignment to market norms</li>
-                                <li>Offer competitiveness signals</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                        <button type="button" class="w-full text-left philosophy-toggle" data-panel="philosophy-3">
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm font-semibold text-gray-900">3. Design the Compensation Structure</div>
-                                <span class="indicator text-indigo-500 text-lg">+</span>
-                            </div>
-                            <p class="text-gray-600 mt-2">
-                                Choose pay mix, incentives, accelerators, and guardrails aligned to performance and budget goals.
-                            </p>
-                        </button>
-                        <div id="philosophy-3" class="philosophy-panel hidden mt-4 text-sm text-gray-600">
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Quota, accelerators, and caps</li>
-                                <li>Ramp guarantees and draws</li>
-                                <li>Governance and compliance checks</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-2xl p-8">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-gray-900">Compensation Admin Market Analysis</h3>
-                        <p class="text-gray-600">Benchmark plan competitiveness with market data and role norms.</p>
-                    </div>
-                    <div class="text-xs text-gray-500 uppercase tracking-wide">Market signals</div>
-                </div>
-
-                <div id="market-lens" class="flex flex-wrap gap-2 mb-8">
-                    <button type="button" class="market-chip is-active" data-market="startup">Startup</button>
-                    <button type="button" class="market-chip" data-market="growth">Growth</button>
-                    <button type="button" class="market-chip" data-market="enterprise">Enterprise</button>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <div class="space-y-4">
-                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide mb-3">AI Agentic Interaction</div>
-                            <div class="space-y-4">
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide mb-2">Agent prompt</div>
-                                    <p class="text-sm text-slate-700">
-                                        Tell me your stage, roles, region, industry, plan type, and quota so I can benchmark your plan.
-                                    </p>
+                    <div class="card">
+                        <h3 style="margin-bottom:20px;">AI Output</h3>
+                        <div id="plan-results" style="display:none;">
+                            <div style="padding:12px 16px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);margin-bottom:16px;font-size:14px;font-weight:500;color:var(--accent-primary);">Plan Draft Complete</div>
+                            <div class="demo-output" style="margin-bottom:16px;">
+                                <div data-role="demo">
+                                    <div style="margin-bottom:4px;">COMP PLAN DRAFT PREVIEW</div>
+                                    <div style="margin-bottom:4px;color:var(--text-muted);">===================================</div>
+                                    <div>Role Mix: 4 AEs, 2 SDRs</div>
+                                    <div>Quota Guidance: $600k per AE</div>
+                                    <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
+                                    <div>Commission Rate: 8% to 100%</div>
+                                    <div style="margin:4px 0;color:var(--text-muted);">-----------------------------------</div>
+                                    <div>Scenario Summary:</div>
+                                    <div>&bull; $1.2M revenue &rarr; 42% margin</div>
+                                    <div>&bull; $2.0M revenue &rarr; 45% margin</div>
+                                    <div style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(245,158,11,0.15);color:var(--accent-amber);font-size:12px;">PREVIEW MODE &mdash; Upgrade for full plan package</div>
                                 </div>
-                                <div class="grid sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label for="agent-stage" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Stage</label>
-                                        <select id="agent-stage" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                            <option value="startup">Startup</option>
-                                            <option value="growth">Growth</option>
-                                            <option value="enterprise">Enterprise</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="agent-roles" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Roles</label>
-                                        <input id="agent-roles" type="text" value="Mid-market AE, SDR" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label for="agent-region" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Region</label>
-                                        <input id="agent-region" type="text" value="North America" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label for="agent-industry" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Industry</label>
-                                        <input id="agent-industry" type="text" value="Fintech SaaS" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label for="agent-plan" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Plan type</label>
-                                        <input id="agent-plan" type="text" value="Base + commission with accelerators" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label for="agent-quota" class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Quota</label>
-                                        <input id="agent-quota" type="text" value="$600k annual" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                </div>
-                                <button id="agent-generate" type="button" class="w-full bg-gray-900 text-white py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                                    Generate Market Analysis
-                                </button>
-                                <div id="agent-status" class="hidden text-xs text-emerald-600">
-                                    ✅ Market analysis updated from agentic inputs.
+                                <div style="display:none;" data-role="paid">
+                                    <div style="margin-bottom:4px;">COMP PLAN DRAFT + ICM OUTPUT</div>
+                                    <div style="margin-bottom:4px;color:var(--text-muted);">===================================</div>
+                                    <div>Role Mix: 4 AEs, 2 SDRs, 1 Manager</div>
+                                    <div>Quota Guidance: $600k per AE</div>
+                                    <div>Pay Mix: 50/50 AE, 60/40 SDR</div>
+                                    <div>Commission Rate: 8% to 100% + 1.3x at 120%</div>
+                                    <div style="margin:4px 0;color:var(--text-muted);">-----------------------------------</div>
+                                    <div>Scenario Summary:</div>
+                                    <div>&bull; $1.2M revenue &rarr; 42% margin</div>
+                                    <div>&bull; $2.0M revenue &rarr; 45% margin</div>
+                                    <div>&bull; $3.0M revenue &rarr; 47% margin</div>
+                                    <div style="margin:4px 0;color:var(--text-muted);">-----------------------------------</div>
+                                    <div>ICM Objects: 12 with crediting, rates, and deposits</div>
+                                    <div style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(16,185,129,0.15);color:var(--accent-primary);font-size:12px;">FULL MODE &mdash; Exportable plan package ready</div>
                                 </div>
                             </div>
+                            <button onclick="showUpgradeModal()" class="btn btn-primary" style="width:100%;justify-content:center;" data-role="demo">Get Full Plan Package</button>
+                            <button onclick="showUpgradeModal()" class="btn" style="width:100%;justify-content:center;background:var(--bg-dark);display:none;" data-role="paid">Download Plan Draft</button>
                         </div>
-
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Market inputs</div>
-                            <ul class="mt-3 space-y-2 text-gray-700">
-                                <li>Role: <span class="font-semibold text-gray-900" data-market-role>Mid-market AE, SDR</span></li>
-                                <li>Region: <span class="font-semibold text-gray-900" data-market-region>North America</span></li>
-                                <li>Industry: <span class="font-semibold text-gray-900" data-market-industry>Fintech SaaS</span></li>
-                                <li>Stage: <span class="font-semibold text-gray-900" data-market-label>Startup</span></li>
-                                <li>Plan type: <span class="font-semibold text-gray-900" data-market-plan>Base + commission with accelerators</span></li>
-                                <li>Quota: <span class="font-semibold text-gray-900" data-market-quota>$600k annual</span></li>
-                            </ul>
-                        </div>
-
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4" data-role="demo">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Preview insights</div>
-                            <div class="market-insights mt-3 space-y-2 text-gray-700" data-market="startup">
-                                <div>OTE aligned to 55th percentile</div>
-                                <div>Variable mix slightly below market median</div>
-                                <div>Accelerator starts later than peers</div>
-                            </div>
-                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="growth">
-                                <div>OTE aligned to 60th percentile</div>
-                                <div>Ramp guarantees common for first 2 quarters</div>
-                                <div>Accelerators begin at 105%</div>
-                            </div>
-                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="enterprise">
-                                <div>OTE aligned to 65th percentile</div>
-                                <div>Higher base mix to reduce volatility</div>
-                                <div>Formal clawback language expected</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 hidden" data-role="paid">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Full insights</div>
-                            <div class="market-insights mt-3 space-y-2 text-gray-700" data-market="startup">
-                                <div>OTE at 60th percentile with 50/50 mix target</div>
-                                <div>Accelerators begin at 105% with 1.2x to 1.4x rates</div>
-                                <div>75% of peer plans include a Q1 ramp guarantee</div>
-                                <div>Clawback language present in 40% of peer plans</div>
-                            </div>
-                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="growth">
-                                <div>OTE at 65th percentile with 50/50 mix target</div>
-                                <div>Accelerators begin at 100% with 1.3x to 1.5x rates</div>
-                                <div>Monthly payout cadence favored by 70% of peers</div>
-                                <div>SPIFs used in 55% of plans for new product launches</div>
-                            </div>
-                            <div class="market-insights hidden mt-3 space-y-2 text-gray-700" data-market="enterprise">
-                                <div>OTE at 70th percentile with 55/45 mix target</div>
-                                <div>Accelerators begin at 100% with 1.4x to 1.6x rates</div>
-                                <div>Territory protection clauses present in 60% of plans</div>
-                                <div>Quarterly payout true-ups standard for 65% of peers</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Benchmark snapshot</div>
-                            <div class="text-xs text-gray-400 uppercase tracking-wide">Lens: <span data-market-label>Startup</span></div>
-                        </div>
-                        <div class="mt-4 overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                <thead>
-                                    <tr class="text-left text-gray-500 uppercase tracking-wide text-xs">
-                                        <th class="py-2 pr-4">Role</th>
-                                        <th class="py-2 pr-4">Base</th>
-                                        <th class="py-2 pr-4">Variable</th>
-                                        <th class="py-2 pr-4">OTE</th>
-                                        <th class="py-2">Mix</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-gray-700">
-                                    <tr class="border-t border-gray-200">
-                                        <td class="py-2 pr-4 text-gray-900">SDR</td>
-                                        <td class="py-2 pr-4">$45k</td>
-                                        <td class="py-2 pr-4">$25k</td>
-                                        <td class="py-2 pr-4">$70k</td>
-                                        <td class="py-2">65/35</td>
-                                    </tr>
-                                    <tr class="border-t border-gray-200" data-role="demo">
-                                        <td class="py-2 pr-4 text-gray-900">AE</td>
-                                        <td class="py-2 pr-4">$70k</td>
-                                        <td class="py-2 pr-4">$70k</td>
-                                        <td class="py-2 pr-4">$140k</td>
-                                        <td class="py-2">50/50</td>
-                                    </tr>
-                                    <tr class="border-t border-gray-200 hidden" data-role="paid">
-                                        <td class="py-2 pr-4 text-gray-900">Enterprise AE</td>
-                                        <td class="py-2 pr-4">$95k</td>
-                                        <td class="py-2 pr-4">$105k</td>
-                                        <td class="py-2 pr-4">$200k</td>
-                                        <td class="py-2">48/52</td>
-                                    </tr>
-                                    <tr class="border-t border-gray-200 hidden" data-role="paid">
-                                        <td class="py-2 pr-4 text-gray-900">Manager</td>
-                                        <td class="py-2 pr-4">$110k</td>
-                                        <td class="py-2 pr-4">$40k</td>
-                                        <td class="py-2 pr-4">$150k</td>
-                                        <td class="py-2">73/27</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-600" data-role="demo">
-                            Preview includes core benchmarks only. Paid access adds percentile bands and geo splits.
-                        </div>
-                        <div class="mt-4 text-sm text-gray-600 hidden" data-role="paid">
-                            Includes percentile bands, geo splits, and plan compliance benchmarks.
+                        <div id="plan-placeholder" style="text-align:center;padding:48px 0;">
+                            <svg style="width:64px;height:64px;margin:0 auto 12px;display:block;color:var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <h4 style="margin-bottom:6px;">Generate a plan draft</h4>
+                            <p style="font-size:14px;">Your AI-generated compensation plan will appear here</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <section class="studio-module hidden" data-module-panel="sales360">
-        <div class="module-card px-8 py-10 md:px-12">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-                    <div class="space-y-5">
-                        <div class="text-xs uppercase tracking-[0.3em] text-indigo-500">Sales 360 AI</div>
-                        <h3 class="text-3xl md:text-4xl font-bold text-gray-900">
-                            End-to-end revenue intelligence, synced with Plan Studio.
-                        </h3>
-                        <p class="text-lg text-gray-600">
-                            Connect pipeline quality, forecast confidence, and commission exposure in one AI loop. Keep
-                            sales leadership, finance, and reps aligned with a living plan.
+            <!-- Module 2: Founder Journey -->
+            <div class="studio-module" style="display:none;" data-module-panel="journey">
+                <div class="card-glass" style="padding:32px;">
+                    <div style="text-align:center;margin-bottom:32px;">
+                        <h2 style="margin-bottom:8px;">Entrepreneur Journey: From Product to Profitable Plan</h2>
+                        <p style="max-width:640px;margin:0 auto;font-size:16px;">
+                            You have a product and need help hiring reps and designing a selling plan. The agent holds your hand
+                            through plan selection, estimates commission cost by sales volume, and shows profit margin impact.
                         </p>
-                        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 text-sm text-gray-700">
-                            <div class="text-xs uppercase tracking-[0.25em] text-indigo-500 mb-2">Founder lens</div>
-                            <ul class="space-y-2">
-                                <li>Know if your pipeline supports the next hire before you spend.</li>
-                                <li>See commission exposure and margin impact in real time.</li>
-                                <li>Get weekly founder-ready summaries without spreadsheets.</li>
-                            </ul>
-                        </div>
-                        <div class="grid sm:grid-cols-2 gap-3 text-sm text-gray-600">
-                            <div class="bg-white border border-gray-200 rounded-xl p-4">
-                                Signal scoring across pipeline, renewals, and churn risk.
+                    </div>
+                    <div class="grid-2">
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div class="info-card" style="display:flex;align-items:flex-start;gap:12px;">
+                                <span style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:600;color:var(--accent-primary);">1</span>
+                                <div><h4 style="margin-bottom:4px;">Describe your product and sales motion</h4><p style="font-size:13px;">Share your product, ICP, pricing, ACV, and sales cycle.</p></div>
                             </div>
-                            <div class="bg-white border border-gray-200 rounded-xl p-4">
-                                Forecast scenarios mapped to comp and margin impact.
+                            <div class="info-card" style="display:flex;align-items:flex-start;gap:12px;">
+                                <span style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:600;color:var(--accent-primary);">2</span>
+                                <div><h4 style="margin-bottom:4px;">Identify plan options</h4><p style="font-size:13px;">Compare base-plus-commission, tiered accelerators, and SPIFFs.</p></div>
                             </div>
-                            <div class="bg-white border border-gray-200 rounded-xl p-4">
-                                Coaching plays and quota updates triggered automatically.
+                            <div class="info-card" style="display:flex;align-items:flex-start;gap:12px;">
+                                <span style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:600;color:var(--accent-primary);">3</span>
+                                <div><h4 style="margin-bottom:4px;">Model cost scenarios</h4><p style="font-size:13px;">Estimate commission cost by sales volume and see profit margin impact.</p></div>
                             </div>
-                            <div class="bg-white border border-gray-200 rounded-xl p-4">
-                                Board-ready Sales 360 summaries every week.
+                            <div class="info-card" style="display:flex;align-items:flex-start;gap:12px;">
+                                <span style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:600;color:var(--accent-primary);">4</span>
+                                <div><h4 style="margin-bottom:4px;">Plan draft and simulation</h4><p style="font-size:13px;">Receive a draft plan, run scenarios, and refine before launch.</p></div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap gap-3 pt-2">
-                            <a href="sales-360-ai.html" class="bg-gray-900 text-white px-5 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                                Explore Sales 360 AI
-                            </a>
-                            <button class="border border-gray-300 text-gray-700 px-5 py-3 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors font-semibold">
-                                Book a 360 demo
-                            </button>
+                        <div class="card" style="max-height:460px;overflow-y:auto;">
+                            <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Agentic Conversation</div>
+                            <div style="display:flex;flex-direction:column;gap:10px;" data-role="demo">
+                                <div class="chat-bubble chat-user"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">You</div>We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.</div>
+                                <div class="chat-bubble chat-agent" style="align-self:flex-end;"><div style="font-size:11px;font-weight:600;color:var(--accent-primary);margin-bottom:4px;">PlanLytics Agent</div>Great. What are ACV, sales cycle length, and target quota per AE?</div>
+                                <div class="chat-bubble chat-user"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">You</div>ACV is $25k, 75-day cycle, $600k annual quota, 50/50 pay mix.</div>
+                                <div class="chat-bubble chat-agent" style="align-self:flex-end;"><div style="font-size:11px;font-weight:600;color:var(--accent-primary);margin-bottom:4px;">PlanLytics Agent</div>Drafting a plan with 8% commission to 100% and a 1.2x accelerator after 110%.</div>
+                                <div class="demo-output"><div style="font-weight:600;margin-bottom:4px;">Preview Plan Snapshot</div><div>AE OTE: $140k (50/50)</div><div>SDR OTE: $70k (60/40)</div><div>Accelerator: 1.2x after 110%</div></div>
+                                <div class="info-card"><div style="font-weight:600;margin-bottom:4px;">Scenario Snapshot (Preview)</div><div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Estimated commission cost by sales volume.</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);"><span>Volume</span><span>Comm Cost</span><span>Margin</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:13px;margin-top:4px;"><span>$1.2M</span><span>$96k</span><span>42%</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:13px;margin-top:4px;"><span>$2.0M</span><span>$174k</span><span>45%</span></div></div>
+                            </div>
+                            <div style="display:none;flex-direction:column;gap:10px;" data-role="paid">
+                                <div class="chat-bubble chat-user"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">You</div>We sell compliance SaaS to fintechs and are hiring 4 AEs and 2 SDRs in Q1.</div>
+                                <div class="chat-bubble chat-agent" style="align-self:flex-end;"><div style="font-size:11px;font-weight:600;color:var(--accent-primary);margin-bottom:4px;">PlanLytics Agent</div>What ACV, sales cycle, and target attainment curve should we model?</div>
+                                <div class="chat-bubble chat-user"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">You</div>ACV $25k, 75-day cycle, 60% of reps hit 90% quota by month 6.</div>
+                                <div class="chat-bubble chat-agent" style="align-self:flex-end;"><div style="font-size:11px;font-weight:600;color:var(--accent-primary);margin-bottom:4px;">PlanLytics Agent</div>I will set a 3-month ramp, monthly quota schedule, and a draw with clawback.</div>
+                                <div class="chat-bubble chat-user"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">You</div>Add a 1.3x accelerator after 120% and a SPIFF for multi-year deals.</div>
+                                <div class="chat-bubble chat-agent" style="align-self:flex-end;"><div style="font-size:11px;font-weight:600;color:var(--accent-primary);margin-bottom:4px;">PlanLytics Agent</div>Done. Generating full ICM objects and compensation plan outputs.</div>
+                                <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:13px;"><div style="font-weight:600;margin-bottom:4px;">Full Plan Draft</div><div>AE OTE: $140k (50/50), quota: $600k</div><div>Accelerators: 1.1x at 105%, 1.3x at 120%</div><div>SPIFF: 1% bonus for multi-year deals</div><div>ICM Outputs: 12 objects, 4 crediting rules, 3 deposits</div></div>
+                                <div class="info-card"><div style="font-weight:600;margin-bottom:4px;">Scenario Snapshot (Full)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);"><span>Volume</span><span>Comm</span><span>Margin</span><span>Cost/Sale</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;font-size:13px;margin-top:4px;"><span>$1.2M</span><span>$96k</span><span>42%</span><span>$800</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;font-size:13px;margin-top:4px;"><span>$2.0M</span><span>$174k</span><span>45%</span><span>$725</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;font-size:13px;margin-top:4px;"><span>$3.0M</span><span>$285k</span><span>47%</span><span>$675</span></div></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs uppercase tracking-[0.3em] text-gray-400">Live scenario</div>
-                            <div id="s360-health-label" class="text-xs font-semibold text-emerald-600">Health 0%</div>
-                        </div>
-                        <form id="sales360-form" class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
-                            <div>
-                                <label for="s360-pipeline" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Pipeline ($)</label>
-                                <input id="s360-pipeline" type="number" min="0" step="1000" value="12400000" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Module 3: Profit Planner -->
+            <div class="studio-module" style="display:none;" data-module-panel="profit">
+                <div class="card-glass" style="padding:32px;">
+                    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;">
+                        <div><h3 style="margin-bottom:4px;">Founder Profit Planner</h3><p style="font-size:14px;">Plug in unit economics and profit targets to size your sales plan.</p></div>
+                        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Commission as % of revenue</div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+                        <button type="button" class="market-chip is-active" data-planner-preset="startup">SaaS Starter</button>
+                        <button type="button" class="market-chip" data-planner-preset="growth">Growth Motion</button>
+                        <button type="button" class="market-chip" data-planner-preset="enterprise">Enterprise Motion</button>
+                    </div>
+                    <div class="grid-2">
+                        <form id="profit-form" style="display:flex;flex-direction:column;gap:12px;">
+                            <div class="grid-2">
+                                <div><label for="input-price" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Product price ($)</label><input id="input-price" type="number" min="0" step="0.01" value="10"></div>
+                                <div><label for="input-cost" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Product cost ($)</label><input id="input-cost" type="number" min="0" step="0.01" value="4"></div>
                             </div>
-                            <div>
-                                <label for="s360-winrate" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Win rate (%)</label>
-                                <input id="s360-winrate" type="number" min="0" max="100" step="0.1" value="28" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            <div><label for="input-expenses" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Annual fixed expenses ($)</label><input id="input-expenses" type="number" min="0" step="1000" value="100000"></div>
+                            <div class="grid-2">
+                                <div><label for="input-margin" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Target profit margin (%)</label><input id="input-margin" type="number" min="0" max="80" step="0.1" value="20"></div>
+                                <div><label for="input-commission" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Commission rate (%)</label><input id="input-commission" type="number" min="0" max="40" step="0.1" value="8"></div>
                             </div>
-                            <div>
-                                <label for="s360-deal" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Avg deal size ($)</label>
-                                <input id="s360-deal" type="number" min="0" step="1000" value="50000" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="s360-cycle" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Sales cycle (days)</label>
-                                <input id="s360-cycle" type="number" min="0" step="1" value="78" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="s360-reps" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Active reps</label>
-                                <input id="s360-reps" type="number" min="1" step="1" value="12" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label for="s360-comp" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Comp rate (%)</label>
-                                <input id="s360-comp" type="number" min="0" max="30" step="0.1" value="8.2" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label for="s360-margin" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Gross margin (%)</label>
-                                <input id="s360-margin" type="number" min="0" max="100" step="0.1" value="72" class="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                            <div class="grid-2">
+                                <div><label for="input-sales-per-rep" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Annual sales per rep ($)</label><input id="input-sales-per-rep" type="number" min="0" step="1000" value="600000"></div>
+                                <div><label for="input-reps" style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Planned reps (optional)</label><input id="input-reps" type="number" min="0" step="1" placeholder="e.g. 4"></div>
                             </div>
                         </form>
-                        <div class="bg-gray-900 text-white rounded-2xl p-4">
-                            <div class="text-xs uppercase tracking-[0.3em] text-gray-300 mb-2">Forecast</div>
-                            <div id="s360-forecast" class="text-3xl font-semibold">$0</div>
-                            <div class="mt-3 h-2 rounded-full bg-white/10">
-                                <div id="s360-health-bar" class="h-2 rounded-full bg-emerald-400" style="width: 0%;"></div>
-                            </div>
+                        <div class="grid-2">
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Required revenue</div><div id="output-revenue" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">$0</div></div>
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Units to sell</div><div id="output-units" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">0</div></div>
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Commission budget</div><div id="output-commission" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">$0</div></div>
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Commission per sale</div><div id="output-commission-per-sale" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">$0</div></div>
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Reps needed</div><div id="output-reps" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">0</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Based on sales per rep</div></div>
+                            <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Sales per rep needed</div><div id="output-sales-per-rep" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--text-primary);margin-top:4px;">$0</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Based on planned reps</div></div>
                         </div>
-                        <div class="grid sm:grid-cols-2 gap-3 text-sm">
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Expected deals</div>
-                                <div id="s360-deals" class="text-xl font-semibold text-gray-900">0</div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Quota per rep</div>
-                                <div id="s360-quota" class="text-xl font-semibold text-gray-900">$0</div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Commission exposure</div>
-                                <div id="s360-commission" class="text-xl font-semibold text-gray-900">$0</div>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                <div class="text-xs uppercase tracking-[0.25em] text-gray-400 mb-1">Margin after comp</div>
-                                <div id="s360-margin-after" class="text-xl font-semibold text-gray-900">0%</div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                            <div class="text-xs uppercase tracking-[0.25em] text-gray-500 mb-3">Risk signals</div>
-                            <div class="grid sm:grid-cols-2 gap-2 text-xs text-gray-600">
-                                <label class="flex items-start gap-2"><input id="s360-risk-stall" type="checkbox" class="mt-1"> Deals stalled &gt; 45 days</label>
-                                <label class="flex items-start gap-2"><input id="s360-risk-slip" type="checkbox" class="mt-1" checked> Late-stage slip &gt; 15%</label>
-                                <label class="flex items-start gap-2"><input id="s360-risk-activity" type="checkbox" class="mt-1" checked> Low activity touches</label>
-                                <label class="flex items-start gap-2"><input id="s360-risk-renewal" type="checkbox" class="mt-1"> Renewal risk rising</label>
-                            </div>
-                            <div class="mt-3 text-xs text-gray-500">Risks flagged: <span id="s360-risk-count">0</span></div>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                            <div class="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Coaching focus</div>
-                            <ul id="s360-coaching" class="text-sm text-gray-700 list-disc pl-5 space-y-1"></ul>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <button id="s360-generate" type="button" class="bg-gray-900 text-white px-5 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                                Generate Sales 360 Brief
-                            </button>
-                            <a href="sales-360-ai.html" class="border border-gray-300 text-gray-700 px-5 py-3 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors font-semibold">
-                                Full offering
-                            </a>
-                            <span id="s360-status" class="hidden text-xs text-emerald-600">✅ Brief refreshed.</span>
+                    </div>
+                    <p id="calc-error" style="display:none;font-size:13px;color:var(--accent-rose);margin-top:12px;">Check inputs. Target margin + commission rate must be less than gross margin.</p>
+                    <div style="margin-top:24px;">
+                        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Scenario by sales volume</div>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                                <thead><tr style="color:var(--text-muted);font-size:11px;letter-spacing:2px;text-transform:uppercase;"><th style="padding:8px 12px 8px 0;text-align:left;">Revenue</th><th style="padding:8px 12px 8px 0;text-align:left;">Commission cost</th><th style="padding:8px 12px 8px 0;text-align:left;">Profit margin</th><th style="padding:8px 0;text-align:left;">Profit</th></tr></thead>
+                                <tbody id="scenario-body" style="color:var(--text-secondary);"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+
+            <!-- Module 4: Admin Insights (abbreviated for space — philosophy + market) -->
+            <div class="studio-module" style="display:none;" data-module-panel="admin">
+                <div style="display:flex;flex-direction:column;gap:24px;">
+                    <div class="card-glass" style="padding:32px;">
+                        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;">
+                            <div><h3 style="margin-bottom:4px;">Compensation Philosophy Framework</h3><p style="font-size:14px;">A structured way to build plans that are fair, competitive, and scalable.</p></div>
+                            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Your philosophy</div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="info-card">
+                                <button type="button" style="width:100%;text-align:left;background:none;border:none;color:inherit;cursor:pointer;font-family:inherit;padding:0;" class="philosophy-toggle" data-panel="philosophy-1">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:14px;font-weight:600;color:var(--text-primary);">1. Job Analysis and Evaluation</div><span class="indicator" style="color:var(--accent-primary);font-size:18px;">+</span></div>
+                                    <p style="margin-top:6px;font-size:13px;">Define roles, responsibilities, and impact. Map levels and career paths to ensure internal equity.</p>
+                                </button>
+                                <div id="philosophy-1" style="display:none;margin-top:12px;font-size:13px;color:var(--text-secondary);"><ul style="list-style:disc;padding-left:16px;display:flex;flex-direction:column;gap:4px;"><li>Role clarity and scope alignment</li><li>Leveling and career progression</li><li>Internal equity checkpoints</li></ul></div>
+                            </div>
+                            <div class="info-card">
+                                <button type="button" style="width:100%;text-align:left;background:none;border:none;color:inherit;cursor:pointer;font-family:inherit;padding:0;" class="philosophy-toggle" data-panel="philosophy-2">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:14px;font-weight:600;color:var(--text-primary);">2. Market Data Benchmarking</div><span class="indicator" style="color:var(--accent-primary);font-size:18px;">+</span></div>
+                                    <p style="margin-top:6px;font-size:13px;">Gather salary data for similar roles by industry, location, and company size.</p>
+                                </button>
+                                <div id="philosophy-2" style="display:none;margin-top:12px;font-size:13px;color:var(--text-secondary);"><ul style="list-style:disc;padding-left:16px;display:flex;flex-direction:column;gap:4px;"><li>Percentile bands by role and region</li><li>Pay mix alignment to market norms</li><li>Offer competitiveness signals</li></ul></div>
+                            </div>
+                            <div class="info-card">
+                                <button type="button" style="width:100%;text-align:left;background:none;border:none;color:inherit;cursor:pointer;font-family:inherit;padding:0;" class="philosophy-toggle" data-panel="philosophy-3">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:14px;font-weight:600;color:var(--text-primary);">3. Design the Compensation Structure</div><span class="indicator" style="color:var(--accent-primary);font-size:18px;">+</span></div>
+                                    <p style="margin-top:6px;font-size:13px;">Choose pay mix, incentives, accelerators, and guardrails aligned to goals.</p>
+                                </button>
+                                <div id="philosophy-3" style="display:none;margin-top:12px;font-size:13px;color:var(--text-secondary);"><ul style="list-style:disc;padding-left:16px;display:flex;flex-direction:column;gap:4px;"><li>Quota, accelerators, and caps</li><li>Ramp guarantees and draws</li><li>Governance and compliance checks</li></ul></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Analysis -->
+                    <div class="card-glass" style="padding:32px;">
+                        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;">
+                            <div><h3 style="margin-bottom:4px;">Compensation Admin Market Analysis</h3><p style="font-size:14px;">Benchmark plan competitiveness with market data and role norms.</p></div>
+                            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Market signals</div>
+                        </div>
+                        <div id="market-lens" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+                            <button type="button" class="market-chip is-active" data-market="startup">Startup</button>
+                            <button type="button" class="market-chip" data-market="growth">Growth</button>
+                            <button type="button" class="market-chip" data-market="enterprise">Enterprise</button>
+                        </div>
+                        <div class="grid-2">
+                            <div style="display:flex;flex-direction:column;gap:12px;">
+                                <div class="card">
+                                    <div class="label" style="font-size:10px;margin-bottom:12px;">AI Agentic Interaction</div>
+                                    <div class="info-card" style="margin-bottom:12px;"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Agent prompt</div><p style="font-size:13px;">Tell me your stage, roles, region, industry, plan type, and quota so I can benchmark your plan.</p></div>
+                                    <div class="grid-2" style="margin-bottom:12px;">
+                                        <div><label for="agent-stage" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Stage</label><select id="agent-stage"><option value="startup">Startup</option><option value="growth">Growth</option><option value="enterprise">Enterprise</option></select></div>
+                                        <div><label for="agent-roles" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Roles</label><input id="agent-roles" type="text" value="Mid-market AE, SDR"></div>
+                                        <div><label for="agent-region" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Region</label><input id="agent-region" type="text" value="North America"></div>
+                                        <div><label for="agent-industry" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Industry</label><input id="agent-industry" type="text" value="Fintech SaaS"></div>
+                                        <div><label for="agent-plan" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Plan type</label><input id="agent-plan" type="text" value="Base + commission with accelerators"></div>
+                                        <div><label for="agent-quota" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Quota</label><input id="agent-quota" type="text" value="$600k annual"></div>
+                                    </div>
+                                    <button id="agent-generate" type="button" class="btn btn-primary" style="width:100%;justify-content:center;">Generate Market Analysis</button>
+                                    <div id="agent-status" style="display:none;font-size:12px;color:var(--accent-primary);margin-top:8px;">Market analysis updated from agentic inputs.</div>
+                                </div>
+                                <div class="info-card">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Market inputs</div>
+                                    <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;">
+                                        <li>Role: <span style="font-weight:600;color:var(--text-primary);" data-market-role>Mid-market AE, SDR</span></li>
+                                        <li>Region: <span style="font-weight:600;color:var(--text-primary);" data-market-region>North America</span></li>
+                                        <li>Industry: <span style="font-weight:600;color:var(--text-primary);" data-market-industry>Fintech SaaS</span></li>
+                                        <li>Stage: <span style="font-weight:600;color:var(--text-primary);" data-market-label>Startup</span></li>
+                                        <li>Plan type: <span style="font-weight:600;color:var(--text-primary);" data-market-plan>Base + commission with accelerators</span></li>
+                                        <li>Quota: <span style="font-weight:600;color:var(--text-primary);" data-market-quota>$600k annual</span></li>
+                                    </ul>
+                                </div>
+                                <div class="info-card" data-role="demo">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Preview insights</div>
+                                    <div class="market-insights" style="font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="startup"><div>OTE aligned to 55th percentile</div><div>Variable mix slightly below market median</div><div>Accelerator starts later than peers</div></div>
+                                    <div class="market-insights" style="display:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="growth"><div>OTE aligned to 60th percentile</div><div>Ramp guarantees common for first 2 quarters</div><div>Accelerators begin at 105%</div></div>
+                                    <div class="market-insights" style="display:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="enterprise"><div>OTE aligned to 65th percentile</div><div>Higher base mix to reduce volatility</div><div>Formal clawback language expected</div></div>
+                                </div>
+                                <div class="info-card" style="display:none;" data-role="paid">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Full insights</div>
+                                    <div class="market-insights" style="font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="startup"><div>OTE at 60th percentile with 50/50 mix target</div><div>Accelerators begin at 105% with 1.2x to 1.4x rates</div><div>75% of peer plans include a Q1 ramp guarantee</div><div>Clawback language present in 40% of peer plans</div></div>
+                                    <div class="market-insights" style="display:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="growth"><div>OTE at 65th percentile with 50/50 mix target</div><div>Accelerators begin at 100% with 1.3x to 1.5x rates</div><div>Monthly payout cadence favored by 70% of peers</div><div>SPIFs used in 55% of plans for new product launches</div></div>
+                                    <div class="market-insights" style="display:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;" data-market="enterprise"><div>OTE at 70th percentile with 55/45 mix target</div><div>Accelerators begin at 100% with 1.4x to 1.6x rates</div><div>Territory protection clauses present in 60% of plans</div><div>Quarterly payout true-ups standard for 65% of peers</div></div>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <div style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;"><span>Benchmark snapshot</span><span>Lens: <span data-market-label>Startup</span></span></div>
+                                <div style="overflow-x:auto;">
+                                    <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                                        <thead><tr style="color:var(--text-muted);font-size:11px;letter-spacing:2px;text-transform:uppercase;"><th style="padding:8px 12px 8px 0;text-align:left;">Role</th><th style="padding:8px 12px 8px 0;text-align:left;">Base</th><th style="padding:8px 12px 8px 0;text-align:left;">Variable</th><th style="padding:8px 12px 8px 0;text-align:left;">OTE</th><th style="padding:8px 0;text-align:left;">Mix</th></tr></thead>
+                                        <tbody style="color:var(--text-secondary);">
+                                            <tr style="border-top:1px solid var(--border);"><td style="padding:8px 12px 8px 0;color:var(--text-primary);">SDR</td><td style="padding:8px 12px 8px 0;">$45k</td><td style="padding:8px 12px 8px 0;">$25k</td><td style="padding:8px 12px 8px 0;">$70k</td><td style="padding:8px 0;">65/35</td></tr>
+                                            <tr style="border-top:1px solid var(--border);" data-role="demo"><td style="padding:8px 12px 8px 0;color:var(--text-primary);">AE</td><td style="padding:8px 12px 8px 0;">$70k</td><td style="padding:8px 12px 8px 0;">$70k</td><td style="padding:8px 12px 8px 0;">$140k</td><td style="padding:8px 0;">50/50</td></tr>
+                                            <tr style="display:none;border-top:1px solid var(--border);" data-role="paid"><td style="padding:8px 12px 8px 0;color:var(--text-primary);">Enterprise AE</td><td style="padding:8px 12px 8px 0;">$95k</td><td style="padding:8px 12px 8px 0;">$105k</td><td style="padding:8px 12px 8px 0;">$200k</td><td style="padding:8px 0;">48/52</td></tr>
+                                            <tr style="display:none;border-top:1px solid var(--border);" data-role="paid"><td style="padding:8px 12px 8px 0;color:var(--text-primary);">Manager</td><td style="padding:8px 12px 8px 0;">$110k</td><td style="padding:8px 12px 8px 0;">$40k</td><td style="padding:8px 12px 8px 0;">$150k</td><td style="padding:8px 0;">73/27</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top:12px;font-size:13px;" data-role="demo">Preview includes core benchmarks only. Paid access adds percentile bands and geo splits.</div>
+                                <div style="display:none;margin-top:12px;font-size:13px;" data-role="paid">Includes percentile bands, geo splits, and plan compliance benchmarks.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 5: Sales 360 (link-out preview) -->
+            <div class="studio-module" style="display:none;" data-module-panel="sales360">
+                <div class="card-glass" style="padding:32px;">
+                    <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
+                        <div style="flex:1;min-width:300px;">
+                            <div class="label" style="margin-bottom:12px;color:var(--accent-cyan);">Sales 360 AI</div>
+                            <h3 style="font-size:28px;margin-bottom:8px;">End-to-end revenue intelligence, synced with Plan Studio.</h3>
+                            <p style="font-size:15px;margin-bottom:16px;">Connect pipeline quality, forecast confidence, and commission exposure in one AI loop.</p>
+                            <div style="padding:16px;border-radius:12px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.15);margin-bottom:16px;">
+                                <div class="label" style="font-size:10px;color:var(--accent-cyan);margin-bottom:8px;">Founder lens</div>
+                                <ul style="list-style:none;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;">
+                                    <li>Know if your pipeline supports the next hire before you spend.</li>
+                                    <li>See commission exposure and margin impact in real time.</li>
+                                    <li>Get weekly founder-ready summaries without spreadsheets.</li>
+                                </ul>
+                            </div>
+                            <div class="grid-2" style="margin-bottom:20px;">
+                                <div class="info-card" style="font-size:13px;">Signal scoring across pipeline, renewals, and churn risk.</div>
+                                <div class="info-card" style="font-size:13px;">Forecast scenarios mapped to comp and margin impact.</div>
+                                <div class="info-card" style="font-size:13px;">Coaching plays and quota updates triggered automatically.</div>
+                                <div class="info-card" style="font-size:13px;">Board-ready Sales 360 summaries every week.</div>
+                            </div>
+                            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                                <a href="sales-360-ai.html" class="btn btn-primary" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">Explore Sales 360 AI</a>
+                                <a href="mailto:sales@icm-planlytics.com" class="btn btn-ghost">Book a 360 demo</a>
+                            </div>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+                                <div style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);"><span>Live scenario</span><span id="s360-health-label" style="color:var(--accent-primary);font-weight:600;">Health 0%</span></div>
+                                <form id="sales360-form" class="grid-2" style="gap:8px;">
+                                    <div><label for="s360-pipeline" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Pipeline ($)</label><input id="s360-pipeline" type="number" min="0" step="1000" value="12400000"></div>
+                                    <div><label for="s360-winrate" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Win rate (%)</label><input id="s360-winrate" type="number" min="0" max="100" step="0.1" value="28"></div>
+                                    <div><label for="s360-deal" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Avg deal ($)</label><input id="s360-deal" type="number" min="0" step="1000" value="50000"></div>
+                                    <div><label for="s360-cycle" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Cycle (days)</label><input id="s360-cycle" type="number" min="0" step="1" value="78"></div>
+                                    <div><label for="s360-reps" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Active reps</label><input id="s360-reps" type="number" min="1" step="1" value="12"></div>
+                                    <div><label for="s360-comp" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Comp rate (%)</label><input id="s360-comp" type="number" min="0" max="30" step="0.1" value="8.2"></div>
+                                    <div style="grid-column:span 2;"><label for="s360-margin" style="display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Gross margin (%)</label><input id="s360-margin" type="number" min="0" max="100" step="0.1" value="72"></div>
+                                </form>
+                                <div style="background:var(--bg-dark);border-radius:12px;padding:16px;"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Forecast</div><div id="s360-forecast" style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--accent-cyan);">$0</div><div style="margin-top:8px;height:6px;border-radius:6px;background:var(--border);"><div id="s360-health-bar" style="height:100%;border-radius:6px;background:var(--accent-primary);width:0%;"></div></div></div>
+                                <div class="grid-2" style="gap:8px;">
+                                    <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Expected deals</div><div id="s360-deals" style="font-size:18px;font-weight:700;color:var(--text-primary);margin-top:2px;">0</div></div>
+                                    <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Quota per rep</div><div id="s360-quota" style="font-size:18px;font-weight:700;color:var(--text-primary);margin-top:2px;">$0</div></div>
+                                    <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Commission exposure</div><div id="s360-commission" style="font-size:18px;font-weight:700;color:var(--text-primary);margin-top:2px;">$0</div></div>
+                                    <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Margin after comp</div><div id="s360-margin-after" style="font-size:18px;font-weight:700;color:var(--text-primary);margin-top:2px;">0%</div></div>
+                                </div>
+                                <div class="info-card">
+                                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Risk signals</div>
+                                    <div class="grid-2" style="gap:4px;font-size:12px;color:var(--text-secondary);">
+                                        <label style="display:flex;gap:6px;"><input id="s360-risk-stall" type="checkbox"> Deals stalled &gt; 45 days</label>
+                                        <label style="display:flex;gap:6px;"><input id="s360-risk-slip" type="checkbox" checked> Late-stage slip &gt; 15%</label>
+                                        <label style="display:flex;gap:6px;"><input id="s360-risk-activity" type="checkbox" checked> Low activity touches</label>
+                                        <label style="display:flex;gap:6px;"><input id="s360-risk-renewal" type="checkbox"> Renewal risk rising</label>
+                                    </div>
+                                    <div style="margin-top:6px;font-size:11px;color:var(--text-muted);">Risks flagged: <span id="s360-risk-count">0</span></div>
+                                </div>
+                                <div class="info-card"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Coaching focus</div><ul id="s360-coaching" style="list-style:disc;padding-left:16px;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;"></ul></div>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                                    <button id="s360-generate" type="button" class="btn btn-primary" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">Generate Sales 360 Brief</button>
+                                    <a href="sales-360-ai.html" class="btn btn-ghost btn-sm">Full offering</a>
+                                    <span id="s360-status" style="display:none;font-size:12px;color:var(--accent-primary);">Brief refreshed.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">ICM</span>
-                </div>
-                <span class="text-2xl font-bold">ICM PlanLytics</span>
+    <footer class="footer">
+        <div class="container">
+            <div class="powered-by">
+                <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;">
+                    <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                    <circle cx="36" cy="36" r="8" fill="url(#mpFtGrad5)" opacity="0.9"/>
+                    <text x="36" y="40" text-anchor="middle" font-family="'Sora', sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                    <defs><radialGradient id="mpFtGrad5"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#3b82f6"/></radialGradient></defs>
+                </svg>
+                <span>Powered by <span class="mp-cyan">Micro</span><span class="mp-white">Plan</span> AI</span>
             </div>
-            <p class="text-gray-300 mb-6 max-w-md mx-auto">
-                AI-powered ICM analysis platform. Transform your compensation plans with intelligent automation.
-            </p>
-            <div class="text-gray-400 text-sm">
-                © 2025 ICM PlanLytics. All rights reserved.<br>
-                Contact us: <a href="mailto:sales@icm-planlytics.com" class="underline hover:text-white">sales@icm-planlytics.com</a><br>
-                <span class="text-gray-500 text-xs">Build: 2026-01-09-01</span>
-            </div>
+            <p style="margin-bottom:4px;">AI-powered ICM analysis platform. Transform your compensation plans with intelligent automation.</p>
+            <p>&copy; 2025 ICM PlanLytics. All rights reserved.</p>
+            <p style="margin-top:4px;">Contact us: <a href="mailto:sales@icm-planlytics.com">sales@icm-planlytics.com</a></p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Build: 2026-01-09-01</p>
         </div>
     </footer>
 
     <!-- Role Modal -->
-    <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2">Select your access level</h3>
-            <p class="text-gray-600 mb-6">Sign in to unlock demo or paid outputs.</p>
-            <form id="role-form" class="space-y-4">
-                <div>
-                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <div>
-                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
-                </div>
-                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                    Sign in
-                </button>
+    <div id="role-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Select your access level</h3>
+            <p style="margin-bottom:20px;">Sign in to unlock demo or paid outputs.</p>
+            <form id="role-form">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Username</label>
+                <input id="role-username" type="text" autocomplete="username" placeholder="Enter username">
+                <label style="display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">Password</label>
+                <input id="role-password" type="password" autocomplete="current-password" placeholder="Enter password">
+                <p id="role-error" style="display:none;font-size:13px;color:var(--accent-rose);margin-bottom:12px;">Invalid credentials. Try the demo or paid login.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Sign in</button>
             </form>
-            <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+            <button id="role-close" style="display:block;width:100%;margin-top:16px;padding:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;">Cancel</button>
         </div>
     </div>
-
-    <script>
-        const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-        let activeRole = 'demo';
-        const ROLE_CREDENTIALS = {
-            demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' },
-            paid: { username: 'ChandraK', password: 'ICMPlan6631' }
-        };
-        const SCENARIO_MULTIPLIERS = [0.8, 1, 1.2];
-        let selectedPlanFile = null;
-
-        function applyRole(role) {
-            activeRole = role;
-            localStorage.setItem(ROLE_STORAGE_KEY, role);
-            document.querySelectorAll('[data-role-badge]').forEach((badge) => {
-                badge.textContent = role === 'paid' ? 'Role: Paid' : 'Role: Demo';
-            });
-
-            document.querySelectorAll('[data-role="demo"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'demo');
-            });
-            document.querySelectorAll('[data-role="paid"]').forEach((el) => {
-                el.classList.toggle('hidden', role !== 'paid');
-            });
-        }
-
-        function initRoleControls() {
-            const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-            applyRole(savedRole === 'paid' ? 'paid' : 'demo');
-
-            const roleModal = document.getElementById('role-modal');
-            const roleClose = document.getElementById('role-close');
-            const roleForm = document.getElementById('role-form');
-            const roleError = document.getElementById('role-error');
-            const roleUsername = document.getElementById('role-username');
-            const rolePassword = document.getElementById('role-password');
-            const roleToggles = document.querySelectorAll('[data-role-toggle]');
-
-            roleToggles.forEach((toggle) => {
-                toggle.addEventListener('click', () => {
-                    roleModal.classList.remove('hidden');
-                    roleModal.classList.add('flex');
-                    roleError.classList.add('hidden');
-                    roleForm.reset();
-                });
-            });
-
-            roleClose.addEventListener('click', () => {
-                roleModal.classList.add('hidden');
-                roleModal.classList.remove('flex');
-            });
-
-            roleModal.addEventListener('click', (event) => {
-                if (event.target === roleModal) {
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                }
-            });
-
-            roleForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = roleUsername.value.trim();
-                const password = rolePassword.value.trim();
-                const isDemo = username === ROLE_CREDENTIALS.demo.username && password === ROLE_CREDENTIALS.demo.password;
-                const isPaid = username === ROLE_CREDENTIALS.paid.username && password === ROLE_CREDENTIALS.paid.password;
-
-                if (isDemo || isPaid) {
-                    applyRole(isPaid ? 'paid' : 'demo');
-                    roleModal.classList.add('hidden');
-                    roleModal.classList.remove('flex');
-                } else {
-                    roleError.classList.remove('hidden');
-                }
-            });
-        }
-
-        function initMobileNav() {
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (!menuToggle || !mobileMenu) {
-                return;
-            }
-
-            menuToggle.addEventListener('click', () => {
-                const isOpen = !mobileMenu.classList.contains('hidden');
-                mobileMenu.classList.toggle('hidden');
-                menuToggle.setAttribute('aria-expanded', (!isOpen).toString());
-            });
-
-            mobileMenu.querySelectorAll('a, button').forEach((item) => {
-                item.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                });
-            });
-        }
-
-        function initStudioModules() {
-            const tabs = Array.from(document.querySelectorAll('[data-module-tab]'));
-            const panels = Array.from(document.querySelectorAll('[data-module-panel]'));
-            if (!tabs.length || !panels.length) {
-                return;
-            }
-
-            const activate = (key) => {
-                tabs.forEach((tab) => {
-                    const isActive = tab.getAttribute('data-module-tab') === key;
-                    tab.classList.toggle('is-active', isActive);
-                    tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-                });
-                panels.forEach((panel) => {
-                    panel.classList.toggle('hidden', panel.getAttribute('data-module-panel') !== key);
-                });
-            };
-
-            const initial = tabs.find((tab) => tab.classList.contains('is-active'))?.getAttribute('data-module-tab') || tabs[0].getAttribute('data-module-tab');
-            activate(initial);
-
-            tabs.forEach((tab) => {
-                tab.addEventListener('click', () => {
-                    activate(tab.getAttribute('data-module-tab'));
-                    const anchor = document.getElementById('studio-modules');
-                    if (anchor) {
-                        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-            });
-        }
-
-        function formatCurrency(value) {
-            return `$${Math.round(value).toLocaleString('en-US')}`;
-        }
-
-        function formatNumber(value) {
-            return Math.round(value).toLocaleString('en-US');
-        }
-
-        function updateProfitPlanner() {
-            const price = parseFloat(document.getElementById('input-price').value);
-            const cost = parseFloat(document.getElementById('input-cost').value);
-            const expenses = parseFloat(document.getElementById('input-expenses').value);
-            const targetMargin = parseFloat(document.getElementById('input-margin').value) / 100;
-            const commissionRate = parseFloat(document.getElementById('input-commission').value) / 100;
-            const salesPerRep = parseFloat(document.getElementById('input-sales-per-rep').value);
-            const plannedReps = parseFloat(document.getElementById('input-reps').value);
-
-            const error = document.getElementById('calc-error');
-            const hasInvalidInput = [
-                !Number.isFinite(price) || price <= 0,
-                !Number.isFinite(cost) || cost < 0,
-                !Number.isFinite(expenses) || expenses < 0,
-                !Number.isFinite(targetMargin) || targetMargin < 0,
-                !Number.isFinite(commissionRate) || commissionRate < 0,
-                !Number.isFinite(salesPerRep) || salesPerRep <= 0
-            ].some(Boolean);
-
-            const grossMarginRate = 1 - (cost / price);
-            const denominator = grossMarginRate - commissionRate - targetMargin;
-
-            if (hasInvalidInput || grossMarginRate <= 0 || denominator <= 0) {
-                error.classList.remove('hidden');
-                document.getElementById('output-revenue').textContent = '$0';
-                document.getElementById('output-units').textContent = '0';
-                document.getElementById('output-commission').textContent = '$0';
-                document.getElementById('output-commission-per-sale').textContent = '$0';
-                document.getElementById('output-reps').textContent = '0';
-                document.getElementById('output-sales-per-rep').textContent = '$0';
-                document.getElementById('scenario-body').innerHTML = '';
-                return;
-            }
-
-            error.classList.add('hidden');
-
-            const requiredRevenue = expenses / denominator;
-            const unitsToSell = requiredRevenue / price;
-            const commissionBudget = requiredRevenue * commissionRate;
-            const commissionPerSale = price * commissionRate;
-            const repsNeeded = requiredRevenue / salesPerRep;
-
-            document.getElementById('output-revenue').textContent = formatCurrency(requiredRevenue);
-            document.getElementById('output-units').textContent = formatNumber(unitsToSell);
-            document.getElementById('output-commission').textContent = formatCurrency(commissionBudget);
-            document.getElementById('output-commission-per-sale').textContent = formatCurrency(commissionPerSale);
-            document.getElementById('output-reps').textContent = Math.ceil(repsNeeded).toString();
-
-            if (plannedReps && plannedReps > 0) {
-                const requiredSalesPerRep = requiredRevenue / plannedReps;
-                document.getElementById('output-sales-per-rep').textContent = formatCurrency(requiredSalesPerRep);
-            } else {
-                document.getElementById('output-sales-per-rep').textContent = 'Set reps';
-            }
-
-            const cogsRate = cost / price;
-            const scenarioRows = SCENARIO_MULTIPLIERS.map((multiplier) => {
-                const revenue = requiredRevenue * multiplier;
-                const commission = revenue * commissionRate;
-                const cogs = revenue * cogsRate;
-                const profit = revenue - commission - cogs - expenses;
-                const margin = (profit / revenue) * 100;
-
-                return `
-                    <tr class="border-t border-gray-100">
-                        <td class="py-2 pr-4 text-gray-900">${formatCurrency(revenue)}</td>
-                        <td class="py-2 pr-4">${formatCurrency(commission)}</td>
-                        <td class="py-2 pr-4">${margin.toFixed(1)}%</td>
-                        <td class="py-2">${formatCurrency(profit)}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('scenario-body').innerHTML = scenarioRows;
-        }
-
-        function initProfitPlanner() {
-            document.querySelectorAll('#profit-form input').forEach((input) => {
-                input.addEventListener('input', updateProfitPlanner);
-            });
-            updateProfitPlanner();
-        }
-
-        function initPlanStudio() {
-            const uploadArea = document.getElementById('plan-upload-area');
-            const fileInput = document.getElementById('plan-file-input');
-            const fileInfo = document.getElementById('plan-file-info');
-            const fileName = document.getElementById('plan-file-name');
-
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    selectedPlanFile = file;
-                    fileName.textContent = file.name;
-                    fileInfo.classList.remove('hidden');
-                }
-            });
-        }
-
-        async function startPlanBuild() {
-            const notes = document.getElementById('plan-notes').value.trim();
-            if (!selectedPlanFile && !notes) {
-                alert('Please upload a file or add business context.');
-                return;
-            }
-
-            const btn = document.getElementById('plan-analyze-btn');
-            btn.disabled = true;
-            btn.textContent = 'Generating...';
-
-            await new Promise(resolve => setTimeout(resolve, 2500));
-
-            document.getElementById('plan-placeholder').classList.add('hidden');
-            document.getElementById('plan-results').classList.remove('hidden');
-
-            btn.disabled = false;
-            btn.textContent = 'Generate Another Draft';
-        }
-
-        function initPhilosophyAccordion() {
-            const toggles = Array.from(document.querySelectorAll('.philosophy-toggle'));
-            if (!toggles.length) {
-                return;
-            }
-
-            const closeAll = () => {
-                toggles.forEach((toggle) => {
-                    toggle.classList.remove('is-open');
-                    const panel = document.getElementById(toggle.getAttribute('data-panel'));
-                    if (panel) {
-                        panel.classList.add('hidden');
-                    }
-                });
-            };
-
-            closeAll();
-            const defaultToggle = toggles[0];
-            if (defaultToggle) {
-                defaultToggle.classList.add('is-open');
-                const panel = document.getElementById(defaultToggle.getAttribute('data-panel'));
-                if (panel) {
-                    panel.classList.remove('hidden');
-                }
-            }
-
-            toggles.forEach((toggle) => {
-                toggle.addEventListener('click', () => {
-                    const panel = document.getElementById(toggle.getAttribute('data-panel'));
-                    if (!panel) {
-                        return;
-                    }
-
-                    if (!panel.classList.contains('hidden')) {
-                        toggle.classList.remove('is-open');
-                        panel.classList.add('hidden');
-                        return;
-                    }
-
-                    closeAll();
-                    toggle.classList.add('is-open');
-                    panel.classList.remove('hidden');
-                });
-            });
-        }
-
-        let marketLensActivate = null;
-
-        function initMarketLens() {
-            const lensButtons = Array.from(document.querySelectorAll('#market-lens button'));
-            const insights = Array.from(document.querySelectorAll('.market-insights'));
-            const labels = Array.from(document.querySelectorAll('[data-market-label]'));
-            if (!lensButtons.length || !insights.length) {
-                return;
-            }
-
-            const labelMap = {
-                startup: 'Startup',
-                growth: 'Growth',
-                enterprise: 'Enterprise'
-            };
-
-            const activate = (market) => {
-                lensButtons.forEach((button) => {
-                    button.classList.toggle('is-active', button.getAttribute('data-market') === market);
-                });
-                insights.forEach((block) => {
-                    block.classList.toggle('hidden', block.getAttribute('data-market') !== market);
-                });
-                labels.forEach((label) => {
-                    label.textContent = labelMap[market] || 'Startup';
-                });
-            };
-
-            marketLensActivate = activate;
-            activate('startup');
-            lensButtons.forEach((button) => {
-                button.addEventListener('click', () => activate(button.getAttribute('data-market')));
-            });
-        }
-
-        function initMarketAgentic() {
-            const stage = document.getElementById('agent-stage');
-            const roles = document.getElementById('agent-roles');
-            const region = document.getElementById('agent-region');
-            const industry = document.getElementById('agent-industry');
-            const plan = document.getElementById('agent-plan');
-            const quota = document.getElementById('agent-quota');
-            const button = document.getElementById('agent-generate');
-            const status = document.getElementById('agent-status');
-
-            const roleOut = document.querySelector('[data-market-role]');
-            const regionOut = document.querySelector('[data-market-region]');
-            const industryOut = document.querySelector('[data-market-industry]');
-            const planOut = document.querySelector('[data-market-plan]');
-            const quotaOut = document.querySelector('[data-market-quota]');
-
-            if (!button) {
-                return;
-            }
-
-            button.addEventListener('click', () => {
-                if (roleOut && roles) roleOut.textContent = roles.value.trim() || 'Mid-market AE, SDR';
-                if (regionOut && region) regionOut.textContent = region.value.trim() || 'North America';
-                if (industryOut && industry) industryOut.textContent = industry.value.trim() || 'Fintech SaaS';
-                if (planOut && plan) planOut.textContent = plan.value.trim() || 'Base + commission with accelerators';
-                if (quotaOut && quota) quotaOut.textContent = quota.value.trim() || '$600k annual';
-
-                if (stage && marketLensActivate) {
-                    marketLensActivate(stage.value);
-                }
-
-                if (status) {
-                    status.classList.remove('hidden');
-                    setTimeout(() => status.classList.add('hidden'), 2000);
-                }
-            });
-        }
-
-        function initSales360() {
-            const form = document.getElementById('sales360-form');
-            if (!form) {
-                return;
-            }
-
-            const readNumber = (id) => {
-                const input = document.getElementById(id);
-                if (!input) {
-                    return 0;
-                }
-                const value = parseFloat(input.value);
-                return Number.isFinite(value) ? value : 0;
-            };
-
-            const riskInputs = [
-                { id: 's360-risk-stall', tip: 'Run deal-rescue sprints for stalled opportunities.' },
-                { id: 's360-risk-slip', tip: 'Align stage exit criteria with MEDDICC checks.' },
-                { id: 's360-risk-activity', tip: 'Trigger weekly activity goals and manager reviews.' },
-                { id: 's360-risk-renewal', tip: 'Launch renewal plays 90 days before term.' }
-            ];
-
-            const healthLabel = document.getElementById('s360-health-label');
-            const healthBar = document.getElementById('s360-health-bar');
-            const riskCountEl = document.getElementById('s360-risk-count');
-            const coachingEl = document.getElementById('s360-coaching');
-            const statusEl = document.getElementById('s360-status');
-            const generateBtn = document.getElementById('s360-generate');
-
-            const update = () => {
-                const pipeline = readNumber('s360-pipeline');
-                const winRate = readNumber('s360-winrate') / 100;
-                const dealSize = readNumber('s360-deal');
-                const cycleDays = readNumber('s360-cycle');
-                const reps = readNumber('s360-reps');
-                const compRate = readNumber('s360-comp') / 100;
-                const grossMargin = readNumber('s360-margin') / 100;
-
-                const forecast = pipeline * winRate;
-                const deals = dealSize > 0 ? forecast / dealSize : 0;
-                const commission = forecast * compRate;
-                const quota = reps > 0 ? forecast / reps : 0;
-                const marginAfter = (grossMargin - compRate) * 100;
-
-                document.getElementById('s360-forecast').textContent = formatCurrency(forecast);
-                document.getElementById('s360-deals').textContent = formatNumber(deals);
-                document.getElementById('s360-quota').textContent = formatCurrency(quota);
-                document.getElementById('s360-commission').textContent = formatCurrency(commission);
-                document.getElementById('s360-margin-after').textContent = `${marginAfter.toFixed(1)}%`;
-
-                let health = 92;
-                if (winRate < 0.2) health -= 6;
-                if (cycleDays > 90) health -= 5;
-                if (cycleDays > 120) health -= 5;
-
-                const coachingTips = [];
-                let risks = 0;
-                riskInputs.forEach((risk) => {
-                    const input = document.getElementById(risk.id);
-                    if (input && input.checked) {
-                        risks += 1;
-                        health -= 7;
-                        coachingTips.push(risk.tip);
-                    }
-                });
-
-                if (coachingTips.length === 0) {
-                    coachingTips.push('Hold weekly pipeline hygiene reviews.');
-                    coachingTips.push('Reinforce next-step commitments on every deal.');
-                }
-
-                if (pipeline <= 0) {
-                    health = 0;
-                }
-
-                health = Math.max(30, Math.min(98, Math.round(health)));
-                if (healthLabel) {
-                    healthLabel.textContent = `Health ${health}%`;
-                }
-                if (healthBar) {
-                    const colorClass = health >= 80 ? 'bg-emerald-400' : health >= 60 ? 'bg-amber-400' : 'bg-rose-400';
-                    healthBar.className = `h-2 rounded-full ${colorClass}`;
-                    healthBar.style.width = `${health}%`;
-                }
-                if (riskCountEl) {
-                    riskCountEl.textContent = risks.toString();
-                }
-                if (coachingEl) {
-                    coachingEl.innerHTML = coachingTips.map((tip) => `<li>${tip}</li>`).join('');
-                }
-            };
-
-            form.querySelectorAll('input').forEach((input) => {
-                input.addEventListener('input', update);
-                input.addEventListener('change', update);
-            });
-
-            if (generateBtn && statusEl) {
-                generateBtn.addEventListener('click', () => {
-                    statusEl.classList.remove('hidden');
-                    setTimeout(() => statusEl.classList.add('hidden'), 2000);
-                });
-            }
-
-            update();
-        }
-
-        function initPlannerPresets() {
-            const presetButtons = Array.from(document.querySelectorAll('[data-planner-preset]'));
-            if (!presetButtons.length) {
-                return;
-            }
-
-            const presets = {
-                startup: { price: 10, cost: 4, expenses: 100000, margin: 20, commission: 8, salesPerRep: 600000, reps: 4 },
-                growth: { price: 25, cost: 6, expenses: 250000, margin: 25, commission: 10, salesPerRep: 800000, reps: 6 },
-                enterprise: { price: 50, cost: 12, expenses: 500000, margin: 30, commission: 12, salesPerRep: 1200000, reps: 8 }
-            };
-
-            const setValue = (id, value) => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.value = value;
-                }
-            };
-
-            const activate = (key) => {
-                presetButtons.forEach((button) => {
-                    button.classList.toggle('is-active', button.getAttribute('data-planner-preset') === key);
-                });
-                const preset = presets[key];
-                if (!preset) {
-                    return;
-                }
-
-                setValue('input-price', preset.price);
-                setValue('input-cost', preset.cost);
-                setValue('input-expenses', preset.expenses);
-                setValue('input-margin', preset.margin);
-                setValue('input-commission', preset.commission);
-                setValue('input-sales-per-rep', preset.salesPerRep);
-                setValue('input-reps', preset.reps);
-                updateProfitPlanner();
-            };
-
-            activate('startup');
-            presetButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    activate(button.getAttribute('data-planner-preset'));
-                });
-            });
-        }
-
-        window.addEventListener('load', () => {
-            initRoleControls();
-            initProfitPlanner();
-            initPlanStudio();
-            initMobileNav();
-            initStudioModules();
-            initSales360();
-            initPhilosophyAccordion();
-            initMarketLens();
-            initPlannerPresets();
-            initMarketAgentic();
+</div>
+
+<script>
+    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
+    let activeRole = 'demo';
+    const ROLE_CREDENTIALS = { demo: { username: 'DemoPlan', password: 'ICMPlanDEMO' }, paid: { username: 'ChandraK', password: 'ICMPlan6631' } };
+    const SCENARIO_MULTIPLIERS = [0.8, 1, 1.2];
+    let selectedPlanFile = null;
+
+    function showUpgradeModal() { alert('Upgrade functionality coming soon!'); }
+    function formatCurrency(v) { return `$${Math.round(v).toLocaleString('en-US')}`; }
+    function formatNumber(v) { return Math.round(v).toLocaleString('en-US'); }
+
+    function applyRole(role) {
+        activeRole = role;
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+        document.querySelectorAll('[data-role="demo"]').forEach(el => el.style.display = role === 'demo' ? '' : 'none');
+        document.querySelectorAll('[data-role="paid"]').forEach(el => el.style.display = role === 'paid' ? '' : 'none');
+    }
+
+    function initRoleControls() {
+        applyRole(localStorage.getItem(ROLE_STORAGE_KEY) === 'paid' ? 'paid' : 'demo');
+        const roleModal = document.getElementById('role-modal');
+        const roleForm = document.getElementById('role-form');
+        const roleError = document.getElementById('role-error');
+        document.querySelectorAll('[data-role-toggle]').forEach(t => t.addEventListener('click', () => { roleModal.classList.add('active'); roleError.style.display = 'none'; roleForm.reset(); }));
+        document.getElementById('role-close').addEventListener('click', () => roleModal.classList.remove('active'));
+        roleModal.addEventListener('click', e => { if (e.target === roleModal) roleModal.classList.remove('active'); });
+        roleForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const u = document.getElementById('role-username').value.trim(), p = document.getElementById('role-password').value.trim();
+            const isDemo = u === ROLE_CREDENTIALS.demo.username && p === ROLE_CREDENTIALS.demo.password;
+            const isPaid = u === ROLE_CREDENTIALS.paid.username && p === ROLE_CREDENTIALS.paid.password;
+            if (isDemo || isPaid) { applyRole(isPaid ? 'paid' : 'demo'); roleModal.classList.remove('active'); }
+            else { roleError.style.display = 'block'; }
         });
-    </script>
+    }
+
+    function initMobileNav() {
+        const toggle = document.getElementById('mobile-menu-toggle'), menu = document.getElementById('mobile-menu');
+        if (!toggle || !menu) return;
+        toggle.addEventListener('click', () => { const o = menu.classList.contains('active'); menu.classList.toggle('active'); toggle.setAttribute('aria-expanded', (!o).toString()); });
+        menu.querySelectorAll('a, button').forEach(i => i.addEventListener('click', () => { menu.classList.remove('active'); toggle.setAttribute('aria-expanded', 'false'); }));
+    }
+
+    function initStudioModules() {
+        const tabs = Array.from(document.querySelectorAll('[data-module-tab]'));
+        const panels = Array.from(document.querySelectorAll('[data-module-panel]'));
+        if (!tabs.length || !panels.length) return;
+        const activate = (key) => {
+            tabs.forEach(t => { const a = t.getAttribute('data-module-tab') === key; t.classList.toggle('is-active', a); t.setAttribute('aria-pressed', a ? 'true' : 'false'); });
+            panels.forEach(p => { p.style.display = p.getAttribute('data-module-panel') === key ? 'block' : 'none'; });
+        };
+        activate(tabs.find(t => t.classList.contains('is-active'))?.getAttribute('data-module-tab') || tabs[0].getAttribute('data-module-tab'));
+        tabs.forEach(t => t.addEventListener('click', () => { activate(t.getAttribute('data-module-tab')); document.getElementById('studio-modules')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    }
+
+    function updateProfitPlanner() {
+        const price = parseFloat(document.getElementById('input-price').value);
+        const cost = parseFloat(document.getElementById('input-cost').value);
+        const expenses = parseFloat(document.getElementById('input-expenses').value);
+        const targetMargin = parseFloat(document.getElementById('input-margin').value) / 100;
+        const commissionRate = parseFloat(document.getElementById('input-commission').value) / 100;
+        const salesPerRep = parseFloat(document.getElementById('input-sales-per-rep').value);
+        const plannedReps = parseFloat(document.getElementById('input-reps').value);
+        const error = document.getElementById('calc-error');
+        const bad = [!Number.isFinite(price)||price<=0,!Number.isFinite(cost)||cost<0,!Number.isFinite(expenses)||expenses<0,!Number.isFinite(targetMargin)||targetMargin<0,!Number.isFinite(commissionRate)||commissionRate<0,!Number.isFinite(salesPerRep)||salesPerRep<=0].some(Boolean);
+        const gmr = 1-(cost/price), den = gmr - commissionRate - targetMargin;
+        if (bad || gmr<=0 || den<=0) { error.style.display='block'; ['output-revenue','output-commission','output-commission-per-sale'].forEach(id => document.getElementById(id).textContent='$0'); ['output-units','output-reps'].forEach(id => document.getElementById(id).textContent='0'); document.getElementById('output-sales-per-rep').textContent='$0'; document.getElementById('scenario-body').innerHTML=''; return; }
+        error.style.display='none';
+        const rev=expenses/den, units=rev/price, comm=rev*commissionRate, cps=price*commissionRate, reps=rev/salesPerRep;
+        document.getElementById('output-revenue').textContent=formatCurrency(rev);
+        document.getElementById('output-units').textContent=formatNumber(units);
+        document.getElementById('output-commission').textContent=formatCurrency(comm);
+        document.getElementById('output-commission-per-sale').textContent=formatCurrency(cps);
+        document.getElementById('output-reps').textContent=Math.ceil(reps).toString();
+        document.getElementById('output-sales-per-rep').textContent = plannedReps>0 ? formatCurrency(rev/plannedReps) : 'Set reps';
+        const cogsRate = cost/price;
+        document.getElementById('scenario-body').innerHTML = SCENARIO_MULTIPLIERS.map(m => {
+            const r=rev*m, c=r*commissionRate, cg=r*cogsRate, p=r-c-cg-expenses, mg=(p/r)*100;
+            return `<tr style="border-top:1px solid var(--border);"><td style="padding:8px 12px 8px 0;color:var(--text-primary);">${formatCurrency(r)}</td><td style="padding:8px 12px 8px 0;">${formatCurrency(c)}</td><td style="padding:8px 12px 8px 0;">${mg.toFixed(1)}%</td><td style="padding:8px 0;">${formatCurrency(p)}</td></tr>`;
+        }).join('');
+    }
+
+    function initProfitPlanner() { document.querySelectorAll('#profit-form input').forEach(i => i.addEventListener('input', updateProfitPlanner)); updateProfitPlanner(); }
+
+    function initPlanStudio() {
+        const area = document.getElementById('plan-upload-area'), fi = document.getElementById('plan-file-input');
+        if (!area || !fi) return;
+        area.addEventListener('click', () => fi.click());
+        fi.addEventListener('change', e => { const f=e.target.files[0]; if(f){selectedPlanFile=f;document.getElementById('plan-file-name').textContent=f.name;document.getElementById('plan-file-info').style.display='block';} });
+    }
+
+    async function startPlanBuild() {
+        const notes = document.getElementById('plan-notes').value.trim();
+        if (!selectedPlanFile && !notes) { alert('Please upload a file or add business context.'); return; }
+        const btn = document.getElementById('plan-analyze-btn'); btn.disabled=true; btn.textContent='Generating...';
+        await new Promise(r => setTimeout(r, 2500));
+        document.getElementById('plan-placeholder').style.display='none';
+        document.getElementById('plan-results').style.display='block';
+        btn.disabled=false; btn.textContent='Generate Another Draft';
+    }
+
+    function initPhilosophyAccordion() {
+        const toggles = Array.from(document.querySelectorAll('.philosophy-toggle'));
+        if (!toggles.length) return;
+        const closeAll = () => toggles.forEach(t => { t.classList.remove('is-open'); const p=document.getElementById(t.getAttribute('data-panel')); if(p) p.style.display='none'; });
+        closeAll();
+        if (toggles[0]) { toggles[0].classList.add('is-open'); const p=document.getElementById(toggles[0].getAttribute('data-panel')); if(p) p.style.display='block'; }
+        toggles.forEach(t => t.addEventListener('click', () => {
+            const p=document.getElementById(t.getAttribute('data-panel')); if(!p) return;
+            if(p.style.display!=='none') { t.classList.remove('is-open'); p.style.display='none'; return; }
+            closeAll(); t.classList.add('is-open'); p.style.display='block';
+        }));
+    }
+
+    let marketLensActivate = null;
+    function initMarketLens() {
+        const btns = Array.from(document.querySelectorAll('#market-lens button'));
+        const insights = Array.from(document.querySelectorAll('.market-insights'));
+        const labels = Array.from(document.querySelectorAll('[data-market-label]'));
+        if (!btns.length || !insights.length) return;
+        const map = { startup:'Startup', growth:'Growth', enterprise:'Enterprise' };
+        const activate = (m) => {
+            btns.forEach(b => b.classList.toggle('is-active', b.getAttribute('data-market')===m));
+            insights.forEach(i => i.style.display = i.getAttribute('data-market')===m ? 'flex' : 'none');
+            labels.forEach(l => l.textContent = map[m] || 'Startup');
+        };
+        marketLensActivate = activate; activate('startup');
+        btns.forEach(b => b.addEventListener('click', () => activate(b.getAttribute('data-market'))));
+    }
+
+    function initMarketAgentic() {
+        const btn = document.getElementById('agent-generate'), status = document.getElementById('agent-status');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            const vals = { role:['agent-roles','data-market-role'], region:['agent-region','data-market-region'], industry:['agent-industry','data-market-industry'], plan:['agent-plan','data-market-plan'], quota:['agent-quota','data-market-quota'] };
+            Object.values(vals).forEach(([iid, attr]) => { const i=document.getElementById(iid), o=document.querySelector(`[${attr}]`); if(i&&o) o.textContent=i.value.trim()||o.textContent; });
+            const stage = document.getElementById('agent-stage');
+            if (stage && marketLensActivate) marketLensActivate(stage.value);
+            if (status) { status.style.display='block'; setTimeout(() => status.style.display='none', 2000); }
+        });
+    }
+
+    function initSales360() {
+        const form = document.getElementById('sales360-form'); if (!form) return;
+        const read = (id) => { const i=document.getElementById(id); const v=parseFloat(i?.value); return Number.isFinite(v)?v:0; };
+        const risks = [
+            { id:'s360-risk-stall', tip:'Run deal-rescue sprints for stalled opportunities.' },
+            { id:'s360-risk-slip', tip:'Align stage exit criteria with MEDDICC checks.' },
+            { id:'s360-risk-activity', tip:'Trigger weekly activity goals and manager reviews.' },
+            { id:'s360-risk-renewal', tip:'Launch renewal plays 90 days before term.' }
+        ];
+        const update = () => {
+            const pipeline=read('s360-pipeline'), winRate=read('s360-winrate')/100, deal=read('s360-deal'), cycle=read('s360-cycle'), reps=read('s360-reps'), comp=read('s360-comp')/100, gm=read('s360-margin')/100;
+            const forecast=pipeline*winRate, deals=deal>0?forecast/deal:0, commission=forecast*comp, quota=reps>0?forecast/reps:0, margin=(gm-comp)*100;
+            document.getElementById('s360-forecast').textContent=formatCurrency(forecast);
+            document.getElementById('s360-deals').textContent=formatNumber(deals);
+            document.getElementById('s360-quota').textContent=formatCurrency(quota);
+            document.getElementById('s360-commission').textContent=formatCurrency(commission);
+            document.getElementById('s360-margin-after').textContent=`${margin.toFixed(1)}%`;
+            let health=92; if(winRate<0.2) health-=6; if(cycle>90) health-=5; if(cycle>120) health-=5;
+            const tips=[]; let rc=0;
+            risks.forEach(r => { const i=document.getElementById(r.id); if(i&&i.checked){rc++;health-=7;tips.push(r.tip);} });
+            if(!tips.length) { tips.push('Hold weekly pipeline hygiene reviews.'); tips.push('Reinforce next-step commitments on every deal.'); }
+            if(pipeline<=0) health=0;
+            health=Math.max(30,Math.min(98,Math.round(health)));
+            const hl=document.getElementById('s360-health-label'), hb=document.getElementById('s360-health-bar');
+            if(hl) hl.textContent=`Health ${health}%`;
+            if(hb) { hb.style.width=`${health}%`; hb.style.background=health>=80?'var(--accent-primary)':health>=60?'var(--accent-amber)':'var(--accent-rose)'; }
+            const rcEl=document.getElementById('s360-risk-count'); if(rcEl) rcEl.textContent=rc.toString();
+            const ce=document.getElementById('s360-coaching'); if(ce) ce.innerHTML=tips.map(t=>`<li>${t}</li>`).join('');
+        };
+        form.querySelectorAll('input').forEach(i => { i.addEventListener('input',update); i.addEventListener('change',update); });
+        const gen=document.getElementById('s360-generate'), st=document.getElementById('s360-status');
+        if(gen&&st) gen.addEventListener('click', ()=>{ st.style.display='block'; setTimeout(()=>st.style.display='none',2000); });
+        update();
+    }
+
+    function initPlannerPresets() {
+        const btns = Array.from(document.querySelectorAll('[data-planner-preset]')); if (!btns.length) return;
+        const presets = { startup:{price:10,cost:4,expenses:100000,margin:20,commission:8,salesPerRep:600000,reps:4}, growth:{price:25,cost:6,expenses:250000,margin:25,commission:10,salesPerRep:800000,reps:6}, enterprise:{price:50,cost:12,expenses:500000,margin:30,commission:12,salesPerRep:1200000,reps:8} };
+        const set = (id,v) => { const i=document.getElementById(id); if(i) i.value=v; };
+        const activate = (k) => {
+            btns.forEach(b => b.classList.toggle('is-active', b.getAttribute('data-planner-preset')===k));
+            const p=presets[k]; if(!p) return;
+            set('input-price',p.price); set('input-cost',p.cost); set('input-expenses',p.expenses);
+            set('input-margin',p.margin); set('input-commission',p.commission);
+            set('input-sales-per-rep',p.salesPerRep); set('input-reps',p.reps);
+            updateProfitPlanner();
+        };
+        activate('startup'); btns.forEach(b => b.addEventListener('click', () => activate(b.getAttribute('data-planner-preset'))));
+    }
+
+    window.addEventListener('load', () => {
+        initRoleControls(); initProfitPlanner(); initPlanStudio(); initMobileNav();
+        initStudioModules(); initSales360(); initPhilosophyAccordion();
+        initMarketLens(); initPlannerPresets(); initMarketAgentic();
+    });
+</script>
 </body>
 </html>
