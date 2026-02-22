@@ -347,6 +347,316 @@
             </div>
         </section>
 
+        <!-- E2E Flow Screenshots -->
+        <section class="section" style="padding-top:0;">
+            <div class="container">
+                <div style="text-align:center;margin-bottom:48px;">
+                    <div class="label" style="margin-bottom:12px;">End-to-end flow</div>
+                    <h2 style="margin-bottom:8px;">See MicroPlan AI in action</h2>
+                    <p style="max-width:640px;margin:0 auto;font-size:17px;">
+                        From document upload to deployment-ready outputs in 5 automated steps.
+                    </p>
+                </div>
+
+                <!-- E2E Step Cards as visual mockups -->
+                <div style="display:flex;flex-direction:column;gap:48px;">
+
+                    <!-- Step 1: Upload -->
+                    <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:280px;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;">1</span>
+                                <h3 style="margin:0;">Upload plan document</h3>
+                            </div>
+                            <p style="font-size:15px;margin-bottom:12px;">
+                                Drop a PDF, DOCX, XLSX, or TXT file into the upload zone. MicroPlan AI accepts commission plans,
+                                compensation structures, and incentive policy documents.
+                            </p>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Drag-and-drop or click to browse
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Up to 10MB per document
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Multi-format support (PDF, DOCX, XLSX, TXT)
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">MicroPlan AI &mdash; Upload</span>
+                                </div>
+                                <div style="padding:24px;text-align:center;">
+                                    <div style="border:2px dashed var(--border);border-radius:12px;padding:32px 20px;">
+                                        <svg style="width:40px;height:40px;margin:0 auto 10px;display:block;color:var(--accent-primary);opacity:0.6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Drop compensation plan here</div>
+                                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">PDF, DOCX, XLSX, TXT</div>
+                                    </div>
+                                    <div style="margin-top:12px;padding:10px 14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;display:flex;align-items:center;gap:8px;">
+                                        <svg style="width:16px;height:16px;color:var(--accent-primary);flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                        <span style="font-size:13px;color:var(--accent-primary);font-weight:500;">Q2_Sales_Commission_Plan.pdf</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: AI Extraction -->
+                    <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;flex-direction:row-reverse;">
+                        <div style="flex:1;min-width:280px;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;">2</span>
+                                <h3 style="margin:0;">AI extracts plan structure</h3>
+                            </div>
+                            <p style="font-size:15px;margin-bottom:12px;">
+                                The engine reads the full document and extracts compensation structure, pay mix, quota logic,
+                                eligibility rules, accelerator tiers, and payout cadence.
+                            </p>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Identifies plan type and complexity score
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Detects components, tiers, and exceptions
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Flags missing clauses and ambiguities
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">MicroPlan AI &mdash; Extraction</span>
+                                </div>
+                                <div style="padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent-primary-light);line-height:1.8;">
+                                    <div style="color:var(--text-muted);">PLAN DIAGNOSTICS</div>
+                                    <div style="color:var(--text-muted);">=====================================</div>
+                                    <div>Document: Q2_Sales_Commission_Plan.pdf</div>
+                                    <div>Plan Type: <span style="color:var(--accent-primary);">Base + Commission</span></div>
+                                    <div>Complexity: <span style="color:var(--accent-amber);">High (8.2/10)</span></div>
+                                    <div style="color:var(--text-muted);">-------------------------------------</div>
+                                    <div>Components detected: <span style="color:var(--text-primary);">7</span></div>
+                                    <div>&nbsp; Tiered accelerators after 110%</div>
+                                    <div>&nbsp; Quarterly true-ups</div>
+                                    <div>&nbsp; SPIFFs for multi-year deals</div>
+                                    <div>&nbsp; Territory splits: 3 regions</div>
+                                    <div style="color:var(--text-muted);">-------------------------------------</div>
+                                    <div style="color:var(--accent-amber);">Missing: Clawback language, ramp policy</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Risk Radar -->
+                    <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:280px;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:var(--accent-amber);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;">3</span>
+                                <h3 style="margin:0;">Risk radar scans for issues</h3>
+                            </div>
+                            <p style="font-size:15px;margin-bottom:12px;">
+                                50+ compliance and governance checks run automatically. Overpayment risk, crediting overlaps,
+                                clawback gaps, and audit readiness are all scored and prioritized.
+                            </p>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-amber);opacity:0.6;"></span>
+                                    Overpayment risk detection at each tier
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-amber);opacity:0.6;"></span>
+                                    Compliance gaps with fix recommendations
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-amber);opacity:0.6;"></span>
+                                    Territory overlap and crediting conflict alerts
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">MicroPlan AI &mdash; Risk Radar</span>
+                                </div>
+                                <div style="padding:16px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                        <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Risk Assessment</div>
+                                        <span style="font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(245,158,11,0.15);color:var(--accent-amber);font-weight:600;">3 issues found</span>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:10px;">
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;display:flex;gap:12px;align-items:flex-start;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);margin-top:5px;flex-shrink:0;"></span>
+                                            <div>
+                                                <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Overpayment risk at 140%+</div>
+                                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Accelerator uncapped above tier 3</div>
+                                            </div>
+                                        </div>
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;display:flex;gap:12px;align-items:flex-start;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);margin-top:5px;flex-shrink:0;"></span>
+                                            <div>
+                                                <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Clawback policy missing</div>
+                                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">No cancellation recovery clause</div>
+                                            </div>
+                                        </div>
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;display:flex;gap:12px;align-items:flex-start;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);margin-top:5px;flex-shrink:0;"></span>
+                                            <div>
+                                                <div style="font-size:13px;font-weight:600;color:var(--text-primary);">Territory overlap detected</div>
+                                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">North America overlay credits conflict</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: ICM Blueprint -->
+                    <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;flex-direction:row-reverse;">
+                        <div style="flex:1;min-width:280px;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:var(--accent-blue);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;">4</span>
+                                <h3 style="margin:0;">ICM blueprint generated</h3>
+                            </div>
+                            <p style="font-size:15px;margin-bottom:12px;">
+                                MicroPlan AI maps your plan directly to ICM implementation objects: crediting rules, rate tables,
+                                eligibility criteria, deposit schedules, and territory models.
+                            </p>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-blue);opacity:0.6;"></span>
+                                    Oracle ICM object inventory with dependencies
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-blue);opacity:0.6;"></span>
+                                    Crediting, rate, and eligibility rule mapping
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-blue);opacity:0.6;"></span>
+                                    Export-ready in Excel + JSON format
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">MicroPlan AI &mdash; ICM Blueprint</span>
+                                </div>
+                                <div style="padding:16px;">
+                                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Oracle ICM Objects Generated</div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;">
+                                            <div style="font-size:24px;font-weight:700;color:var(--accent-blue);">4</div>
+                                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Crediting Rules</div>
+                                            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Direct, Overlay, Split, House</div>
+                                        </div>
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;">
+                                            <div style="font-size:24px;font-weight:700;color:var(--accent-primary);">6</div>
+                                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Rate Tables</div>
+                                            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Step-up tiers + accelerators</div>
+                                        </div>
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;">
+                                            <div style="font-size:24px;font-weight:700;color:var(--accent-cyan);">3</div>
+                                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Deposit Schedules</div>
+                                            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Monthly / Quarterly / Annual</div>
+                                        </div>
+                                        <div style="background:var(--bg-dark);border-radius:10px;padding:12px;">
+                                            <div style="font-size:24px;font-weight:700;color:var(--accent-violet);">5</div>
+                                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Eligibility Rules</div>
+                                            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">+ territory overrides</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Export & Deploy -->
+                    <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:280px;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-cyan));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;">5</span>
+                                <h3 style="margin:0;">Export and deploy</h3>
+                            </div>
+                            <p style="font-size:15px;margin-bottom:12px;">
+                                Download the full output pack as an ICM workbook, review and approve the configuration,
+                                then deploy directly to ICM Optimizer for implementation.
+                            </p>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Download ICM Workbook (.xlsx)
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    Approve or reject with audit trail
+                                </li>
+                                <li style="font-size:13px;color:var(--text-secondary);padding-left:16px;position:relative;">
+                                    <span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);opacity:0.6;"></span>
+                                    One-click deploy via ICM Optimizer
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="flex:1;min-width:320px;">
+                            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+                                <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-rose);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);"></span>
+                                    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-primary);"></span>
+                                    <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">MicroPlan AI &mdash; Review &amp; Deploy</span>
+                                </div>
+                                <div style="padding:16px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                        <div style="font-size:14px;font-weight:600;color:var(--text-primary);">ICM Configuration Review</div>
+                                        <span style="font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(16,185,129,0.15);color:var(--accent-primary);font-weight:600;">Approved</span>
+                                    </div>
+                                    <div style="background:var(--bg-dark);border-radius:10px;padding:14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent-primary-light);line-height:1.7;">
+                                        <div style="color:var(--accent-primary);">ICM Config workbook ready</div>
+                                        <div>Objects: 18 &bull; Rules: 14 &bull; Warnings: 0</div>
+                                        <div style="color:var(--text-muted);">Analysis ID: PL-2026-0221-A4F2</div>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:8px;">
+                                        <div style="display:flex;gap:8px;">
+                                            <div style="flex:1;padding:10px;border-radius:8px;background:rgba(16,185,129,0.15);text-align:center;font-size:13px;font-weight:600;color:var(--accent-primary);">Download .xlsx</div>
+                                            <div style="flex:1;padding:10px;border-radius:8px;background:rgba(59,130,246,0.15);text-align:center;font-size:13px;font-weight:600;color:var(--accent-blue);">Export JSON</div>
+                                        </div>
+                                        <div style="padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-cyan));text-align:center;font-size:14px;font-weight:600;color:#fff;">
+                                            Deploy via ICM Optimizer &rarr;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
         <!-- Demo Upload Section -->
         <section id="demo" class="section">
             <div class="container" style="max-width:1000px;">
