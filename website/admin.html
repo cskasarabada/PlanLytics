@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MicroPlan AI</title>
+    <meta name="description" content="MicroPlan AI administration dashboard. Monitor users, analyses, sessions, and visitor activity.">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        surface: { DEFAULT: '#0a0b0f', card: '#12141c', hover: '#1a1d28', border: '#1e2130' },
+                        brand: { cyan: '#06b6d4', blue: '#3b82f6', emerald: '#10b981', amber: '#f59e0b', red: '#ef4444' }
+                    },
+                    fontFamily: {
+                        heading: ['Sora', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0a0b0f;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4, .font-heading { font-family: 'Sora', sans-serif; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0b0f; }
+        ::-webkit-scrollbar-thumb { background: #1e2130; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2d3a; }
+
+        /* Tab buttons */
+        .tab-btn {
+            position: relative;
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #64748b;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: #94a3b8; }
+        .tab-btn.active {
+            color: #06b6d4;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
+            border-radius: 1px;
+        }
+
+        /* Tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Stat cards */
+        .stat-card {
+            background: #12141c;
+            border: 1px solid #1e2130;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .stat-card:hover {
+            border-color: #2a2d3a;
+            transform: translateY(-1px);
+        }
+
+        /* Table styling */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+        .data-table thead th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 1px solid #1e2130;
+            white-space: nowrap;
+        }
+        .data-table tbody tr {
+            border-bottom: 1px solid #1e2130;
+            transition: background 0.15s;
+        }
+        .data-table tbody tr:hover { background: #1a1d28; }
+        .data-table tbody td {
+            padding: 0.75rem 1rem;
+            color: #cbd5e1;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Expandable row */
+        .debug-row td {
+            padding: 0;
+            background: #0d0f15;
+        }
+        .debug-json {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            color: #6ee7b7;
+            padding: 1rem 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.25rem;
+            height: 1.25rem;
+            padding: 0 0.375rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* Status pill */
+        .status-pill {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+
+        /* Login card */
+        .login-card {
+            background: #12141c;
+            border: 1px solid #1e2130;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        .login-card input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #0a0b0f;
+            border: 1px solid #1e2130;
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .login-card input:focus { border-color: #06b6d4; }
+        .login-card input::placeholder { color: #475569; }
+
+        /* Gradient button */
+        .btn-gradient {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: #fff;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            width: 100%;
+        }
+        .btn-gradient:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-gradient:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Small action button */
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            border: 1px solid #1e2130;
+            background: #12141c;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-sm:hover { border-color: #06b6d4; color: #06b6d4; }
+
+        /* Pulse dot */
+        .pulse-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 1rem; height: 1rem;
+            border: 2px solid #1e2130;
+            border-top-color: #06b6d4;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Fade in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-6" style="display:none;">
+    <div class="login-card fade-in">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 mb-8">
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10">
+                <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                <circle cx="36" cy="36" r="8" fill="url(#loginGrad)" opacity="0.9"/>
+                <text x="36" y="40" text-anchor="middle" font-family="Sora, sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                <defs>
+                    <radialGradient id="loginGrad">
+                        <stop offset="0%" stop-color="#06b6d4"/>
+                        <stop offset="100%" stop-color="#3b82f6"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+            <div>
+                <div class="font-heading font-bold text-sm">
+                    <span class="text-brand-cyan">Micro</span><span class="text-white">Plan</span>
+                    <span class="text-[0.625rem] font-bold bg-gradient-to-r from-brand-cyan to-brand-blue text-white px-1.5 py-0.5 rounded ml-1">AI</span>
+                </div>
+                <div class="text-[0.6875rem] text-slate-500 font-medium">Admin Console</div>
+            </div>
+        </div>
+
+        <h2 class="font-heading font-bold text-lg text-white mb-1">Sign in</h2>
+        <p class="text-sm text-slate-500 mb-6">Admin access required</p>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5">Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@microplan.ai" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password" required>
+            </div>
+            <div id="loginError" class="text-brand-red text-xs font-medium mb-4" style="display:none;"></div>
+            <button type="submit" class="btn-gradient" id="loginBtn">Sign in</button>
+        </form>
+
+        <!-- API URL override -->
+        <details class="mt-6">
+            <summary class="text-[0.6875rem] text-slate-600 cursor-pointer hover:text-slate-400 transition-colors">API endpoint</summary>
+            <div class="mt-2">
+                <input type="url" id="loginApiUrl" placeholder="https://microplan-ai.onrender.com"
+                       class="w-full px-3 py-2 bg-surface border border-surface-border rounded text-xs text-slate-400 outline-none focus:border-brand-cyan"
+                       style="background:#0a0b0f; border:1px solid #1e2130; color:#94a3b8; font-size:0.75rem; padding:0.5rem 0.75rem; border-radius:0.375rem;">
+            </div>
+        </details>
+    </div>
+</div>
+
+<!-- ============ MAIN DASHBOARD ============ -->
+<div id="dashboardScreen" style="display:none;">
+
+    <!-- Top Nav -->
+    <nav class="sticky top-0 z-50 border-b border-surface-border" style="background:rgba(10,11,15,0.92); backdrop-filter:blur(12px);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8">
+                    <path d="M36 4L62 20V52L36 68L10 52V20L36 4Z" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4"/>
+                    <path d="M36 16L52 26V46L36 56L20 46V26L36 16Z" stroke="#3b82f6" stroke-width="1" fill="rgba(59,130,246,0.08)"/>
+                    <circle cx="36" cy="36" r="8" fill="url(#navGrad)" opacity="0.9"/>
+                    <text x="36" y="40" text-anchor="middle" font-family="Sora, sans-serif" font-size="12" font-weight="700" fill="#fff">&#181;</text>
+                    <defs>
+                        <radialGradient id="navGrad">
+                            <stop offset="0%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#3b82f6"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+                <div class="font-heading font-bold text-sm">
+                    <span class="text-brand-cyan">Micro</span><span class="text-white">Plan</span>
+                    <span class="text-[0.5625rem] font-bold bg-gradient-to-r from-brand-cyan to-brand-blue text-white px-1.5 py-0.5 rounded ml-1">AI</span>
+                    <span class="text-slate-500 font-normal ml-2 text-xs">Admin</span>
+                </div>
+            </div>
+
+            <!-- Right side -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="pulse-dot" style="background:#10b981;" id="statusDot"></div>
+                    <span class="text-[0.6875rem] text-slate-500" id="statusLabel">Connected</span>
+                </div>
+                <div class="text-xs text-slate-600" id="lastRefresh"></div>
+                <button class="btn-sm" id="logoutBtn">Sign out</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto" id="tabBar">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="visitors">
+                Visitors
+                <span class="badge bg-brand-amber/20 text-brand-amber ml-1.5" id="visitorBadge" style="display:none;">0</span>
+            </button>
+            <button class="tab-btn" data-tab="analyses">Analyses</button>
+            <button class="tab-btn" data-tab="users">Users</button>
+            <button class="tab-btn" data-tab="sessions">Sessions</button>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+        <!-- ===== Dashboard Tab ===== -->
+        <div class="tab-panel active" id="panel-dashboard">
+            <!-- Stats cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="statsGrid">
+                <!-- Total Users -->
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Total Users</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,130,246,0.12);">
+                            <svg class="w-4 h-4 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-heading font-bold text-2xl text-white" id="statUsers">--</div>
+                    <div class="text-[0.6875rem] text-slate-500 mt-1">registered accounts</div>
+                </div>
+                <!-- Analyses Today -->
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Analyses Today</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(16,185,129,0.12);">
+                            <svg class="w-4 h-4 text-brand-emerald" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-heading font-bold text-2xl text-white" id="statAnalyses">--</div>
+                    <div class="text-[0.6875rem] text-slate-500 mt-1">completed today</div>
+                </div>
+                <!-- Active Sessions -->
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Active Sessions</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(6,182,212,0.12);">
+                            <svg class="w-4 h-4 text-brand-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-heading font-bold text-2xl text-white" id="statSessions">--</div>
+                    <div class="text-[0.6875rem] text-slate-500 mt-1">live right now</div>
+                </div>
+                <!-- Unread Visitors -->
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Unread Visitors</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,0.12);">
+                            <svg class="w-4 h-4 text-brand-amber" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="font-heading font-bold text-2xl text-white" id="statVisitors">--</div>
+                        <span class="badge bg-brand-amber/20 text-brand-amber" id="statVisitorsBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="text-[0.6875rem] text-slate-500 mt-1">need attention</div>
+                </div>
+            </div>
+
+            <!-- Quick recent tables on dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Visitors preview -->
+                <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-surface-border">
+                        <h3 class="font-heading font-semibold text-sm text-white">Recent Visitors</h3>
+                        <button class="tab-btn text-[0.6875rem] py-1 px-2" onclick="switchTab('visitors')">View all &rarr;</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table" id="dashVisitorsTable">
+                            <thead>
+                                <tr><th>Email</th><th>Action</th><th>Time</th></tr>
+                            </thead>
+                            <tbody id="dashVisitorsBody">
+                                <tr><td colspan="3" class="text-center text-slate-600 py-6">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Recent Analyses preview -->
+                <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-surface-border">
+                        <h3 class="font-heading font-semibold text-sm text-white">Recent Analyses</h3>
+                        <button class="tab-btn text-[0.6875rem] py-1 px-2" onclick="switchTab('analyses')">View all &rarr;</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table" id="dashAnalysesTable">
+                            <thead>
+                                <tr><th>User</th><th>Source</th><th>Status</th><th>Time</th></tr>
+                            </thead>
+                            <tbody id="dashAnalysesBody">
+                                <tr><td colspan="4" class="text-center text-slate-600 py-6">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Visitors Tab ===== -->
+        <div class="tab-panel" id="panel-visitors">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-heading font-bold text-lg text-white">Visitors</h2>
+                <button class="btn-sm" id="markReadBtn">
+                    <span class="inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Mark all read
+                    </span>
+                </button>
+            </div>
+            <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Email</th><th>IP</th><th>User Agent</th><th>Referrer</th><th>Action</th><th>Time</th></tr>
+                        </thead>
+                        <tbody id="visitorsBody">
+                            <tr><td colspan="6" class="text-center text-slate-600 py-8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Analyses Tab ===== -->
+        <div class="tab-panel" id="panel-analyses">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-heading font-bold text-lg text-white">Analyses</h2>
+                <div class="text-xs text-slate-600">Click a row to view debug JSON</div>
+            </div>
+            <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>User Email</th><th>Source Type</th><th>Source Name</th><th>Status</th><th>Latency</th><th>Time</th></tr>
+                        </thead>
+                        <tbody id="analysesBody">
+                            <tr><td colspan="6" class="text-center text-slate-600 py-8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Users Tab ===== -->
+        <div class="tab-panel" id="panel-users">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-heading font-bold text-lg text-white">Users</h2>
+            </div>
+            <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Email</th><th>Name</th><th>Company</th><th>Role</th><th>API Calls</th><th>Joined</th></tr>
+                        </thead>
+                        <tbody id="usersBody">
+                            <tr><td colspan="6" class="text-center text-slate-600 py-8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Sessions Tab ===== -->
+        <div class="tab-panel" id="panel-sessions">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-heading font-bold text-lg text-white">Sessions</h2>
+            </div>
+            <div class="rounded-xl border border-surface-border overflow-hidden" style="background:#12141c;">
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>User Email</th><th>Date</th><th>Minutes Used</th><th>Expired?</th><th>Started</th></tr>
+                        </thead>
+                        <tbody id="sessionsBody">
+                            <tr><td colspan="5" class="text-center text-slate-600 py-8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────
+const RENDER_API = 'https://microplan-ai.onrender.com';
+let API = localStorage.getItem('microplan-api-url') || RENDER_API;
+let JWT = localStorage.getItem('microplan-jwt') || null;
+let refreshTimer = null;
+let activeTab = 'dashboard';
+let expandedAnalysisId = null;
+
+// ── DOM refs ────────────────────────────────────────────────
+const $login     = document.getElementById('loginScreen');
+const $dashboard = document.getElementById('dashboardScreen');
+const $loginForm = document.getElementById('loginForm');
+const $loginErr  = document.getElementById('loginError');
+const $loginBtn  = document.getElementById('loginBtn');
+const $loginApi  = document.getElementById('loginApiUrl');
+
+// ── Helpers ─────────────────────────────────────────────────
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + JWT
+    };
+}
+
+async function apiFetch(path, opts = {}) {
+    const url = API + path;
+    const res = await fetch(url, {
+        ...opts,
+        headers: { ...authHeaders(), ...(opts.headers || {}) }
+    });
+    if (res.status === 401 || res.status === 403) {
+        handleAuthFailure();
+        throw new Error('Unauthorized');
+    }
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || res.statusText);
+    }
+    return res.json();
+}
+
+function handleAuthFailure() {
+    JWT = null;
+    localStorage.removeItem('microplan-jwt');
+    showLogin();
+}
+
+function timeAgo(dateStr) {
+    if (!dateStr) return '--';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '--';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+}
+
+function formatDateTime(dateStr) {
+    if (!dateStr) return '--';
+    return new Date(dateStr).toLocaleString('en-US', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+}
+
+function truncate(str, len) {
+    if (!str) return '--';
+    return str.length > len ? str.substring(0, len) + '...' : str;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function statusPill(status) {
+    const colors = {
+        'success':  'background:rgba(16,185,129,0.15); color:#10b981;',
+        'complete': 'background:rgba(16,185,129,0.15); color:#10b981;',
+        'completed':'background:rgba(16,185,129,0.15); color:#10b981;',
+        'running':  'background:rgba(6,182,212,0.15); color:#06b6d4;',
+        'pending':  'background:rgba(245,158,11,0.15); color:#f59e0b;',
+        'failed':   'background:rgba(239,68,68,0.15); color:#ef4444;',
+        'error':    'background:rgba(239,68,68,0.15); color:#ef4444;',
+    };
+    const s = (status || 'unknown').toLowerCase();
+    const style = colors[s] || 'background:rgba(100,116,139,0.15); color:#64748b;';
+    return '<span class="status-pill" style="' + style + '">' + escapeHtml(status || 'unknown') + '</span>';
+}
+
+// ── Screen Control ──────────────────────────────────────────
+function showLogin() {
+    $login.style.display = 'flex';
+    $dashboard.style.display = 'none';
+    clearInterval(refreshTimer);
+    // Pre-fill API URL
+    $loginApi.value = API !== RENDER_API ? API : '';
+}
+
+function showDashboard() {
+    $login.style.display = 'none';
+    $dashboard.style.display = 'block';
+    loadAllData();
+    startAutoRefresh();
+}
+
+// ── Login ───────────────────────────────────────────────────
+$loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $loginErr.style.display = 'none';
+    $loginBtn.disabled = true;
+    $loginBtn.textContent = 'Signing in...';
+
+    // Check for API URL override
+    const apiOverride = $loginApi.value.trim();
+    if (apiOverride) {
+        API = apiOverride.replace(/\/+$/, '');
+        localStorage.setItem('microplan-api-url', API);
+    }
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const res = await fetch(API + '/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.detail || data.message || 'Login failed');
+        }
+        // Expect { token: "..." } or { access_token: "..." }
+        JWT = data.token || data.access_token;
+        if (!JWT) throw new Error('No token in response');
+
+        localStorage.setItem('microplan-jwt', JWT);
+        showDashboard();
+    } catch (err) {
+        $loginErr.textContent = err.message;
+        $loginErr.style.display = 'block';
+    } finally {
+        $loginBtn.disabled = false;
+        $loginBtn.textContent = 'Sign in';
+    }
+});
+
+// ── Logout ──────────────────────────────────────────────────
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    handleAuthFailure();
+});
+
+// ── Tabs ────────────────────────────────────────────────────
+function switchTab(tabName) {
+    activeTab = tabName;
+    // Update buttons
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    // Update panels
+    document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'panel-' + tabName);
+    });
+    // Load data for the tab
+    loadTabData(tabName);
+}
+
+document.getElementById('tabBar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn[data-tab]');
+    if (btn) switchTab(btn.dataset.tab);
+});
+
+// ── Data Loading ────────────────────────────────────────────
+async function loadAllData() {
+    updateRefreshTime();
+    await Promise.allSettled([
+        loadDashboardStats(),
+        loadDashboardVisitors(),
+        loadDashboardAnalyses()
+    ]);
+}
+
+async function loadTabData(tab) {
+    switch (tab) {
+        case 'dashboard': return loadAllData();
+        case 'visitors':  return loadVisitors();
+        case 'analyses':  return loadAnalyses();
+        case 'users':     return loadUsers();
+        case 'sessions':  return loadSessions();
+    }
+}
+
+function updateRefreshTime() {
+    document.getElementById('lastRefresh').textContent =
+        'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+function setStatus(connected) {
+    const dot = document.getElementById('statusDot');
+    const label = document.getElementById('statusLabel');
+    if (connected) {
+        dot.style.background = '#10b981';
+        label.textContent = 'Connected';
+    } else {
+        dot.style.background = '#ef4444';
+        label.textContent = 'Disconnected';
+    }
+}
+
+// ── Dashboard Stats ─────────────────────────────────────────
+async function loadDashboardStats() {
+    try {
+        const data = await apiFetch('/admin/dashboard');
+        setStatus(true);
+
+        document.getElementById('statUsers').textContent =
+            (data.total_users ?? data.totalUsers ?? '--').toLocaleString();
+        document.getElementById('statAnalyses').textContent =
+            (data.analyses_today ?? data.analysesToday ?? '--').toLocaleString();
+        document.getElementById('statSessions').textContent =
+            (data.active_sessions ?? data.activeSessions ?? '--').toLocaleString();
+
+        const unread = data.unread_visitors ?? data.unreadVisitors ?? 0;
+        document.getElementById('statVisitors').textContent = unread.toLocaleString();
+
+        // Badges
+        const mainBadge = document.getElementById('statVisitorsBadge');
+        const tabBadge  = document.getElementById('visitorBadge');
+        if (unread > 0) {
+            mainBadge.style.display = 'inline-flex';
+            mainBadge.textContent = unread;
+            tabBadge.style.display = 'inline-flex';
+            tabBadge.textContent = unread;
+        } else {
+            mainBadge.style.display = 'none';
+            tabBadge.style.display = 'none';
+        }
+    } catch (e) {
+        if (e.message !== 'Unauthorized') setStatus(false);
+    }
+}
+
+// ── Dashboard Visitors Preview ──────────────────────────────
+async function loadDashboardVisitors() {
+    try {
+        const data = await apiFetch('/admin/visitors?limit=5');
+        const rows = (data.visitors || data.items || data || []);
+        const tbody = document.getElementById('dashVisitorsBody');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-slate-600 py-6">No visitors yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(v => `
+            <tr>
+                <td>${escapeHtml(v.email || v.visitor_email || '--')}</td>
+                <td>${escapeHtml(v.action || v.page || '--')}</td>
+                <td>${timeAgo(v.created_at || v.timestamp || v.time)}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            document.getElementById('dashVisitorsBody').innerHTML =
+                '<tr><td colspan="3" class="text-center text-brand-red py-6 text-xs">Failed to load</td></tr>';
+        }
+    }
+}
+
+// ── Dashboard Analyses Preview ──────────────────────────────
+async function loadDashboardAnalyses() {
+    try {
+        const data = await apiFetch('/admin/analyses?limit=5');
+        const rows = (data.analyses || data.items || data || []);
+        const tbody = document.getElementById('dashAnalysesBody');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-slate-600 py-6">No analyses yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(a => `
+            <tr>
+                <td>${escapeHtml(a.user_email || a.email || '--')}</td>
+                <td>${escapeHtml(a.source_type || a.type || '--')}</td>
+                <td>${statusPill(a.status)}</td>
+                <td>${timeAgo(a.created_at || a.timestamp || a.time)}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            document.getElementById('dashAnalysesBody').innerHTML =
+                '<tr><td colspan="4" class="text-center text-brand-red py-6 text-xs">Failed to load</td></tr>';
+        }
+    }
+}
+
+// ── Full Visitors Table ─────────────────────────────────────
+async function loadVisitors() {
+    const tbody = document.getElementById('visitorsBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6"><div class="spinner mx-auto"></div></td></tr>';
+    try {
+        const data = await apiFetch('/admin/visitors?limit=50');
+        const rows = (data.visitors || data.items || data || []);
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-600 py-8">No visitors recorded</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(v => `
+            <tr>
+                <td class="font-medium text-white">${escapeHtml(v.email || v.visitor_email || '--')}</td>
+                <td>${escapeHtml(v.ip || v.ip_address || '--')}</td>
+                <td title="${escapeHtml(v.user_agent || '')}">${escapeHtml(truncate(v.user_agent || '--', 40))}</td>
+                <td>${escapeHtml(truncate(v.referrer || v.referer || '--', 30))}</td>
+                <td>${escapeHtml(v.action || v.page || '--')}</td>
+                <td>${formatDateTime(v.created_at || v.timestamp || v.time)}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-brand-red py-8 text-xs">Error: ' + escapeHtml(e.message) + '</td></tr>';
+        }
+    }
+}
+
+// ── Mark All Read ───────────────────────────────────────────
+document.getElementById('markReadBtn').addEventListener('click', async () => {
+    try {
+        await apiFetch('/admin/visitors/mark-read', { method: 'POST' });
+        // Refresh visitors and stats
+        await Promise.allSettled([loadVisitors(), loadDashboardStats()]);
+    } catch (e) {
+        // Silently handle
+    }
+});
+
+// ── Full Analyses Table ─────────────────────────────────────
+async function loadAnalyses() {
+    const tbody = document.getElementById('analysesBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6"><div class="spinner mx-auto"></div></td></tr>';
+    expandedAnalysisId = null;
+    try {
+        const data = await apiFetch('/admin/analyses?limit=50');
+        const rows = (data.analyses || data.items || data || []);
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-600 py-8">No analyses recorded</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(a => {
+            const id = a.id || a.analysis_id || '';
+            const latency = a.latency_ms != null ? a.latency_ms + 'ms'
+                          : a.latency != null ? a.latency + 's'
+                          : '--';
+            return `
+                <tr class="cursor-pointer" data-analysis-id="${escapeHtml(String(id))}">
+                    <td class="font-medium text-white">${escapeHtml(a.user_email || a.email || '--')}</td>
+                    <td>${escapeHtml(a.source_type || a.type || '--')}</td>
+                    <td>${escapeHtml(truncate(a.source_name || a.filename || a.name || '--', 30))}</td>
+                    <td>${statusPill(a.status)}</td>
+                    <td>${escapeHtml(latency)}</td>
+                    <td>${formatDateTime(a.created_at || a.timestamp || a.time)}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-brand-red py-8 text-xs">Error: ' + escapeHtml(e.message) + '</td></tr>';
+        }
+    }
+}
+
+// ── Analysis Debug Expand ───────────────────────────────────
+document.getElementById('analysesBody').addEventListener('click', async (e) => {
+    const row = e.target.closest('tr[data-analysis-id]');
+    if (!row) return;
+    const id = row.dataset.analysisId;
+    if (!id) return;
+
+    // If already expanded, collapse
+    const existing = row.nextElementSibling;
+    if (existing && existing.classList.contains('debug-row')) {
+        existing.remove();
+        expandedAnalysisId = null;
+        return;
+    }
+
+    // Remove any other expanded row
+    document.querySelectorAll('.debug-row').forEach(r => r.remove());
+    expandedAnalysisId = id;
+
+    // Insert loading row
+    const debugRow = document.createElement('tr');
+    debugRow.className = 'debug-row';
+    debugRow.innerHTML = '<td colspan="6"><div class="debug-json"><div class="spinner"></div></div></td>';
+    row.after(debugRow);
+
+    try {
+        const data = await apiFetch('/admin/analyses/' + encodeURIComponent(id) + '/debug');
+        debugRow.querySelector('.debug-json').textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+        debugRow.querySelector('.debug-json').textContent = 'Error loading debug data: ' + e.message;
+        debugRow.querySelector('.debug-json').style.color = '#ef4444';
+    }
+});
+
+// ── Full Users Table ────────────────────────────────────────
+async function loadUsers() {
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6"><div class="spinner mx-auto"></div></td></tr>';
+    try {
+        const data = await apiFetch('/admin/users?limit=50');
+        const rows = (data.users || data.items || data || []);
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-600 py-8">No users found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(u => `
+            <tr>
+                <td class="font-medium text-white">${escapeHtml(u.email || '--')}</td>
+                <td>${escapeHtml(u.name || u.full_name || '--')}</td>
+                <td>${escapeHtml(u.company || u.organization || '--')}</td>
+                <td>${escapeHtml(u.role || 'user')}</td>
+                <td>${(u.api_calls ?? u.apiCalls ?? '--').toLocaleString()}</td>
+                <td>${formatDate(u.created_at || u.joined || u.timestamp)}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-brand-red py-8 text-xs">Error: ' + escapeHtml(e.message) + '</td></tr>';
+        }
+    }
+}
+
+// ── Full Sessions Table ─────────────────────────────────────
+async function loadSessions() {
+    const tbody = document.getElementById('sessionsBody');
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6"><div class="spinner mx-auto"></div></td></tr>';
+    try {
+        const data = await apiFetch('/admin/sessions?limit=50');
+        const rows = (data.sessions || data.items || data || []);
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-slate-600 py-8">No sessions found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(s => {
+            const expired = s.expired != null ? s.expired
+                          : s.is_expired != null ? s.is_expired
+                          : null;
+            const expiredHtml = expired === true
+                ? '<span class="status-pill" style="background:rgba(239,68,68,0.15);color:#ef4444;">Yes</span>'
+                : expired === false
+                ? '<span class="status-pill" style="background:rgba(16,185,129,0.15);color:#10b981;">No</span>'
+                : '--';
+            return `
+                <tr>
+                    <td class="font-medium text-white">${escapeHtml(s.user_email || s.email || '--')}</td>
+                    <td>${formatDate(s.date || s.session_date)}</td>
+                    <td>${s.minutes_used ?? s.minutesUsed ?? s.duration_minutes ?? '--'}</td>
+                    <td>${expiredHtml}</td>
+                    <td>${formatDateTime(s.created_at || s.started_at || s.timestamp)}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) {
+        if (e.message !== 'Unauthorized') {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-brand-red py-8 text-xs">Error: ' + escapeHtml(e.message) + '</td></tr>';
+        }
+    }
+}
+
+// ── Auto Refresh ────────────────────────────────────────────
+function startAutoRefresh() {
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(() => {
+        updateRefreshTime();
+        loadTabData(activeTab);
+    }, 30000);
+}
+
+// ── Init ────────────────────────────────────────────────────
+(function init() {
+    if (JWT) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+})();
+</script>
+</body>
+</html>

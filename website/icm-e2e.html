@@ -119,24 +119,66 @@
         </div>
     </nav>
 
-    <!-- Login Modal -->
+    <!-- Auth Modal (Login / Register) -->
     <div id="role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/40">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2" style="font-family:'Space Grotesk',sans-serif">Sign in to ICM PlanLytics</h3>
-            <p class="text-gray-600 mb-6">Access your workspace with demo or paid credentials.</p>
-            <form id="role-form" class="space-y-4">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2" style="font-family:'Space Grotesk',sans-serif">Welcome to ICM PlanLytics</h3>
+            <p class="text-gray-600 mb-6">Sign in or create an account to continue.</p>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="auth-tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600">Login</button>
+                <button id="auth-tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
                 <div>
-                    <label for="role-username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input id="role-username" type="text" autocomplete="username" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input id="login-email" type="email" autocomplete="email" required class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
                 </div>
                 <div>
-                    <label for="role-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input id="role-password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="login-password" type="password" autocomplete="current-password" required class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
                 </div>
-                <p id="role-error" class="hidden text-sm text-red-600">Invalid credentials. Try the demo or paid login.</p>
+                <p id="login-error" class="hidden text-sm text-red-600"></p>
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign in</button>
             </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="space-y-4 hidden">
+                <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input id="register-email" type="email" autocomplete="email" required class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="register-password" type="password" autocomplete="new-password" required class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="register-name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input id="register-name" type="text" autocomplete="name" required class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="register-company" class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                    <input id="register-company" type="text" autocomplete="organization" class="w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+                <p id="register-error" class="hidden text-sm text-red-600"></p>
+                <p id="register-success" class="hidden text-sm text-emerald-600"></p>
+                <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Create Account</button>
+            </form>
+
             <button id="role-close" class="mt-6 w-full text-gray-600 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Session Expired Modal -->
+    <div id="session-expired-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8 text-center">
+            <div class="text-5xl mb-4">&#x23F0;</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2" style="font-family:'Space Grotesk',sans-serif">Session Expired</h3>
+            <p class="text-gray-600 mb-6">Your session time has run out. Please sign in again to continue.</p>
+            <button onclick="showAuthModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign In Again</button>
         </div>
     </div>
 
@@ -159,6 +201,20 @@
             <span id="api-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
             API: <span id="api-mini-label">Not connected</span>
         </button>
+    </div>
+
+    <!-- Disclaimer Banner -->
+    <div id="disclaimer-banner" class="fixed z-30 left-0 right-0 bg-amber-900/95 text-amber-100 border-b border-amber-700" style="top: 104px;">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-start gap-3 text-sm">
+            <span class="text-amber-400 text-lg flex-shrink-0">&#x26A0;&#xFE0F;</span>
+            <div class="flex-1">
+                <strong>Open Beta</strong> — This platform is in open testing mode. Do <strong>NOT</strong> upload sensitive compensation data.
+                We are not responsible for data sensitivity during this open run.
+                For enterprise-grade data security with <strong>MicroLLM on-premise AI</strong>,
+                <a href="mailto:sales@icm-planlytics.com" class="text-amber-300 underline hover:text-white">contact us for a paid subscription</a>.
+            </div>
+            <button onclick="dismissDisclaimer()" class="text-amber-400 hover:text-white text-lg flex-shrink-0">&times;</button>
+        </div>
     </div>
 
     <main class="pt-36 pb-20 px-4">
@@ -679,67 +735,320 @@
         }
     }
 
-    /* ── Auth / Role System ──────────────────────────────── */
-    const ROLE_STORAGE_KEY = 'icm-planlytics-role';
-    const USER_STORAGE_KEY = 'icm-planlytics-user';
-    let activeRole = 'demo';
-    const ROLE_CREDENTIALS = {
-        demo: { username: 'DemoPlan', password: 'ICMPlanDEMO', displayName: 'Demo User' },
-        paid: { username: 'ChandraK', password: 'ICMPlan6631', displayName: 'Chandra K' }
-    };
+    /* ── Auth Headers ─────────────────────────────────────── */
+    function authHeaders() {
+        const token = localStorage.getItem('microplan-jwt');
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        return headers;
+    }
 
-    function applyRole(role, displayName) {
-        activeRole = role;
-        localStorage.setItem(ROLE_STORAGE_KEY, role);
-        if (displayName) localStorage.setItem(USER_STORAGE_KEY, displayName);
-        const btn = document.getElementById('nav-auth-btn');
-        if (btn) {
-            if (displayName && displayName !== 'Demo User') {
-                btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>' + displayName + '</span>';
-                btn.classList.remove('border-gray-300','text-gray-700');
-                btn.classList.add('border-emerald-300','text-emerald-700','bg-emerald-50');
-            } else if (role === 'demo') {
-                btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Demo</span>';
-                btn.classList.remove('border-gray-300','text-gray-700','border-emerald-300','text-emerald-700','bg-emerald-50');
-                btn.classList.add('border-blue-300','text-blue-700','bg-blue-50');
-            } else {
-                btn.textContent = 'Sign in';
-            }
+    /* ── Auth / JWT System ───────────────────────────────── */
+    let sessionTimer = null;
+    let heartbeatInterval = null;
+    let sessionRemainingSeconds = 0;
+
+    function switchAuthTab(tab) {
+        const loginTab = document.getElementById('auth-tab-login');
+        const registerTab = document.getElementById('auth-tab-register');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+
+        if (tab === 'login') {
+            loginTab.classList.add('text-blue-600', 'border-blue-600');
+            loginTab.classList.remove('text-gray-500', 'border-transparent');
+            registerTab.classList.remove('text-blue-600', 'border-blue-600');
+            registerTab.classList.add('text-gray-500', 'border-transparent');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        } else {
+            registerTab.classList.add('text-blue-600', 'border-blue-600');
+            registerTab.classList.remove('text-gray-500', 'border-transparent');
+            loginTab.classList.remove('text-blue-600', 'border-blue-600');
+            loginTab.classList.add('text-gray-500', 'border-transparent');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
         }
     }
 
+    function showAuthModal() {
+        const modal = document.getElementById('role-modal');
+        const expiredModal = document.getElementById('session-expired-modal');
+        expiredModal.classList.add('hidden');
+        expiredModal.classList.remove('flex');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        switchAuthTab('login');
+    }
+
+    function hideAuthModal() {
+        const modal = document.getElementById('role-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function updateNavButton(email) {
+        const btn = document.getElementById('nav-auth-btn');
+        if (email) {
+            btn.innerHTML = '<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>' + email + '</span>';
+            btn.classList.remove('border-gray-300', 'text-gray-700');
+            btn.classList.add('border-emerald-300', 'text-emerald-700', 'bg-emerald-50');
+        } else {
+            btn.textContent = 'Sign in';
+            btn.classList.remove('border-emerald-300', 'text-emerald-700', 'bg-emerald-50');
+            btn.classList.add('border-gray-300', 'text-gray-700');
+        }
+    }
+
+    function isLoggedIn() {
+        return !!localStorage.getItem('microplan-jwt');
+    }
+
+    function logoutUser() {
+        localStorage.removeItem('microplan-jwt');
+        localStorage.removeItem('microplan-refresh');
+        localStorage.removeItem('microplan-user-email');
+        stopSessionTimer();
+        updateNavButton(null);
+        updateSessionDisplay(0);
+    }
+
+    async function handleLogin(email, password) {
+        const errEl = document.getElementById('login-error');
+        errEl.classList.add('hidden');
+        try {
+            const res = await fetch(API + '/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errEl.textContent = data.error || data.detail || 'Login failed';
+                errEl.classList.remove('hidden');
+                return false;
+            }
+            localStorage.setItem('microplan-jwt', data.access_token || data.token);
+            if (data.refresh_token) localStorage.setItem('microplan-refresh', data.refresh_token);
+            localStorage.setItem('microplan-user-email', email);
+            updateNavButton(email);
+            hideAuthModal();
+            await startSession();
+            return true;
+        } catch (e) {
+            errEl.textContent = 'Connection error: ' + e.message;
+            errEl.classList.remove('hidden');
+            return false;
+        }
+    }
+
+    async function handleRegister(email, password, fullName, company) {
+        const errEl = document.getElementById('register-error');
+        const successEl = document.getElementById('register-success');
+        errEl.classList.add('hidden');
+        successEl.classList.add('hidden');
+        try {
+            const res = await fetch(API + '/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, full_name: fullName, company })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errEl.textContent = data.error || data.detail || 'Registration failed';
+                errEl.classList.remove('hidden');
+                return false;
+            }
+            // Auto-login after registration if tokens returned
+            if (data.access_token || data.token) {
+                localStorage.setItem('microplan-jwt', data.access_token || data.token);
+                if (data.refresh_token) localStorage.setItem('microplan-refresh', data.refresh_token);
+                localStorage.setItem('microplan-user-email', email);
+                updateNavButton(email);
+                hideAuthModal();
+                await startSession();
+            } else {
+                successEl.textContent = 'Account created! You can now sign in.';
+                successEl.classList.remove('hidden');
+                setTimeout(() => switchAuthTab('login'), 1500);
+            }
+            return true;
+        } catch (e) {
+            errEl.textContent = 'Connection error: ' + e.message;
+            errEl.classList.remove('hidden');
+            return false;
+        }
+    }
+
+    /* ── Session Timer ───────────────────────────────────── */
+    async function startSession() {
+        try {
+            const res = await fetch(API + '/session/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...authHeaders() }
+            });
+            const data = await res.json();
+            if (res.ok && data.remaining_minutes != null) {
+                sessionRemainingSeconds = Math.floor(data.remaining_minutes * 60);
+                startSessionCountdown();
+                startHeartbeat();
+            }
+        } catch (e) {
+            console.warn('Session start failed:', e.message);
+        }
+    }
+
+    function startSessionCountdown() {
+        stopSessionTimer();
+        updateSessionDisplay(sessionRemainingSeconds);
+        sessionTimer = setInterval(() => {
+            sessionRemainingSeconds--;
+            if (sessionRemainingSeconds <= 0) {
+                sessionRemainingSeconds = 0;
+                stopSessionTimer();
+                stopHeartbeat();
+                showSessionExpired();
+            }
+            updateSessionDisplay(sessionRemainingSeconds);
+        }, 1000);
+    }
+
+    function stopSessionTimer() {
+        if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+    }
+
+    function startHeartbeat() {
+        stopHeartbeat();
+        heartbeatInterval = setInterval(async () => {
+            try {
+                const res = await fetch(API + '/session/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() }
+                });
+                const data = await res.json();
+                if (res.ok && data.remaining_minutes != null) {
+                    sessionRemainingSeconds = Math.floor(data.remaining_minutes * 60);
+                }
+            } catch (e) {
+                console.warn('Heartbeat failed:', e.message);
+            }
+        }, 60000);
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
+    }
+
+    function updateSessionDisplay(seconds) {
+        let el = document.getElementById('session-timer-display');
+        if (!el) {
+            // Create session timer element in the API bar area
+            const apiBar = document.getElementById('api-bar');
+            if (!apiBar) return;
+            const container = apiBar.querySelector('.max-w-7xl');
+            if (!container) return;
+            el = document.createElement('div');
+            el.id = 'session-timer-display';
+            el.className = 'flex items-center gap-1.5 ml-3';
+            container.appendChild(el);
+        }
+
+        if (!isLoggedIn() || seconds <= 0) {
+            el.innerHTML = '';
+            return;
+        }
+
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        const timeStr = mins + ':' + String(secs).padStart(2, '0');
+
+        let colorClass = 'text-emerald-300';
+        if (seconds <= 120) {
+            colorClass = 'text-red-400 font-bold animate-pulse';
+        } else if (seconds <= 300) {
+            colorClass = 'text-amber-300';
+        }
+
+        el.innerHTML = '<span class="text-slate-400 text-xs">Session:</span><span class="text-xs ' + colorClass + '">' + timeStr + ' remaining</span>';
+    }
+
+    function showSessionExpired() {
+        const modal = document.getElementById('session-expired-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        // Disable analysis buttons
+        document.querySelectorAll('button[onclick*="runPlanAgent"], button[onclick*="runEfficiency"], button[onclick*="runDeploy"]').forEach(btn => {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+    }
+
+    function disableAnalysisButtons(disabled) {
+        document.querySelectorAll('button[onclick*="runPlanAgent"], button[onclick*="runEfficiency"], button[onclick*="runDeploy"]').forEach(btn => {
+            btn.disabled = disabled;
+            if (disabled) btn.classList.add('opacity-50', 'cursor-not-allowed');
+            else btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+    }
+
+    /* ── Disclaimer Dismiss ──────────────────────────────── */
+    function dismissDisclaimer() {
+        document.getElementById('disclaimer-banner').style.display = 'none';
+        localStorage.setItem('microplan-disclaimer-dismissed', 'true');
+    }
+
     function initAuth() {
-        const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-        const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-        if (savedRole) applyRole(savedRole, savedUser);
+        // Check if disclaimer was previously dismissed
+        if (localStorage.getItem('microplan-disclaimer-dismissed') === 'true') {
+            const banner = document.getElementById('disclaimer-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
+        // Restore session from saved JWT
+        const savedEmail = localStorage.getItem('microplan-user-email');
+        const savedToken = localStorage.getItem('microplan-jwt');
+        if (savedToken && savedEmail) {
+            updateNavButton(savedEmail);
+            startSession();
+        }
 
         const modal = document.getElementById('role-modal');
-        const form = document.getElementById('role-form');
-        const errEl = document.getElementById('role-error');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
 
+        // Nav button click
         document.getElementById('nav-auth-btn').addEventListener('click', () => {
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            errEl.classList.add('hidden'); form.reset();
-        });
-        document.getElementById('role-close').addEventListener('click', () => {
-            modal.classList.add('hidden'); modal.classList.remove('flex');
-        });
-        modal.addEventListener('click', e => {
-            if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-        });
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            const u = document.getElementById('role-username').value.trim();
-            const p = document.getElementById('role-password').value.trim();
-            const isDemo = u === ROLE_CREDENTIALS.demo.username && p === ROLE_CREDENTIALS.demo.password;
-            const isPaid = u === ROLE_CREDENTIALS.paid.username && p === ROLE_CREDENTIALS.paid.password;
-            if (isDemo || isPaid) {
-                const cred = isPaid ? ROLE_CREDENTIALS.paid : ROLE_CREDENTIALS.demo;
-                applyRole(isPaid ? 'paid' : 'demo', cred.displayName);
-                modal.classList.add('hidden'); modal.classList.remove('flex');
+            if (isLoggedIn()) {
+                if (confirm('Sign out?')) logoutUser();
             } else {
-                errEl.classList.remove('hidden');
+                showAuthModal();
             }
+        });
+
+        // Close modal
+        document.getElementById('role-close').addEventListener('click', hideAuthModal);
+        modal.addEventListener('click', e => {
+            if (e.target === modal) hideAuthModal();
+        });
+
+        // Login submit
+        loginForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) return;
+            await handleLogin(email, password);
+        });
+
+        // Register submit
+        registerForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const fullName = document.getElementById('register-name').value.trim();
+            const company = document.getElementById('register-company').value.trim();
+            if (!email || !password || !fullName) return;
+            await handleRegister(email, password, fullName, company);
         });
     }
 
@@ -811,19 +1120,19 @@
                 if (!selectedFile) { alert('Select a file first'); return; }
                 const fd = new FormData();
                 fd.append('file', selectedFile);
-                response = await fetch(API + '/api/analyze-for-icm', { method: 'POST', body: fd });
+                response = await fetch(API + '/api/analyze-for-icm', { method: 'POST', headers: authHeaders(), body: fd });
             } else if (mode === 'url') {
                 const url = document.getElementById('pa-url-input').value.trim();
                 if (!url) { alert('Enter a URL'); return; }
                 response = await fetch(API + '/api/analyze-url', {
-                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                     body: JSON.stringify({ url })
                 });
             } else if (mode === 'text') {
                 const text = document.getElementById('pa-text-input').value.trim();
                 if (!text) { alert('Paste some text'); return; }
                 response = await fetch(API + '/api/analyze-text', {
-                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                     body: JSON.stringify({ text })
                 });
             } else if (mode === 'xml') {
@@ -834,7 +1143,7 @@
                 let qs = '';
                 const yr = document.getElementById('pa-xml-year').value.trim();
                 if (yr) qs = '?plan_year=' + encodeURIComponent(yr);
-                response = await fetch(API + '/api/import-xml' + qs, { method: 'POST', body: fd });
+                response = await fetch(API + '/api/import-xml' + qs, { method: 'POST', headers: authHeaders(), body: fd });
             }
 
             if (!response.ok) {
@@ -986,7 +1295,7 @@
         if (yr) qs = '?plan_year=' + encodeURIComponent(yr);
 
         try {
-            const res = await fetch(API + '/api/import-xml' + qs, { method: 'POST', body: fd });
+            const res = await fetch(API + '/api/import-xml' + qs, { method: 'POST', headers: authHeaders(), body: fd });
             if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'HTTP ' + res.status); }
             const data = await res.json();
             analysisId = data.analysis_id;
@@ -1007,7 +1316,7 @@
         if (!analysisId) return;
         try {
             const res = await fetch(API + '/api/icm-workbook/' + analysisId + '/review', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
+                method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                 body: JSON.stringify({ approved: true })
             });
             const d = await res.json();
@@ -1026,7 +1335,7 @@
         if (!analysisId) return;
         try {
             await fetch(API + '/api/icm-workbook/' + analysisId + '/review', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
+                method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                 body: JSON.stringify({ approved: false })
             });
             isApproved = false;
@@ -1043,7 +1352,7 @@
         el.classList.remove('hidden');
         el.innerHTML = '<span class="text-blue-600">Loading preview...</span>';
         try {
-            const res = await fetch(API + '/api/deploy-preview/' + analysisId);
+            const res = await fetch(API + '/api/deploy-preview/' + analysisId, { headers: authHeaders() });
             const data = await res.json();
             if (data.success) {
                 let h = '<div class="font-semibold text-slate-800 mb-2">' + data.total_objects + ' objects to deploy</div>';
@@ -1070,7 +1379,7 @@
 
         // Check workbook exists via deploy-preview (lightweight check)
         try {
-            const res = await fetch(API + '/api/deploy-preview/' + id);
+            const res = await fetch(API + '/api/deploy-preview/' + id, { headers: authHeaders() });
             if (!res.ok) {
                 alert('Workbook not found for analysis ID: ' + id + '. Run the Plan Agent first.');
                 return;
@@ -1133,7 +1442,7 @@
 
         try {
             const res = await fetch(API + '/api/icm-deploy/list-orgs', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
+                method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                 body: JSON.stringify({ base_url: baseUrl, username, password, analysis_id: analysisId || '' })
             });
             const data = await res.json();
@@ -1218,7 +1527,7 @@
 
         try {
             const res = await fetch(API + '/api/icm-deploy/run', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
+                method: 'POST', headers: {'Content-Type':'application/json', ...authHeaders()},
                 body: JSON.stringify({ analysis_id: analysisId, base_url: baseUrl, username, password, org_id: selectedDeployOrgId })
             });
             const data = await res.json();
