@@ -612,7 +612,8 @@
 
     <script>
     /* ── State ────────────────────────────────────────────── */
-    let API = localStorage.getItem('microplan-api-url') || window.location.origin;
+    const RENDER_API = 'https://microplan-ai.onrender.com';
+    let API = localStorage.getItem('microplan-api-url') || RENDER_API;
     let analysisId = null;
     let analysisData = null;
     let isApproved = false;
@@ -627,7 +628,8 @@
             API = saved;
             checkAPIHealth();
         } else {
-            document.getElementById('api-url-input').value = window.location.origin;
+            document.getElementById('api-url-input').value = RENDER_API;
+            checkAPIHealth();
         }
     }
 
